@@ -6,25 +6,37 @@ project(LABSoft
 )
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED On)
-set(CMAKE_CXX_EXTENSIONS Off)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 find_package(Threads REQUIRED)
+find_package(FLTK REQUIRED)
 
-# find_package(FLTK REQUIRED NO_MODULE)  # must use "NO_MODULE" 
-# 
+add_library(LABSoft_Libs STATIC
+  ../lib/AikaPi/AikaPi.cpp
+  ../lib/AD9833/AD9833.cpp
+  ../lib/MCP4XXX/MCP4XXX.cpp
+  ../lib/MCP23S17/MCP23S17.cpp
+  ../lib/pugixml/pugixml.cpp
+)
 
-# include_directories(
-#   ${FLTK_INCLUDE_DIRS}
-# ) 
+# Disable precision loss errors for AikaPi.cpp
+set_source_files_properties(../lib/AikaPi/AikaPi.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=conversion")
 
-# add_definitions(${FLTK_DEFINITIONS})
+target_compile_options(LABSoft_Libs PRIVATE -O2)
 
 add_executable(LABSoft
   main.cpp
   LABSoft.cpp
-  
+
   LAB/LAB_Module.cpp
   LAB/LAB.cpp
   LAB/LAB_Oscilloscope.cpp
@@ -48,8 +60,6 @@ add_executable(LABSoft
   LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cpp
   LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.cpp
   LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.cpp
-
-
   LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.cpp
@@ -75,21 +85,38 @@ add_executable(LABSoft
   LAB_Libraries/LAB_MCP4XXX.cpp
   LAB_Libraries/LAB_MCP23S17.cpp
 
-  Utility/pugixml.cpp
   Utility/LAB_Defaults.cpp
   Utility/LAB_Constants.h
   Utility/LABSoft_GUI_Label.cpp
   Utility/LAB_Utility_Functions.cpp
   # Utility/LAB_Encryptor.cpp
+)
 
-  ../lib/AikaPi/AikaPi.cpp
-  ../lib/AD9833/AD9833.cpp
-  ../lib/MCP4XXX/MCP4XXX.cpp
-  ../lib/MCP23S17/MCP23S17.cpp
+target_compile_options(LABSoft PRIVATE
+  -g  # Enable debugging symbols
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror
+  -Wno-error=unused-variable
+  -Wno-error=unused-parameter
+  -Wconversion
+  -Wshadow
+  -Wstrict-aliasing=2
+  -Wnull-dereference
+  $<$<CONFIG:Debug>:-O0> # Disable optimizations in Debug mode
+  $<$<CONFIG:Release>:-O2> # Enable optimizations in Release mode
+)
+
+set_source_files_properties(LABSoft_GUI/LABSoft_GUI.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=cast-function-type -Wno-error=shadow")
+
+target_include_directories(LABSoft PRIVATE 
+  ${FLTK_INCLUDE_DIRS}
+  ../lib 
 )
 
 target_link_libraries(LABSoft 
-  PRIVATE fltk
+  PRIVATE LABSoft_Libs
+  PRIVATE ${FLTK_LIBRARIES}
   PRIVATE Threads::Threads
 )
-

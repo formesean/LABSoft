@@ -2,21 +2,19 @@
 
 #include "LAB.h"
 
-LAB_Module:: 
-LAB_Module (LAB& _LAB)
-  : m_LAB (_LAB)
+LAB_Module::LAB_Module(LAB& _LAB)
+  : m_LAB(_LAB)
 {
-
 }
 
-AikaPi& LAB_Module:: 
-rpi () const
+AikaPi&
+LAB_Module::rpi() const
 {
-  return (m_LAB.rpi ());
+  return (m_LAB.rpi());
 }
 
-LAB& LAB_Module:: 
-lab () const
+LAB&
+LAB_Module::lab() const
 {
   return (m_LAB);
 }
