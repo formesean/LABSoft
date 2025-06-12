@@ -1,30 +1,22 @@
 cmake_minimum_required(VERSION 3.18)
 
 project(LABSoft
-  VERSION 1.0
+  VERSION 2.0
   LANGUAGES CXX
 )
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED On)
-set(CMAKE_CXX_EXTENSIONS Off)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
 
-# find_package(FLTK REQUIRED NO_MODULE)  # must use "NO_MODULE" 
-# 
-
-# include_directories(
-#   ${FLTK_INCLUDE_DIRS}
-# ) 
-
-# add_definitions(${FLTK_DEFINITIONS})
-
 add_executable(LABSoft
   main.cpp
   LABSoft.cpp
-  
+
   LAB/LAB_Module.cpp
   LAB/LAB.cpp
   LAB/LAB_Oscilloscope.cpp
@@ -49,12 +41,12 @@ add_executable(LABSoft
   LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.cpp
   LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.cpp
 
-
   LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp
+
 
   LABSoft_GUI/LABSoft_GUI.cpp
   LABSoft_GUI/LABSoft_GUI_Fl_Input.cpp
@@ -70,6 +62,7 @@ add_executable(LABSoft
   LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.cpp
   LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.cpp
   LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.cpp
+
 
   LAB_Libraries/LAB_AD9833.cpp
   LAB_Libraries/LAB_MCP4XXX.cpp
@@ -88,8 +81,17 @@ add_executable(LABSoft
   ../lib/MCP23S17/MCP23S17.cpp
 )
 
-target_link_libraries(LABSoft 
+target_link_libraries(LABSoft
   PRIVATE fltk
   PRIVATE Threads::Threads
+  PRIVATE dl
+  PRIVATE m
+  PRIVATE fontconfig
+  PRIVATE X11
+  PRIVATE Xext
+  PRIVATE Xft
+  PRIVATE Xinerama
+  PRIVATE Xcursor
+  PRIVATE Xrender
+  PRIVATE Xfixes
 )
-

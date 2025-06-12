@@ -1,6 +1,6 @@
 [submodule "lib/AikaPi"]
 	path = lib/AikaPi
-	url = https://github.com/glenbenatiro/AikaPi
+	url = https://github.com/formesean/AikaPi
 [submodule "lib/AD9833"]
 	path = lib/AD9833
 	url = https://github.com/glenbenatiro/AD9833
