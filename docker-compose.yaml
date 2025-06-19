@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  labsoft:
+    platform: linux/386
+    build: .
+    volumes:
+      - .:/labsoft
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+    environment:
+      - DISPLAY=${DISPLAY}
+    stdin_open: true
+    tty: true
+    user: root
