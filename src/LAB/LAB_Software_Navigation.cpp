@@ -4,7 +4,7 @@
 
 LAB_Software_Navigation::
 LAB_Software_Navigation (LAB& LAB)
-  : LAB_Module (_LAB)
+  : LAB_Module (LAB)
 {
 
 };
@@ -12,32 +12,32 @@ LAB_Software_Navigation (LAB& LAB)
 void LAB_Software_Navigation::
 run()
 {
-  lab().rpi().gpio.set(SCLK_PIN, AP::GPIO::FUNC::ALT4, AP::GPIO::PULL::OFF);
-  lab().rpi().gpio.set(MISO_PIN, AP::GPIO::FUNC::ALT4, AP::GPIO::PULL::OFF);
-  lab().rpi().gpio.set(MOSI_PIN, AP::GPIO::FUNC::ALT4, AP::GPIO::PULL::OFF);
-  lab().rpi().gpio.set(CS_PIN, AP::GPIO::FUNC::OUTPUT, AP::GPIO::PULL::UP);
-  lab().rpi().gpio.write(CS_PIN, true);
+  lab().rpi().gpio.set(m_parent_data.SCLK_PIN, AP::GPIO::FUNC::ALT4, AP::GPIO::PULL::OFF);
+  lab().rpi().gpio.set(m_parent_data.MISO_PIN, AP::GPIO::FUNC::ALT4, AP::GPIO::PULL::OFF);
+  lab().rpi().gpio.set(m_parent_data.MOSI_PIN, AP::GPIO::FUNC::ALT4, AP::GPIO::PULL::OFF);
+  lab().rpi().gpio.set(m_parent_data.CS_PIN, AP::GPIO::FUNC::OUTPUT, AP::GPIO::PULL::UP);
+  lab().rpi().gpio.write(m_parent_data.CS_PIN, true);
 
   lab().rpi().aux.master_enable_spi(0);
   lab().rpi().aux.spi(0).enable();
-  lab().rpi().aux.spi(0).frequency(BAUD_RATE);
+  lab().rpi().aux.spi(0).frequency(m_parent_data.BAUD_RATE);
 };
 
 void LAB_Software_Navigation::
 poll_spi()
 {
-  uint8_t rx_buffer[BUFFER_SIZE] = {0x00};
-  uint8_t tx_buffer[BUFFER_SIZE] = {0x00, 0x00};
+  uint8_t rx_buffer[m_parent_data.BUFFER_SIZE] = {0x00};
+  uint8_t tx_buffer[m_parent_data.BUFFER_SIZE] = {0x00, 0x00};
 
-  lab().rpi().gpio.write(CS_PIN, false);
+  lab().rpi().gpio.write(m_parent_data.CS_PIN, false);
 
   lab().rpi().aux.spi(0).xfer(
     reinterpret_cast<char *>(rx_buffer),
     reinterpret_cast<char *>(tx_buffer),
-    BUFFER_SIZE
+    m_parent_data.BUFFER_SIZE
   );
 
-  lab().rpi().gpio.write(CS_PIN, true);
+  lab().rpi().gpio.write(m_parent_data.CS_PIN, true);
 
   uint16_t packet = (
     static_cast<uint16_t>(rx_buffer[0] << 8) |
@@ -46,7 +46,7 @@ poll_spi()
 
   if (packet != 0x0000 && packet != 0xFFFF)
   {
-    parse_and_handle_packet(packet);
+    parse_and_handle_packet(&packet);
   }
 };
 
@@ -56,7 +56,7 @@ parse_and_handle_packet(uint16_t* packet)
   std::cout << "Received: 0x"
             << std::hex << std::setw(4)
             << std::setfill('0')
-            << packet <<
+            << *packet <<
   std::endl;
 };
 
