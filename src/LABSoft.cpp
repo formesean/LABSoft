@@ -7,7 +7,7 @@
 
 LABSoft::
 LABSoft (int    argc,
-         char** argv) 
+         char** argv)
   : m_LABSoft_Presenter (m_LAB, m_LABSoft_GUI)
 {
   // initialize threading support
@@ -20,12 +20,23 @@ LABSoft (int    argc,
   // show main window
   m_LABSoft_GUI.main_fl_window->show ();
 
+  // start SPI polling in a separate thread
+  std::thread navigation_thread([this]() {
+    while (true)
+    {
+      m_LAB.m_Software_Navigation.poll_spi();
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  });
+
+  navigation_thread.detach();
+
   // run main fltk loop
   Fl::run();
 }
 
 LABSoft::
-~LABSoft() 
+~LABSoft()
 {
 
 }
