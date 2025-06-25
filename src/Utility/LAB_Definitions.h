@@ -298,8 +298,7 @@ struct LAB_Parent_Data_Software_Navigation
   uint8_t MOSI_PIN    = 20;
   uint8_t SCLK_PIN    = 21;
   uint8_t BUFFER_SIZE = 2;
-
-}
+};
 
 // DMA Data
 struct LAB_DMA_Data_Oscilloscope

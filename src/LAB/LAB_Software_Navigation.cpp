@@ -7,7 +7,7 @@ LAB_Software_Navigation (LAB& LAB)
   : LAB_Module (_LAB)
 {
 
-}
+};
 
 void LAB_Software_Navigation::
 run()
@@ -21,7 +21,7 @@ run()
   lab().rpi().aux.master_enable_spi(0);
   lab().rpi().aux.spi(0).enable();
   lab().rpi().aux.spi(0).frequency(BAUD_RATE);
-}
+};
 
 void LAB_Software_Navigation::
 poll_spi()
@@ -48,7 +48,7 @@ poll_spi()
   {
     parse_and_handle_packet(packet);
   }
-}
+};
 
 void LAB_Software_Navigation::
 parse_and_handle_packet(uint16_t* packet)
@@ -58,6 +58,6 @@ parse_and_handle_packet(uint16_t* packet)
             << std::setfill('0')
             << packet <<
   std::endl;
-}
+};
 
 // EOF

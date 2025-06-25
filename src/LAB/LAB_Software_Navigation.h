@@ -13,7 +13,7 @@ class LAB_Software_Navigation : public LAB_Module
     LAB_Parent_Data_Software_Navigation m_parent_data;
 
   private:
-    void parse_and_handle_packet (uint16_t* packet)
+    void parse_and_handle_packet (uint16_t* packet);
 
   public:
     LAB_Software_Navigation (LAB& LAB);
