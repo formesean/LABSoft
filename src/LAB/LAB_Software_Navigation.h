@@ -4,6 +4,9 @@
 #include "LAB_Module.h"
 #include "../Utility/LAB_Definitions.h"
 
+#include <iostream>
+#include <iomanip>
+
 class LAB_Software_Navigation : public LAB_Module
 {
   private:
