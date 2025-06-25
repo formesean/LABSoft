@@ -2,14 +2,6 @@
 
 #include "LAB.h"
 
-#define BAUD_RATE 20000000
-#define CS_PIN 16
-#define MISO_PIN 19
-#define MOSI_PIN 20
-#define SCLK_PIN 21
-
-#define BUFFER_SIZE 2
-
 LAB_Software_Navigation::
 LAB_Software_Navigation (LAB& LAB)
   : LAB_Module (_LAB)

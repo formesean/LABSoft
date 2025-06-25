@@ -7,6 +7,9 @@
 class LAB_Voltmeter : public LAB_Module
 {
   private:
+    LAB_Parent_Data_Voltmeter m_parent_data;
+
+  private:
     void load_oscilloscope_voltmeter_mode_settings ();
 
   public:
