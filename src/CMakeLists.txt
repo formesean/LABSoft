@@ -25,6 +25,7 @@ add_executable(LABSoft
   LAB/LAB_Function_Generator.cpp
   LAB/LAB_Logic_Analyzer.cpp
   LAB/LAB_Digital_Circuit_Checker.cpp
+  LAB/LAB_Software_Navigation.cpp
 
   LAB/Software/LAB_Exporter.cpp
   LAB/Software/LAB_Calibration.cpp

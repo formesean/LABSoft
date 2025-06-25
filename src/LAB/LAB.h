@@ -7,6 +7,7 @@
 #include "LAB_Function_Generator.h"
 #include "LAB_Logic_Analyzer.h"
 #include "LAB_Digital_Circuit_Checker.h"
+#include "LAB_Software_Navigation.h"
 
 #include "Software/LAB_Exporter.h"
 #include "Software/LAB_Calibration.h"
@@ -22,14 +23,15 @@ class LAB
 
   public:
     LAB ();
-   
+
     LAB_Oscilloscope            m_Oscilloscope;
     LAB_Voltmeter               m_Voltmeter;
     LAB_Ohmmeter                m_Ohmmeter;
     LAB_Function_Generator      m_Function_Generator;
-    LAB_Logic_Analyzer          m_Logic_Analyzer;  
+    LAB_Logic_Analyzer          m_Logic_Analyzer;
     LAB_Digital_Circuit_Checker m_Digital_Circuit_Checker;
     LAB_LABChecker_Digital      m_LABChecker_Digital;
+    LAB_Software_Navigation     m_Software_Navigation;
 
     LAB_Exporter                m_Exporter;
     LAB_Oscilloscope_Display    m_Oscilloscope_Display;
