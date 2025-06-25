@@ -9,6 +9,13 @@ LAB_Software_Navigation (LAB& LAB)
 
 };
 
+LAB_Software_Navigation::
+~LAB_Software_Navigation()
+{
+  stop_navigation();
+}
+
+
 void LAB_Software_Navigation::
 run()
 {
@@ -22,6 +29,43 @@ run()
   lab().rpi().aux.spi(0).enable();
   lab().rpi().aux.spi(0).frequency(m_parent_data.BAUD_RATE);
 };
+
+void LAB_Software_Navigation::
+start_navigation()
+{
+  if (!m_is_running)
+  {
+    run();
+    m_should_stop = false;
+    m_polling_thread = std::thread(&LAB_Software_Navigation::polling_loop, this);
+    m_is_running = true;
+  }
+}
+
+void LAB_Software_Navigation::
+stop_navigation()
+{
+  if (m_is_running)
+  {
+    m_should_stop = true;
+
+    if (m_polling_thread.joinable())
+    {
+      m_polling_thread.join();
+    }
+
+    m_is_running = false;
+  }
+}
+
+void LAB_Software_Navigation::
+polling_loop()
+{
+  while (!m_should_stop)
+  {
+    poll_spi();
+  }
+}
 
 void LAB_Software_Navigation::
 poll_spi()

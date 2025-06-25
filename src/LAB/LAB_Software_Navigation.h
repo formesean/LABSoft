@@ -6,20 +6,30 @@
 
 #include <iostream>
 #include <iomanip>
+#include <thread>
+#include <atomic>
 
 class LAB_Software_Navigation : public LAB_Module
 {
   private:
     LAB_Parent_Data_Software_Navigation m_parent_data;
+    std::thread m_polling_thread;
+    std::atomic<bool> m_should_stop{false};
+    std::atomic<bool> m_is_running{false};
 
   private:
     void parse_and_handle_packet (uint16_t* packet);
+    void polling_loop();
 
   public:
     LAB_Software_Navigation (LAB& LAB);
+    ~LAB_Software_Navigation ();
 
-    void run      ();
-    void poll_spi ();
+    void run              ();
+    void poll_spi         ();
+    void start_navigation ();
+    void stop_navigation  ();
+    bool is_running       () const { return m_is_running; }
 };
 
 #endif

@@ -13,23 +13,15 @@ LABSoft (int    argc,
   // initialize threading support
   Fl::lock ();
 
+  // start Software Navigation
+  m_LAB.m_Software_Navigation.start_navigation();
+
   // https://www.fltk.org/doc-1.3/classFl__Double__Window.html#details
   // It is highly recommended that you put the following code before the first show() of any window in your program:
   Fl::visual (FL_DOUBLE | FL_INDEX);
 
   // show main window
   m_LABSoft_GUI.main_fl_window->show ();
-
-  // start SPI polling in a separate thread
-  std::thread navigation_thread([this]() {
-    while (true)
-    {
-      m_LAB.m_Software_Navigation.poll_spi();
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-  });
-
-  navigation_thread.detach();
 
   // run main fltk loop
   Fl::run();
@@ -38,5 +30,6 @@ LABSoft (int    argc,
 LABSoft::
 ~LABSoft()
 {
-
+  // stop navigation before destroying
+  m_LAB.m_Software_Navigation.stop_navigation();
 }
