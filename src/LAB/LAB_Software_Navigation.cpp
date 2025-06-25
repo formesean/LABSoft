@@ -6,7 +6,8 @@ LAB_Software_Navigation::
 LAB_Software_Navigation (LAB& LAB)
   : LAB_Module (LAB)
 {
-
+  std::memset(m_rx_buffer, 0x00, sizeof(m_rx_buffer));
+  std::memset(m_tx_buffer, 0x00, sizeof(m_tx_buffer));
 };
 
 LAB_Software_Navigation::
@@ -64,14 +65,15 @@ polling_loop()
   while (!m_should_stop)
   {
     poll_spi();
+    std::this_thread::sleep_for(m_poll_interval);
   }
 }
 
 void LAB_Software_Navigation::
 poll_spi()
 {
-  uint8_t rx_buffer[m_parent_data.BUFFER_SIZE] = {0x00};
-  uint8_t tx_buffer[m_parent_data.BUFFER_SIZE] = {0x00, 0x00};
+  std::memset(m_rx_buffer, 0x00, m_parent_data.BUFFER_SIZE);
+  std::memset(m_tx_buffer, 0x00, m_parent_data.BUFFER_SIZE);
 
   lab().rpi().gpio.write(m_parent_data.CS_PIN, false);
 
@@ -83,10 +85,8 @@ poll_spi()
 
   lab().rpi().gpio.write(m_parent_data.CS_PIN, true);
 
-  uint16_t packet = (
-    static_cast<uint16_t>(rx_buffer[0] << 8) |
-    static_cast<uint16_t>(rx_buffer[1])
-  );
+  uint16_t packet = (static_cast<uint16_t>(m_rx_buffer[0]) << 8) |
+                     static_cast<uint16_t>(m_rx_buffer[1]);
 
   if (packet != 0x0000 && packet != 0xFFFF)
   {
