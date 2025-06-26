@@ -4,6 +4,7 @@
 #include "LAB_Module.h"
 #include "../Utility/LAB_Definitions.h"
 
+#include <iostream>
 #include <thread>
 #include <atomic>
 #include <chrono>
