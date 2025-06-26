@@ -20,31 +20,21 @@ class LAB_Software_Navigation : public LAB_Module
     std::atomic<bool> m_should_stop{false};
     std::atomic<bool> m_is_running{false};
 
-    // Pre-allocated buffers
-    uint8_t m_rx_buffer[LAB_Parent_Data_Software_Navigation::BUFFER_SIZE];
-    uint8_t m_tx_buffer[LAB_Parent_Data_Software_Navigation::BUFFER_SIZE];
+    uint8_t m_rx_buffer[2];
+    uint8_t m_tx_buffer[2];
 
-    // Timing analysis
-    struct TimingStats {
-        std::chrono::high_resolution_clock::time_point last_poll_time;
-        std::array<double, 1000> poll_times;
-        std::array<double, 1000> spi_times;
-        std::array<double, 1000> gpio_times;
-        size_t sample_count = 0;
-        double avg_poll_time = 0.0;
-        double avg_spi_time = 0.0;
-        double avg_gpio_time = 0.0;
-    } m_timing_stats;
+    std::atomic<bool> m_buffer_dirty{false};
+    const uint8_t m_transfer_size;
 
-    // Performance settings
-    std::chrono::microseconds m_poll_interval{50};
-    bool m_enable_timing_analysis{true};
+    std::chrono::microseconds m_poll_interval{1};
+
+    static constexpr uint16_t INVALID_PACKET_1 = 0x0000;
+    static constexpr uint16_t INVALID_PACKET_2 = 0xFFFF;
 
   private:
     void parse_and_handle_packet(uint16_t* packet);
     void polling_loop();
-    void update_timing_stats();
-    void print_timing_analysis();
+    inline bool is_valid_packet(uint16_t packet) const;
 
   public:
     LAB_Software_Navigation(LAB& LAB);
@@ -56,10 +46,13 @@ class LAB_Software_Navigation : public LAB_Module
     void stop_navigation();
     bool is_running() const { return m_is_running; }
 
-    // Performance tuning
     void set_poll_interval(std::chrono::microseconds interval) { m_poll_interval = interval; }
-    void enable_timing_analysis(bool enable) { m_enable_timing_analysis = enable; }
-    void print_performance_stats();
+
+    static uint8_t get_packet_type(uint16_t packet) { return (packet >> 12) & 0x0F; }
+    static uint8_t get_packet_action(uint16_t packet) { return (packet >> 8) & 0x0F; }
+    static uint8_t get_packet_value(uint16_t packet) { return (packet >> 4) & 0x0F; }
+    static uint8_t get_packet_checksum(uint16_t packet) { return packet & 0x0F; }
+    static bool validate_checksum(uint16_t packet);
 };
 
 #endif
