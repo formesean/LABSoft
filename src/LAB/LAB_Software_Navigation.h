@@ -4,86 +4,64 @@
 #include "LAB_Module.h"
 #include "../Utility/LAB_Definitions.h"
 
-#include <iostream>
-#include <iomanip>
 #include <thread>
 #include <atomic>
 #include <chrono>
-#include <cstring>
 #include <array>
-#include <cstdint>
-#include <cstdio>
-#include <stdexcept>
+#include <functional>
+#include <memory>
 
 class LAB_Software_Navigation : public LAB_Module
 {
   private:
-    LAB_Parent_Data_Software_Navigation m_parent_data;
-    std::thread m_polling_thread;
+    static constexpr std::chrono::microseconds POLL_INTERVAL{500};
+    static constexpr std::chrono::nanoseconds CS_SETUP_DELAY{100};
+    static constexpr uint8_t TRANSFER_SIZE = 2;
+    static constexpr uint16_t INVALID_PACKET = 0x0000;
+
+    // Pre-allocated buffers
+    alignas(16) std::array<uint8_t, TRANSFER_SIZE> m_rx_buffer{};
+    alignas(16) std::array<uint8_t, TRANSFER_SIZE> m_tx_buffer{};
+
+    // Thread management
+    std::unique_ptr<std::thread> m_polling_thread;
     std::atomic<bool> m_should_stop{false};
     std::atomic<bool> m_is_running{false};
 
-    std::array<uint8_t, 2> m_rx_buffer{};
-    std::array<uint8_t, 2> m_tx_buffer{};
+    LAB_Parent_Data_Software_Navigation m_parent_data;
 
-    std::atomic<bool> m_buffer_dirty{false};
-    static constexpr uint8_t TRANSFER_SIZE = 2;
+    std::function<void(uint8_t, uint8_t, uint8_t)> m_packet_handler;
 
-    std::chrono::microseconds m_poll_interval{10000};
+    std::atomic<uint64_t> m_packets_processed{0};
+    std::atomic<uint64_t> m_invalid_packets{0};
 
-    static constexpr uint16_t INVALID_PACKET_1 = 0x0000;
-    static constexpr uint16_t INVALID_PACKET_2 = 0xFFFF;
-    static constexpr std::chrono::microseconds CS_SETUP_DELAY{5};
+  public:
+    explicit LAB_Software_Navigation(LAB &lab);
+    ~LAB_Software_Navigation();
 
-    struct PacketData {
-      uint8_t type;
-      uint8_t action;
-      uint8_t value;
-      uint8_t checksum;
-      uint8_t expected_checksum;
-      bool is_valid;
-    };
+    void start_navigation();
+    void stop_navigation();
+    bool is_running() const noexcept { return m_is_running.load(std::memory_order_relaxed); }
+
+    uint64_t get_packets_processed() const noexcept { return m_packets_processed.load(); }
+    uint64_t get_invalid_packets() const noexcept { return m_invalid_packets.load(); }
+
+    // Event callback registration
+    void set_packet_handler(std::function<void(uint8_t, uint8_t, uint8_t)> handler)
+    {
+      m_packet_handler = std::move(handler);
+    }
 
   private:
     void initialize_spi();
     void cleanup_spi();
-    PacketData parse_packet(uint16_t packet) const;
-    void handle_packet(const PacketData& packet_data);
     void polling_loop();
-    bool is_valid_packet(uint16_t packet) const;
-    void log_packet_info(const PacketData& packet_data) const;
 
-  public:
-    explicit LAB_Software_Navigation(LAB& lab);
-    ~LAB_Software_Navigation();
+    inline bool process_packet(uint16_t packet) noexcept;
+    inline bool validate_packet_fast(uint16_t packet) noexcept;
+    inline void handle_valid_packet(uint8_t type, uint8_t action, uint8_t value) noexcept;
 
-    void run();
-    void poll_spi();
-    void start_navigation();
-    void stop_navigation();
-    bool is_running() const noexcept { return m_is_running; }
-
-    void set_poll_interval(std::chrono::microseconds interval) noexcept {
-      m_poll_interval = interval;
-    }
-
-    // Static packet parsing utilities
-    static uint8_t get_packet_type(uint16_t packet) noexcept {
-      return (packet >> 12) & 0x0F;
-    }
-    static uint8_t get_packet_action(uint16_t packet) noexcept {
-      return (packet >> 8) & 0x0F;
-    }
-    static uint8_t get_packet_value(uint16_t packet) noexcept {
-      return (packet >> 4) & 0x0F;
-    }
-    static uint8_t get_packet_checksum(uint16_t packet) noexcept {
-      return packet & 0x0F;
-    }
-    static uint8_t calculate_checksum(uint8_t type, uint8_t action, uint8_t value) noexcept {
-      return (type ^ action ^ value) & 0x0F;
-    }
-    static bool validate_checksum(uint16_t packet) noexcept;
+    inline bool spi_transfer_fast() noexcept;
 };
 
 #endif
