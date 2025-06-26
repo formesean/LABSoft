@@ -33,8 +33,8 @@ class LAB_Software_Navigation : public LAB_Module
 
     std::function<void(uint8_t, uint8_t, uint8_t)> m_packet_handler;
 
-    std::atomic<uint64_t> m_packets_processed{0};
-    std::atomic<uint64_t> m_invalid_packets{0};
+    std::atomic<uint32_t> m_packets_processed{0};
+    std::atomic<uint32_t> m_invalid_packets{0};
 
   public:
     explicit LAB_Software_Navigation(LAB &lab);
