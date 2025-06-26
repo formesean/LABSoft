@@ -1,5 +1,4 @@
 #include "LAB_Software_Navigation.h"
-
 #include "LAB.h"
 
 LAB_Software_Navigation::
@@ -37,8 +36,8 @@ start_navigation()
   {
     run();
     m_should_stop = false;
-    m_polling_thread = std::thread(&LAB_Software_Navigation::polling_loop, this);
     m_is_running = true;
+    m_polling_thread = std::thread(&LAB_Software_Navigation::polling_loop, this);
   }
 }
 
@@ -77,10 +76,9 @@ polling_loop()
 void LAB_Software_Navigation::
 poll_spi()
 {
-  if (m_buffer_dirty)
+  if (m_buffer_dirty.exchange(false))
   {
     std::memset(m_rx_buffer, 0x00, m_transfer_size);
-    m_buffer_dirty = false;
   }
 
   lab().rpi().gpio.write(m_parent_data.CS_PIN, false);
@@ -94,7 +92,7 @@ poll_spi()
   lab().rpi().gpio.write(m_parent_data.CS_PIN, true);
 
   const uint16_t packet = (static_cast<uint16_t>(m_rx_buffer[0]) << 8) |
-                         static_cast<uint16_t>(m_rx_buffer[1]);
+                          static_cast<uint16_t>(m_rx_buffer[1]);
 
   if (is_valid_packet(packet))
   {
@@ -103,7 +101,7 @@ poll_spi()
   }
 }
 
-inline bool LAB_Software_Navigation::
+bool LAB_Software_Navigation::
 is_valid_packet(uint16_t packet) const
 {
   return packet != INVALID_PACKET_1 && packet != INVALID_PACKET_2;

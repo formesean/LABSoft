@@ -11,6 +11,8 @@
 #include <chrono>
 #include <cstring>
 #include <array>
+#include <cstdint>
+#include <cstdio>
 
 class LAB_Software_Navigation : public LAB_Module
 {
@@ -32,9 +34,9 @@ class LAB_Software_Navigation : public LAB_Module
     static constexpr uint16_t INVALID_PACKET_2 = 0xFFFF;
 
   private:
-    void parse_and_handle_packet(uint16_t* packet);
+    void parse_and_handle_packet(uint16_t packet);
     void polling_loop();
-    inline bool is_valid_packet(uint16_t packet) const;
+    bool is_valid_packet(uint16_t packet) const;
 
   public:
     LAB_Software_Navigation(LAB& LAB);
