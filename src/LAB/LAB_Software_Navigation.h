@@ -13,6 +13,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <stdexcept>
 
 class LAB_Software_Navigation : public LAB_Module
 {
@@ -22,39 +23,67 @@ class LAB_Software_Navigation : public LAB_Module
     std::atomic<bool> m_should_stop{false};
     std::atomic<bool> m_is_running{false};
 
-    uint8_t m_rx_buffer[2];
-    uint8_t m_tx_buffer[2];
+    std::array<uint8_t, 2> m_rx_buffer{};
+    std::array<uint8_t, 2> m_tx_buffer{};
 
     std::atomic<bool> m_buffer_dirty{false};
-    const uint8_t m_transfer_size;
+    static constexpr uint8_t TRANSFER_SIZE = 2;
 
-    std::chrono::microseconds m_poll_interval{1};
+    std::chrono::microseconds m_poll_interval{10000};
 
     static constexpr uint16_t INVALID_PACKET_1 = 0x0000;
     static constexpr uint16_t INVALID_PACKET_2 = 0xFFFF;
+    static constexpr std::chrono::microseconds CS_SETUP_DELAY{5};
+
+    struct PacketData {
+      uint8_t type;
+      uint8_t action;
+      uint8_t value;
+      uint8_t checksum;
+      uint8_t expected_checksum;
+      bool is_valid;
+    };
 
   private:
-    void parse_and_handle_packet(uint16_t packet);
+    void initialize_spi();
+    void cleanup_spi();
+    PacketData parse_packet(uint16_t packet) const;
+    void handle_packet(const PacketData& packet_data);
     void polling_loop();
     bool is_valid_packet(uint16_t packet) const;
+    void log_packet_info(const PacketData& packet_data) const;
 
   public:
-    LAB_Software_Navigation(LAB& LAB);
+    explicit LAB_Software_Navigation(LAB& lab);
     ~LAB_Software_Navigation();
 
     void run();
     void poll_spi();
     void start_navigation();
     void stop_navigation();
-    bool is_running() const { return m_is_running; }
+    bool is_running() const noexcept { return m_is_running; }
 
-    void set_poll_interval(std::chrono::microseconds interval) { m_poll_interval = interval; }
+    void set_poll_interval(std::chrono::microseconds interval) noexcept {
+      m_poll_interval = interval;
+    }
 
-    static uint8_t get_packet_type(uint16_t packet) { return (packet >> 12) & 0x0F; }
-    static uint8_t get_packet_action(uint16_t packet) { return (packet >> 8) & 0x0F; }
-    static uint8_t get_packet_value(uint16_t packet) { return (packet >> 4) & 0x0F; }
-    static uint8_t get_packet_checksum(uint16_t packet) { return packet & 0x0F; }
-    static bool validate_checksum(uint16_t packet);
+    // Static packet parsing utilities
+    static uint8_t get_packet_type(uint16_t packet) noexcept {
+      return (packet >> 12) & 0x0F;
+    }
+    static uint8_t get_packet_action(uint16_t packet) noexcept {
+      return (packet >> 8) & 0x0F;
+    }
+    static uint8_t get_packet_value(uint16_t packet) noexcept {
+      return (packet >> 4) & 0x0F;
+    }
+    static uint8_t get_packet_checksum(uint16_t packet) noexcept {
+      return packet & 0x0F;
+    }
+    static uint8_t calculate_checksum(uint8_t type, uint8_t action, uint8_t value) noexcept {
+      return (type ^ action ^ value) & 0x0F;
+    }
+    static bool validate_checksum(uint16_t packet) noexcept;
 };
 
 #endif
