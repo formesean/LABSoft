@@ -129,7 +129,7 @@ polling_loop()
 
       if (packet != INVALID_PACKET)
       {
-        printf("Raw SPI data: 0x%02X 0x%02X\n", m_rx_buffer[0], m_rx_buffer[1]);
+        printf("Raw SPI data: 0x%04X \n", packet);
         process_packet(packet);
       }
     }
