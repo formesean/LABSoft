@@ -16,7 +16,7 @@ class LAB_Software_Navigation : public LAB_Module
 {
   private:
     static constexpr std::chrono::microseconds POLL_INTERVAL{500};
-    static constexpr std::chrono::nanoseconds CS_SETUP_DELAY{100};
+    static constexpr std::chrono::microseconds CS_SETUP_DELAY{50};
     static constexpr uint8_t TRANSFER_SIZE = 2;
     static constexpr uint16_t INVALID_PACKET = 0x0000;
 
