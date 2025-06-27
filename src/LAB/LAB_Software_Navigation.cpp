@@ -155,6 +155,9 @@ spi_transfer_fast() noexcept
         TRANSFER_SIZE);
 
     gpio.write(m_parent_data.CS_PIN, true);
+
+    printf("Raw SPI data: 0x%02X 0x%02X\n", m_rx_buffer[0], m_rx_buffer[1]);
+
     return true;
   }
   catch (const std::exception &e)
