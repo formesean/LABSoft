@@ -9,14 +9,14 @@ LABSoft_Presenter_Software_Navigation::
 LABSoft_Presenter_Software_Navigation (LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit (_LABSoft_Presenter)
 {
-  tab_groups[0] = gui().main_fl_group_oscilloscope_tab;
-  tab_groups[1] = gui().main_fl_group_voltmeter_tab;
-  tab_groups[2] = gui().main_fl_group_ohmmeter_tab;
-  tab_groups[3] = gui().main_fl_group_function_generator_tab;
-  tab_groups[4] = gui().main_fl_group_power_supply_tab;
-  tab_groups[5] = gui().main_fl_group_logic_analyzer_tab;
-  tab_groups[6] = gui().main_fl_group_digital_circuit_checker_tab;
-  tab_groups[7] = gui().main_fl_group_labchecker_digital;
+  tab_groups[0] = gui().main_fl_group_oscilloscope_tab;            // Oscilloscope
+  tab_groups[1] = gui().main_fl_group_voltmeter_tab;               // Voltmeter
+  tab_groups[2] = gui().main_fl_group_ohmmeter_tab;                // Ohmmeter
+  tab_groups[3] = gui().main_fl_group_function_generator_tab;      // Function Generator
+  tab_groups[4] = gui().main_fl_group_power_supply_tab;            // Power Supply
+  tab_groups[5] = gui().main_fl_group_logic_analyzer_tab;          // Logic Analyzer
+  tab_groups[6] = gui().main_fl_group_digital_circuit_checker_tab; // Digital Circuit Checler
+  tab_groups[7] = gui().main_fl_group_labchecker_digital;          // LABChecker - Digital
 
   sync_current_tab_index();
 }
@@ -26,18 +26,7 @@ LABSoft_Presenter_Software_Navigation::
 update_data_cycle()
 {
   auto data = lab().m_Software_Navigation.update_spi_data();
-
-  // main_fl_group_oscilloscope_tab             = Oscilloscope (label)
-  // main_fl_group_voltmeter_tab                = Voltmeter
-  // main_fl_group_ohmmeter_tab                 = Ohmmeter
-  // main_fl_group_funtion_generator_tab        = Function Generator
-  // main_fl_group_power_supply_tab             = Power Supply
-  // main_fl_group_logic_analyzer_tab           = Logic Analyzer
-  // main_fl_group_digital_circuit_checker_tab  = Digital Circuit Checker
-  // main_fl_group_labchecker_digital_tab       = LABChecker - Digital
-
   const char* current_tab = gui().main_fl_tabs->value()->label();
-  // printf("current tab: %s\n", current_tab);
 
   if (data[0] == 0 && data[1] == 0 && data[2] == 0)
     return;
@@ -51,37 +40,21 @@ update_data_cycle()
       if (strcmp(current_tab, "Oscilloscope") == 0)
       {
         int state = gui().oscilloscope_fl_light_button_run_stop->value();
-        // printf("osc run btn state: %d\n", !state);
-
-        if (!state)
-        {
-          presenter ().m_Oscilloscope.stop_gui ();
-          presenter ().m_Voltmeter   .stop_gui ();
-          presenter ().m_Ohmmeter    .stop_gui ();
-          lab       ().m_Oscilloscope.run      ();
-          presenter ().m_Oscilloscope.run_gui  ();
-        }
-        else
-        {
-          lab       ().m_Oscilloscope.stop     ();
-          presenter ().m_Oscilloscope.stop_gui ();
-        }
+        gui().oscilloscope_fl_light_button_run_stop->value(!state);
+        presenter().m_Oscilloscope.cb_run_stop(
+          gui().oscilloscope_fl_light_button_run_stop,
+          nullptr
+        );
       }
 
       if (strcmp(current_tab, "Function Generator") == 0)
       {
         int state = gui().function_generator_fl_light_button_run_stop->value();
-
-        if (!state)
-        {
-          lab().m_Function_Generator.run(0);
-          gui().function_generator_fl_light_button_run_stop->set();
-        }
-        else
-        {
-          lab().m_Function_Generator.stop(0);
-          gui().function_generator_fl_light_button_run_stop->clear();
-        }
+        gui().function_generator_fl_light_button_run_stop->value(!state);
+        presenter().m_Function_Generator.cb_run_stop(
+          gui().function_generator_fl_light_button_run_stop,
+          0
+        );
       }
     }
   }
