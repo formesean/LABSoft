@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/lab2pi3/LABSoft/src
+CMAKE_SOURCE_DIR = /home/lab2pi4/LABSoft/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/lab2pi3/LABSoft/build
+CMAKE_BINARY_DIR = /home/lab2pi4/LABSoft/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lab2pi3/LABSoft/build/CMakeFiles /home/lab2pi3/LABSoft/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lab2pi4/LABSoft/build/CMakeFiles /home/lab2pi4/LABSoft/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lab2pi3/LABSoft/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lab2pi4/LABSoft/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -296,6 +296,30 @@ LAB/LAB_Oscilloscope.s: LAB/LAB_Oscilloscope.cpp.s
 LAB/LAB_Oscilloscope.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LAB/LAB_Oscilloscope.cpp.s
 .PHONY : LAB/LAB_Oscilloscope.cpp.s
+
+LAB/LAB_Software_Navigation.o: LAB/LAB_Software_Navigation.cpp.o
+.PHONY : LAB/LAB_Software_Navigation.o
+
+# target to build an object file
+LAB/LAB_Software_Navigation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LAB/LAB_Software_Navigation.cpp.o
+.PHONY : LAB/LAB_Software_Navigation.cpp.o
+
+LAB/LAB_Software_Navigation.i: LAB/LAB_Software_Navigation.cpp.i
+.PHONY : LAB/LAB_Software_Navigation.i
+
+# target to preprocess a source file
+LAB/LAB_Software_Navigation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LAB/LAB_Software_Navigation.cpp.i
+.PHONY : LAB/LAB_Software_Navigation.cpp.i
+
+LAB/LAB_Software_Navigation.s: LAB/LAB_Software_Navigation.cpp.s
+.PHONY : LAB/LAB_Software_Navigation.s
+
+# target to generate assembly for a file
+LAB/LAB_Software_Navigation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LAB/LAB_Software_Navigation.cpp.s
+.PHONY : LAB/LAB_Software_Navigation.cpp.s
 
 LAB/LAB_Voltmeter.o: LAB/LAB_Voltmeter.cpp.o
 .PHONY : LAB/LAB_Voltmeter.o
@@ -945,6 +969,30 @@ LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.s
 .PHONY : LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.s
 
+LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.o: LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.o
+.PHONY : LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.o
+
+# target to build an object file
+LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.o
+.PHONY : LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.o
+
+LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.i: LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.i
+.PHONY : LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.i
+
+# target to preprocess a source file
+LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.i
+.PHONY : LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.i
+
+LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.s: LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.s
+.PHONY : LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.s
+
+# target to generate assembly for a file
+LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.s
+.PHONY : LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp.s
+
 LABSoft_Presenter/LABSoft_Presenter_Unit.o: LABSoft_Presenter/LABSoft_Presenter_Unit.cpp.o
 .PHONY : LABSoft_Presenter/LABSoft_Presenter_Unit.o
 
@@ -1281,101 +1329,101 @@ Utility/pugixml.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/Utility/pugixml.cpp.s
 .PHONY : Utility/pugixml.cpp.s
 
-home/lab2pi3/LABSoft/lib/AD9833/AD9833.o: home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/AD9833/AD9833.o
+home/lab2pi4/LABSoft/lib/AD9833/AD9833.o: home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/AD9833/AD9833.o
 
 # target to build an object file
-home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.o
+home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.o
 
-home/lab2pi3/LABSoft/lib/AD9833/AD9833.i: home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/AD9833/AD9833.i
+home/lab2pi4/LABSoft/lib/AD9833/AD9833.i: home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/AD9833/AD9833.i
 
 # target to preprocess a source file
-home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.i
+home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.i
 
-home/lab2pi3/LABSoft/lib/AD9833/AD9833.s: home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/AD9833/AD9833.s
+home/lab2pi4/LABSoft/lib/AD9833/AD9833.s: home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/AD9833/AD9833.s
 
 # target to generate assembly for a file
-home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/AD9833/AD9833.cpp.s
+home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/AD9833/AD9833.cpp.s
 
-home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.o: home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.o
+home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.o: home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.o
 
 # target to build an object file
-home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.o
+home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.o
 
-home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.i: home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.i
+home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.i: home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.i
 
 # target to preprocess a source file
-home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.i
+home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.i
 
-home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.s: home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.s
+home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.s: home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.s
 
 # target to generate assembly for a file
-home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.cpp.s
+home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.cpp.s
 
-home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.o: home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.o
+home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.o: home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.o
 
 # target to build an object file
-home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.o
+home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.o
 
-home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.i: home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.i
+home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.i: home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.i
 
 # target to preprocess a source file
-home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.i
+home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.i
 
-home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.s: home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.s
+home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.s: home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.s
 
 # target to generate assembly for a file
-home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.cpp.s
+home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.cpp.s
 
-home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.o: home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.o
+home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.o: home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.o
 
 # target to build an object file
-home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o
-.PHONY : home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o
+home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o
+.PHONY : home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.o
 
-home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.i: home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.i
+home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.i: home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.i
 
 # target to preprocess a source file
-home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i
-.PHONY : home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i
+home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i
+.PHONY : home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.i
 
-home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.s: home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.s
+home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.s: home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.s
 
 # target to generate assembly for a file
-home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s
-.PHONY : home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s
+home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s
+.PHONY : home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.cpp.s
 
 main.o: main.cpp.o
 .PHONY : main.o
@@ -1431,6 +1479,9 @@ help:
 	@echo "... LAB/LAB_Oscilloscope.o"
 	@echo "... LAB/LAB_Oscilloscope.i"
 	@echo "... LAB/LAB_Oscilloscope.s"
+	@echo "... LAB/LAB_Software_Navigation.o"
+	@echo "... LAB/LAB_Software_Navigation.i"
+	@echo "... LAB/LAB_Software_Navigation.s"
 	@echo "... LAB/LAB_Voltmeter.o"
 	@echo "... LAB/LAB_Voltmeter.i"
 	@echo "... LAB/LAB_Voltmeter.s"
@@ -1512,6 +1563,9 @@ help:
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.o"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.i"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.s"
+	@echo "... LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.o"
+	@echo "... LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.i"
+	@echo "... LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.s"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Unit.o"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Unit.i"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Unit.s"
@@ -1554,18 +1608,18 @@ help:
 	@echo "... Utility/pugixml.o"
 	@echo "... Utility/pugixml.i"
 	@echo "... Utility/pugixml.s"
-	@echo "... home/lab2pi3/LABSoft/lib/AD9833/AD9833.o"
-	@echo "... home/lab2pi3/LABSoft/lib/AD9833/AD9833.i"
-	@echo "... home/lab2pi3/LABSoft/lib/AD9833/AD9833.s"
-	@echo "... home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.o"
-	@echo "... home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.i"
-	@echo "... home/lab2pi3/LABSoft/lib/AikaPi/AikaPi.s"
-	@echo "... home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.o"
-	@echo "... home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.i"
-	@echo "... home/lab2pi3/LABSoft/lib/MCP23S17/MCP23S17.s"
-	@echo "... home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.o"
-	@echo "... home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.i"
-	@echo "... home/lab2pi3/LABSoft/lib/MCP4XXX/MCP4XXX.s"
+	@echo "... home/lab2pi4/LABSoft/lib/AD9833/AD9833.o"
+	@echo "... home/lab2pi4/LABSoft/lib/AD9833/AD9833.i"
+	@echo "... home/lab2pi4/LABSoft/lib/AD9833/AD9833.s"
+	@echo "... home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.o"
+	@echo "... home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.i"
+	@echo "... home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.s"
+	@echo "... home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.o"
+	@echo "... home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.i"
+	@echo "... home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.s"
+	@echo "... home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.o"
+	@echo "... home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.i"
+	@echo "... home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

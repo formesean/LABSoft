@@ -36,8 +36,8 @@ update_spi_data()
 {
   spi_transfer();
 
-  const uint16_t spi_data = (static_cast<uint16_t>(m_m_rx_buffer[0]) << 8) |
-                             static_cast<uint16_t>(m_m_rx_buffer[1]);
+  const uint16_t spi_data = (static_cast<uint16_t>(m_rx_buffer[0]) << 8) |
+                             static_cast<uint16_t>(m_rx_buffer[1]);
 
   if (spi_data == 0x0000 || spi_data == 0xFFFF)
     return {0, 0, 0};

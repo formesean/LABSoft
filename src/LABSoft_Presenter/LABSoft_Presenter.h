@@ -32,7 +32,7 @@ class LABSoft_Presenter
     LABSoft_Presenter_Logic_Analyzer          m_Logic_Analyzer;
     LABSoft_Presenter_Digital_Circuit_Checker m_Digital_Circuit_Checker;
     LABSoft_Presenter_LABChecker_Digital      m_LABChecker_Digital;
-    LABSoft_Presenter_Software_Navigation     m_Software_Navigation
+    LABSoft_Presenter_Software_Navigation     m_Software_Navigation;
 
     // Software/GUI
     LABSoft_Presenter_Main_Window             m_Main_Window;

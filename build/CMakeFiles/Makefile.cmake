@@ -9,7 +9,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
   "CMakeFiles/3.25.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.25.1/CMakeSystem.cmake"
-  "/home/lab2pi3/LABSoft/src/CMakeLists.txt"
+  "/home/lab2pi4/LABSoft/src/CMakeLists.txt"
   "/usr/share/cmake-3.25/Modules/CMakeCXXCompiler.cmake.in"
   "/usr/share/cmake-3.25/Modules/CMakeCXXCompilerABI.cpp"
   "/usr/share/cmake-3.25/Modules/CMakeCXXInformation.cmake"
