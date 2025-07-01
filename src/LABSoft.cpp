@@ -13,9 +13,6 @@ LABSoft (int    argc,
   // initialize threading support
   Fl::lock ();
 
-  // start Software Navigation
-  m_LAB.m_Software_Navigation.start_navigation();
-
   // https://www.fltk.org/doc-1.3/classFl__Double__Window.html#details
   // It is highly recommended that you put the following code before the first show() of any window in your program:
   Fl::visual (FL_DOUBLE | FL_INDEX);
@@ -30,6 +27,5 @@ LABSoft (int    argc,
 LABSoft::
 ~LABSoft()
 {
-  // stop navigation before destroying
-  m_LAB.m_Software_Navigation.stop_navigation();
+
 }
