@@ -292,11 +292,13 @@ struct LAB_Parent_Data_Logic_Analyzer
 
 struct LAB_Parent_Data_Software_Navigation
 {
-  int     BAUD_RATE   = 20000000;
-  uint8_t CS_PIN      = 16;
-  uint8_t MISO_PIN    = 19;
-  uint8_t MOSI_PIN    = 20;
-  uint8_t SCLK_PIN    = 21;
+  int     BAUD_RATE     = LABC::PIN::SNM::BAUD_RATE;
+  uint8_t CS_PIN        = LABC::PIN::SNM::CS_PIN;
+  uint8_t MISO_PIN      = LABC::PIN::SNM::MISO_PIN;
+  uint8_t MOSI_PIN      = LABC::PIN::SNM::MOSI_PIN;
+  uint8_t SCLK_PIN      = LABC::PIN::SNM::SCLK_PIN;
+
+  uint8_t TRANSFER_SIZE = LABC::PIN::SNM::TRANSFER_SIZE;
 };
 
 // DMA Data

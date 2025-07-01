@@ -44,7 +44,7 @@ namespace LABC
     // Yes, GPIO pins 5 and 19 are used in Function Generator.
     // These are not used in Function Gen MISOs for digipots.
     // I'm relying on the fact that LAB_Logic_Analyzer is the
-    // last to be initialized, after Function Generator. 
+    // last to be initialized, after Function Generator.
     // So LAB_Logic_Analyzer's GPIO pin init is called last.
 
     constexpr unsigned LOGAN[] = {17, 18, 5, 26};
@@ -54,25 +54,25 @@ namespace LABC
   {
     namespace TI
     {
-      constexpr uint32_t OSC_PWM_PACING  = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::PWM))  
-                                            | AP::DMA::TI_DATA::DEST_DREQ      
+      constexpr uint32_t OSC_PWM_PACING  = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::PWM))
+                                            | AP::DMA::TI_DATA::DEST_DREQ
                                             | AP::DMA::TI_DATA::WAIT_RESP
                                             | AP::DMA::TI_DATA::INTEN;
 
-      constexpr uint32_t OSC_TX          = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::SPI_TX))  
-                                            | AP::DMA::TI_DATA::DEST_DREQ         
-                                            | AP::DMA::TI_DATA::WAIT_RESP         
+      constexpr uint32_t OSC_TX          = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::SPI_TX))
+                                            | AP::DMA::TI_DATA::DEST_DREQ
+                                            | AP::DMA::TI_DATA::WAIT_RESP
                                             | AP::DMA::TI_DATA::SRC_INC
                                             | AP::DMA::TI_DATA::INTEN;
 
-      constexpr uint32_t OSC_RX          = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::SPI_RX))  
-                                            | AP::DMA::TI_DATA::SRC_DREQ         
-                                            | AP::DMA::TI_DATA::DEST_INC          
+      constexpr uint32_t OSC_RX          = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::SPI_RX))
+                                            | AP::DMA::TI_DATA::SRC_DREQ
+                                            | AP::DMA::TI_DATA::DEST_INC
                                             | AP::DMA::TI_DATA::WAIT_RESP;
-                                        
-      constexpr uint32_t LOGAN_STORE     = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::PWM))  
-                                            | AP::DMA::TI_DATA::SRC_DREQ  
-                                            | AP::DMA::TI_DATA::DEST_INC  
+
+      constexpr uint32_t LOGAN_STORE     = (AP::DMA::TI_DATA::PERMAP (AP::DMA::PERIPH_DREQ::PWM))
+                                            | AP::DMA::TI_DATA::SRC_DREQ
+                                            | AP::DMA::TI_DATA::DEST_INC
                                             | AP::DMA::TI_DATA::WAIT_RESP;
     };
 
@@ -89,7 +89,7 @@ namespace LABC
 
   namespace SPI
   {
-    // Please note that LABSoft requires the core clock to be fixed to 
+    // Please note that LABSoft requires the core clock to be fixed to
     // 250 MHz in boot/config.txt. This affects the divisor setting.
     constexpr double FREQUENCY = 12'500'000;
   }
@@ -117,14 +117,14 @@ namespace LABC
   };
 
   namespace OSC
-  { 
+  {
     // channels and buffer size
     constexpr unsigned  NUMBER_OF_CHANNELS              = 2;
     constexpr unsigned  NUMBER_OF_SAMPLES               = 2000;
     constexpr unsigned  SAMPLE_SIZE                     = sizeof (uint32_t);
     constexpr unsigned  NUMBER_OF_BUFFERS               = 2;
     constexpr unsigned  BUFFER_SIZE                     = SAMPLE_SIZE * NUMBER_OF_SAMPLES;
-    constexpr unsigned  VC_MEM_SIZE                     = AP::RPI::PAGE_SIZE + (NUMBER_OF_CHANNELS * NUMBER_OF_BUFFERS * BUFFER_SIZE);    
+    constexpr unsigned  VC_MEM_SIZE                     = AP::RPI::PAGE_SIZE + (NUMBER_OF_CHANNELS * NUMBER_OF_BUFFERS * BUFFER_SIZE);
 
     // ADC info and conversions
     constexpr unsigned  ADC_RESOLUTION_BITS             = 12; // MCP33111
@@ -133,14 +133,14 @@ namespace LABC
 
     constexpr uint32_t  RAW_DATA_MASK                   = 0xF0FF;
     constexpr uint32_t  RAW_DATA_BIT_SHIFT_COUNT        = (SAMPLE_SIZE * 8) / NUMBER_OF_CHANNELS;
-    constexpr uint32_t  RAW_DATA_POST_SHIFT_MASK        = (1 << RAW_DATA_BIT_SHIFT_COUNT) - 1;    
+    constexpr uint32_t  RAW_DATA_POST_SHIFT_MASK        = (1 << RAW_DATA_BIT_SHIFT_COUNT) - 1;
 
     // vertical
     constexpr unsigned  DISPLAY_NUMBER_OF_ROWS          = 10;
     constexpr double    DISPLAY_NUMBER_OF_ROWS_HALF     = DISPLAY_NUMBER_OF_ROWS / 2.0;
     constexpr double    MAX_VOLTAGE_PER_DIVISION        = 5.0;    // 5 V
     constexpr double    MIN_VOLTAGE_PER_DIVISION        = 0.0001; // 100 uV
-    constexpr double    MAX_VERTICAL_OFFSET             = MAX_VOLTAGE_PER_DIVISION * 
+    constexpr double    MAX_VERTICAL_OFFSET             = MAX_VOLTAGE_PER_DIVISION *
                                                           (DISPLAY_NUMBER_OF_ROWS / 2.0); // 25 V
     constexpr double    MIN_VERTICAL_OFFSET             = -1.0 * MAX_VERTICAL_OFFSET; // -25 V
 
@@ -152,19 +152,19 @@ namespace LABC
     constexpr double    MAX_SAMPLES_RECORDING           = 1'000'000.0;
     constexpr double    MIN_SAMPLES                     = 20;
     constexpr double    MIN_SAMPLES_DISPLAY             = 1;
-    constexpr double    MAX_TIME_PER_DIVISION           = MAX_SAMPLES / (MIN_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS); 
+    constexpr double    MAX_TIME_PER_DIVISION           = MAX_SAMPLES / (MIN_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
     constexpr double    MAX_TIME_PER_DIVISION_RECORDING = MAX_SAMPLES_RECORDING / (MIN_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
     constexpr double    MIN_TIME_PER_DIVISION           = MIN_SAMPLES_DISPLAY / (MAX_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
     constexpr double    MIN_TIME_PER_DIVISION_SCREEN    = 1.0 / DISPLAY_NUMBER_OF_COLUMNS;
     constexpr double    MIN_TIME_PER_DIVISION_NO_ZOOM   = MAX_SAMPLES / (MAX_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
-    constexpr double    MAX_HORIZONTAL_OFFSET           = MAX_SAMPLES / MIN_SAMPLING_RATE;  
-    constexpr double    MIN_HORIZONTAL_OFFSET           = (-1) * MAX_HORIZONTAL_OFFSET;  
-    
+    constexpr double    MAX_HORIZONTAL_OFFSET           = MAX_SAMPLES / MIN_SAMPLING_RATE;
+    constexpr double    MIN_HORIZONTAL_OFFSET           = (-1) * MAX_HORIZONTAL_OFFSET;
+
     // trigger
     constexpr double    MAX_TRIGGER_LEVEL               = MAX_VERTICAL_OFFSET;
     constexpr double    MIN_TRIGGER_LEVEL               = MIN_VERTICAL_OFFSET;
     constexpr double    FIND_TRIGGER_TIMEOUT            = 2; // seconds
-    
+
     // calibration
     constexpr unsigned  NUMBER_OF_CALIBRATION_PARAMETERS  = 13;
   };
@@ -198,10 +198,10 @@ namespace LABC
     constexpr unsigned  Y_AXIS_LABEL_HORIZONTAL_INTRASPACE  = 40;
     constexpr unsigned  Y_AXIS_UNIT_LABEL_SIZE              = 9;
     constexpr unsigned  SLIDER_WIDTH                        = 10;
-    constexpr unsigned  STATUS_HEIGHT                       = 20;  
+    constexpr unsigned  STATUS_HEIGHT                       = 20;
     constexpr unsigned  STATUS_WIDTH                        = 80;
     constexpr uint32_t  GRID_COLOR                          = 46; // gray
-    constexpr uint32_t  BACKGROUND_COLOR                    = FL_BLACK;     
+    constexpr uint32_t  BACKGROUND_COLOR                    = FL_BLACK;
     constexpr uint32_t  X_AXIS_LABEL_COLOR                  = FL_WHITE;
 
     static constexpr uint32_t CHANNEL_COLORS[] = {
@@ -209,7 +209,7 @@ namespace LABC
       6, // cyan
       2, // green
       5, // purple
-    };    
+    };
   };
 
   namespace OSC_DISPLAY_GROUP
@@ -217,7 +217,7 @@ namespace LABC
     constexpr int Y_LABEL_INTERSPACE          = 40; // spacing between columns of y-axis labels
     constexpr int Y_LABEL_UNIT_LEFT_MARGIN    = 10;
     constexpr int Y_LABEL_UNIT_BOTTOM_MARGIN  = 17; // padding of voltage unit of y-axis labels from top of grid
-    constexpr int X_LABEL_INTRASPACE          = 18; 
+    constexpr int X_LABEL_INTRASPACE          = 18;
     constexpr int AXIS_LABEL_SIZE             = 9;
 
     constexpr int X_LABEL_COLOR               = FL_WHITE;
@@ -225,7 +225,7 @@ namespace LABC
     constexpr int DEFAULT_LABEL_COLOR         = FL_WHITE;
     constexpr int BACKGROUND_COLOR            = FL_BLACK;
   };
-  
+
   namespace VOLTMETER
   {
     constexpr unsigned            NUMBER_OF_CHANNELS  = OSC::NUMBER_OF_CHANNELS;
@@ -271,11 +271,11 @@ namespace LABC
 
     constexpr double                    R1_RESISTANCE           = 1'000.0;  // ohms
     constexpr double                    RF_RESISTANCE           = 1'000.0;  // ohms
-    constexpr double                    V1                      = 5.0;      // V   
+    constexpr double                    V1                      = 5.0;      // V
     constexpr double                    V2                      = 5.0;      // V
     constexpr double                    ROFF_RESISTANCE         = static_cast<uint32_t>
-                                                                    (MCP4XXX::RESISTANCE_VERSION::_103); 
-                                                                 // total offset digi pot resistance       
+                                                                    (MCP4XXX::RESISTANCE_VERSION::_103);
+                                                                 // total offset digi pot resistance
   };
 
   namespace LOGAN
@@ -295,16 +295,16 @@ namespace LABC
     constexpr double                  MAX_SAMPLING_RATE               = 100;  // Hz
     constexpr double                  MIN_SAMPLING_RATE               = 0.1;        // Hz
     constexpr unsigned                MAX_SAMPLES                     = MAX_NUMBER_OF_SAMPLES;
-    constexpr unsigned                MAX_SAMPLES_RECORDING           = 1'000'000;  
+    constexpr unsigned                MAX_SAMPLES_RECORDING           = 1'000'000;
     constexpr unsigned                MIN_SAMPLES                     = 2;
     constexpr double                  MAX_TIME_PER_DIVISION           = MAX_SAMPLES / (MIN_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
     constexpr double                  MAX_TIME_PER_DIVISION_RECORDING = MAX_SAMPLES_RECORDING / (MIN_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
     constexpr double                  MIN_TIME_PER_DIVISION           = MIN_SAMPLES / (MAX_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
     constexpr double                  MIN_TIME_PER_DIVISION_SCREEN    = 1.0 / DISPLAY_NUMBER_OF_COLUMNS;
     constexpr double                  MIN_TIME_PER_DIVISION_NO_ZOOM   = MAX_NUMBER_OF_SAMPLES / (MAX_SAMPLING_RATE * DISPLAY_NUMBER_OF_COLUMNS);
-    constexpr double                  MAX_HORIZONTAL_OFFSET           = MAX_SAMPLES / MIN_SAMPLING_RATE;  
-    constexpr double                  MIN_HORIZONTAL_OFFSET           = (-1) * MAX_HORIZONTAL_OFFSET;  
-    
+    constexpr double                  MAX_HORIZONTAL_OFFSET           = MAX_SAMPLES / MIN_SAMPLING_RATE;
+    constexpr double                  MIN_HORIZONTAL_OFFSET           = (-1) * MAX_HORIZONTAL_OFFSET;
+
     // Trigger
     constexpr double                  FIND_TRIGGER_TIMEOUT            = 2; // seconds
 
@@ -327,10 +327,10 @@ namespace LABC
       constexpr unsigned ADC_MOSI = 10;
       constexpr unsigned ADC_MISO = 9;
       constexpr unsigned ADC_CS   = 8;
-      
+
       // multiplexer
       // {A0, A1}
-      constexpr unsigned MUX[LABC::OSC::NUMBER_OF_CHANNELS][2] = 
+      constexpr unsigned MUX[LABC::OSC::NUMBER_OF_CHANNELS][2] =
       {
         {27, 22},
         {23, 24}
@@ -356,6 +356,18 @@ namespace LABC
       constexpr unsigned XPAND_MOSI = 3;
       constexpr unsigned XPAND_SCLK = 2;
     };
+
+    namespace SNM
+    {
+      // SPI configuration
+      constexpr unsigned BAUD_RATE   = 20000000;
+      constexpr unsigned CS_PIN      = 16;
+      constexpr unsigned MISO_PIN    = 19;
+      constexpr unsigned MOSI_PIN    = 20;
+      constexpr unsigned SCLK_PIN    = 21;
+
+      constexpr unsigned TRANSFER_SIZE    = 2;
+    }
   };
 };
 
