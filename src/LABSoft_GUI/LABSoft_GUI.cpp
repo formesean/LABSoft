@@ -1524,7 +1524,7 @@ LABSoft_GUI::LABSoft_GUI() {
           voltmeter_fl_output_chan_1_trms->textsize(36);
           voltmeter_fl_output_chan_1_trms->user_data((void*)(0));
         } // Fl_Output* voltmeter_fl_output_chan_1_trms
-        { // 					
+        { //
           voltmeter_fl_light_button_run_stop = new Fl_Light_Button(520, 430, 180, 60, "Run");
           voltmeter_fl_light_button_run_stop->box(FL_GTK_UP_BOX);
           voltmeter_fl_light_button_run_stop->color(FL_LIGHT3);
@@ -1554,7 +1554,7 @@ nput header pin.");
           o->labelsize(12);
           o->align(Fl_Align(FL_ALIGN_WRAP));
         } // Fl_Box* o
-        { // 					
+        { //
           ohmmeter_fl_light_button_run_stop = new Fl_Light_Button(520, 400, 180, 60, "Run");
           ohmmeter_fl_light_button_run_stop->box(FL_GTK_UP_BOX);
           ohmmeter_fl_light_button_run_stop->color(FL_LIGHT3);
@@ -1914,7 +1914,7 @@ ly board.");
             digital_fl_choice_input_bits->align(Fl_Align(FL_ALIGN_TOP));
             digital_fl_choice_input_bits->menu(menu_digital_fl_choice_input_bits);
           } // Fl_Choice* digital_fl_choice_input_bits
-          { // 		
+          { //
             digital_fl_choice_output_bits = new Fl_Choice(40, 170, 180, 40, "Output Bits");
             digital_fl_choice_output_bits->box(FL_NO_BOX);
             digital_fl_choice_output_bits->down_box(FL_BORDER_BOX);
