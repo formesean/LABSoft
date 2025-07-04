@@ -37,7 +37,8 @@ update_data_cycle()
     // Back Key
     if (data[1] == 1 && data[2] == 0)
     {
-      printf("Back Key Pressed");
+      printf("Back Key Pressed\n");
+      fflush(stdout);
 
       if (strcmp(current_tab, "Function Generator") == 0)
       {
@@ -56,7 +57,8 @@ update_data_cycle()
     // Next Key
     if (data[1] == 2 && data[2] == 0)
     {
-      printf("Next Key Pressed");
+      printf("Next Key Pressed\n");
+      fflush(stdout);
 
       if (strcmp(current_tab, "Function Generator") == 0)
       {
@@ -75,7 +77,8 @@ update_data_cycle()
     // Run Key
     if (data[1] == 3 && data[2] == 0)
     {
-      printf("Run Key Pressed");
+      printf("Run Key Pressed\n");
+      fflush(stdout);
 
       if (strcmp(current_tab, "Oscilloscope") == 0)
       {
@@ -151,13 +154,15 @@ update_data_cycle()
       if (data[1] == 1)
       {
         switch_tab_by_direction(+1);
-        printf("Encoder Rotated CW");
+        printf("Encoder Rotated CW\n");
       }
       else if (data[1] == 2)
       {
         switch_tab_by_direction(-1);
-        printf("Encoder Rotated CCW");
+        printf("Encoder Rotated CCW\n");
       }
+
+      fflush(stdout);
     }
   }
 
