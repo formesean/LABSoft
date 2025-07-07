@@ -1835,6 +1835,7 @@ ly board.");
         main_fl_group_digital_circuit_checker_tab->color(FL_LIGHT3);
         main_fl_group_digital_circuit_checker_tab->selection_color(FL_LIGHT2);
         main_fl_group_digital_circuit_checker_tab->labelsize(12);
+        main_fl_group_digital_circuit_checker_tab->hide();
         { Fl_Group* o = new Fl_Group(20, 70, 220, 320);
           o->box(FL_ROUNDED_FRAME);
           o->labelsize(12);
@@ -1959,6 +1960,15 @@ ly board.");
         } // LABSoft_GUI_LABChecker_Digital_Input_Table* labchecker_digital_labsoft_gui_labchecker_digital_input_table
         main_fl_group_labchecker_digital->end();
       } // Fl_Group* main_fl_group_labchecker_digital
+      { main_fl_group_analog_circuit_checker = new Fl_Group(0, 50, 1220, 550, "Analog Circuit Checker");
+        main_fl_group_analog_circuit_checker->labelsize(12);
+        main_fl_group_analog_circuit_checker->hide();
+        main_fl_group_analog_circuit_checker->end();
+      } // Fl_Group* main_fl_group_analog_circuit_checker
+      { main_fl_group_labchecker_analog = new Fl_Group(0, 50, 1220, 550, "LABChecker_Analog");
+        main_fl_group_labchecker_analog->labelsize(12);
+        main_fl_group_labchecker_analog->end();
+      } // Fl_Group* main_fl_group_labchecker_analog
       main_fl_tabs->value (main_fl_group_oscilloscope_tab);
       main_fl_tabs->end();
     } // Fl_Tabs* main_fl_tabs

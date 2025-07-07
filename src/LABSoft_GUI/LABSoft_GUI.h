@@ -354,6 +354,8 @@ private:
   static void cb_digital_fl_button_create_file(Fl_Button*, void*);
 public:
   LABSoft_GUI_LABChecker_Digital_Input_Table *labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+  Fl_Group *main_fl_group_analog_circuit_checker;
+  Fl_Group *main_fl_group_labchecker_analog;
   Fl_Double_Window *oscilloscope_fl_window_record_config;
   Fl_Group *oscilloscope_fl_group_record_config;
   static Fl_Menu_Item menu_Samples[];
