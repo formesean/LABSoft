@@ -1,6 +1,8 @@
 #ifndef LAB_ENUMERATIONS_H
 #define LAB_ENUMERATIONS_H
 
+#include <cstdint>
+
 namespace LABE
 {
   namespace LAB
@@ -15,7 +17,7 @@ namespace LABE
       LABCHECKER_DIGITAL
     };
   };
-  
+
   namespace DISPLAY
   {
     enum class COLOR : uint32_t
@@ -25,7 +27,7 @@ namespace LABE
       GREEN   = 0x00FF0000
     };
   };
-  
+
   namespace OSC
   {
     namespace TRIG
@@ -89,7 +91,7 @@ namespace LABE
       TRIGGERED,
       DONE
     };
-  
+
   };
 
   namespace FUNC_GEN
@@ -149,6 +151,16 @@ namespace LABE
       ARMED,
       TRIGGERED,
       DONE
+    };
+  }
+
+  namespace SNM
+  {
+    enum class FOCUS_LEVEL
+    {
+      TAB,
+      GROUP,
+      WIDGET
     };
   }
 };

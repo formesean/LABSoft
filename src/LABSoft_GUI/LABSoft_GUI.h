@@ -220,18 +220,21 @@ private:
   static void cb_ohmmeter_fl_light_button_run_stop(Fl_Light_Button*, void*);
 public:
   Fl_Group *main_fl_group_function_generator_tab;
+  Fl_Group *function_generator_fl_group_1;
   LABSoft_GUI_Fl_Choice_With_Scroll *function_generator_fl_choice_wave_type;
 private:
   inline void cb_function_generator_fl_choice_wave_type_i(LABSoft_GUI_Fl_Choice_With_Scroll*, long);
   static void cb_function_generator_fl_choice_wave_type(LABSoft_GUI_Fl_Choice_With_Scroll*, long);
   static Fl_Menu_Item menu_function_generator_fl_choice_wave_type[];
 public:
+  Fl_Group *function_generator_fl_group_2;
   LABSoft_GUI_Fl_Input_Choice_With_Scroll *function_generator_fl_input_choice_frequency;
 private:
   inline void cb_function_generator_fl_input_choice_frequency_i(LABSoft_GUI_Fl_Input_Choice_With_Scroll*, long);
   static void cb_function_generator_fl_input_choice_frequency(LABSoft_GUI_Fl_Input_Choice_With_Scroll*, long);
   static Fl_Menu_Item menu_function_generator_fl_input_choice_frequency[];
 public:
+  Fl_Group *function_generator_fl_group_3;
   LABSoft_GUI_Fl_Input_Choice_With_Scroll *function_generator_fl_input_choice_period;
 private:
   inline void cb_function_generator_fl_input_choice_period_i(LABSoft_GUI_Fl_Input_Choice_With_Scroll*, long);
@@ -311,6 +314,7 @@ private:
 public:
   LABSoft_GUI_Logic_Analyzer_Display *logic_analyzer_labsoft_gui_logic_analyzer_display;
   Fl_Group *main_fl_group_digital_circuit_checker_tab;
+  Fl_Group *digital_circuit_checker_fl_group_1;
   Fl_Button *digital_circuit_checker_fl_button_load_file;
 private:
   inline void cb_digital_circuit_checker_fl_button_load_file_i(Fl_Button*, void*);
@@ -327,10 +331,12 @@ private:
   inline void cb_digital_circuit_checker_fl_button_run_checker_i(Fl_Button*, void*);
   static void cb_digital_circuit_checker_fl_button_run_checker(Fl_Button*, void*);
 public:
+  Fl_Group *digital_circuit_checker_fl_group_2;
   Fl_Output *digital_circuit_checker_fl_output_results;
   Fl_Button *digital_circuit_checker_fl_button_export_results;
   LABSoft_GUI_LABChecker_Digital_Output_Table *digital_circuit_checker_labchecker_gui_digital_output_table_table;
   Fl_Group *main_fl_group_labchecker_digital;
+  Fl_Group *labchecker_digital_fl_group_1;
   Fl_Choice *digital_fl_choice_input_bits;
 private:
   inline void cb_digital_fl_choice_input_bits_i(Fl_Choice*, void*);
@@ -348,6 +354,7 @@ private:
   inline void cb_digital_fl_input_output_count_i(Fl_Input*, void*);
   static void cb_digital_fl_input_output_count(Fl_Input*, void*);
 public:
+  Fl_Group *labchecker_digital_fl_group_2;
   Fl_Button *digital_fl_button_create_file;
 private:
   inline void cb_digital_fl_button_create_file_i(Fl_Button*, void*);

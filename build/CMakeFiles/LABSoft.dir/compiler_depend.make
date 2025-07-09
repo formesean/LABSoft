@@ -4879,6 +4879,8 @@ CMakeFiles/LABSoft.dir/LABSoft.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft.cpp \
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /usr/include/c++/12/chrono \
   /usr/include/c++/12/sstream \
   /usr/include/c++/12/istream \
@@ -5296,6 +5298,8 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI.cpp.o: /home/lab2pi4/LABSoft/src/
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /usr/include/c++/12/chrono \
   /usr/include/c++/12/sstream \
   /usr/include/c++/12/istream \
@@ -6848,6 +6852,25 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.cpp.o: /ho
   /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
   /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
+  /usr/local/include/FL/Fl_Table.H \
+  /usr/local/include/FL/Fl_Scrollbar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
+  /usr/local/include/FL/Fl_Menu_Bar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
+  /usr/local/include/FL/Fl_Text_Display.H \
+  /usr/local/include/FL/fl_draw.H \
+  /usr/local/include/FL/Fl_Text_Buffer.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /usr/include/c++/12/chrono \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
@@ -7544,6 +7567,43 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.cpp.o: /home
   /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
   /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
+  /usr/local/include/FL/Fl_Table.H \
+  /usr/local/include/FL/Fl_Scroll.H \
+  /usr/local/include/FL/Fl_Scrollbar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
+  /usr/local/include/FL/Fl_Menu_Bar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
+  /usr/local/include/FL/Fl_Output.H \
+  /usr/local/include/FL/Fl_Input.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.h \
+  /usr/include/c++/12/functional \
+  /usr/include/c++/12/bits/std_function.h \
+  /usr/include/c++/12/bits/stl_algo.h \
+  /usr/include/c++/12/bits/algorithmfwd.h \
+  /usr/include/c++/12/bits/stl_heap.h \
+  /usr/include/c++/12/bits/stl_tempbuf.h \
+  /usr/include/c++/12/bits/uniform_int_dist.h \
+  /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
+  /usr/local/include/FL/Fl_Menu_Item.H \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
+  /usr/local/include/FL/Fl_Text_Display.H \
+  /usr/local/include/FL/fl_draw.H \
+  /usr/local/include/FL/Fl_Text_Buffer.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
@@ -7551,7 +7611,6 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.cpp.o: /home
   /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Internal_Display.h \
@@ -7955,6 +8014,42 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Internal_Display.cpp
   /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
   /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
+  /usr/local/include/FL/Fl_Table.H \
+  /usr/local/include/FL/Fl_Scroll.H \
+  /usr/local/include/FL/Fl_Scrollbar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
+  /usr/local/include/FL/Fl_Menu_Bar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
+  /usr/local/include/FL/Fl_Output.H \
+  /usr/local/include/FL/Fl_Input.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.h \
+  /usr/include/c++/12/functional \
+  /usr/include/c++/12/bits/std_function.h \
+  /usr/include/c++/12/bits/stl_algo.h \
+  /usr/include/c++/12/bits/algorithmfwd.h \
+  /usr/include/c++/12/bits/stl_heap.h \
+  /usr/include/c++/12/bits/stl_tempbuf.h \
+  /usr/include/c++/12/bits/uniform_int_dist.h \
+  /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Menu_Item.H \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
+  /usr/local/include/FL/Fl_Text_Display.H \
+  /usr/local/include/FL/fl_draw.H \
+  /usr/local/include/FL/Fl_Text_Buffer.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /usr/include/c++/12/chrono \
   /usr/include/c++/12/sstream \
   /usr/include/c++/12/bits/sstream.tcc \
@@ -8594,46 +8689,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter.cpp.o: /home/lab2pi4/
   /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
   /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Oscilloscope.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Voltmeter.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Ohmmeter.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Function_Generator.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
-  /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_AD9833.h \
-  /home/lab2pi4/LABSoft/lib/AD9833/AD9833.h \
-  /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_MCP4XXX.h \
-  /home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Logic_Analyzer.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Software_Navigation.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Oscilloscope_Display.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -8655,8 +8710,11 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter.cpp.o: /home/lab2pi4/
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
@@ -8665,7 +8723,44 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter.cpp.o: /home/lab2pi4/
   /usr/local/include/FL/fl_draw.H \
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Oscilloscope.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Voltmeter.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Ohmmeter.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Function_Generator.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_AD9833.h \
+  /home/lab2pi4/LABSoft/lib/AD9833/AD9833.h \
+  /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_MCP4XXX.h \
+  /home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Logic_Analyzer.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.cpp \
   /usr/include/stdc-predef.h \
@@ -9059,20 +9154,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Check
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /usr/local/include/FL/Fl_Multi_Browser.H \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -9094,6 +9175,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Check
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -9105,6 +9187,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Check
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Utility_Functions.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cpp \
@@ -9499,20 +9595,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cp
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -9534,6 +9616,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cp
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -9545,6 +9628,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cp
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Utility_Functions.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label_Values.h \
@@ -9966,21 +10063,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.cpp.o:
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -10002,6 +10084,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.cpp.o:
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -10013,6 +10096,21 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.cpp.o:
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label_Values.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h
@@ -10409,20 +10507,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Ohmmeter.cpp.o: /home
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -10444,6 +10528,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Ohmmeter.cpp.o: /home
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -10455,6 +10540,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Ohmmeter.cpp.o: /home
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp \
@@ -10874,20 +10973,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.o: /
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -10909,6 +10994,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.o: /
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -10920,6 +11006,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.cpp.o: /
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label_Values.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h
@@ -10928,15 +11028,14 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/stdc-predef.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /usr/local/include/FL/Fl_Group.H \
-  /usr/local/include/FL/Fl_Widget.H \
-  /usr/local/include/FL/Enumerations.H \
-  /usr/local/include/FL/abi-version.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /usr/local/include/FL/Fl.H \
+  /usr/local/include/FL/Fl_Export.H \
+  /usr/local/include/FL/fl_utf8.h \
   /usr/local/include/FL/Fl_Export.H \
   /usr/local/include/FL/fl_types.h \
-  /usr/include/c++/12/cstdio \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/c++config.h \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/os_defines.h \
+  /usr/include/stdio.h \
+  /usr/include/arm-linux-gnueabihf/bits/libc-header-start.h \
   /usr/include/features.h \
   /usr/include/features-time64.h \
   /usr/include/arm-linux-gnueabihf/bits/wordsize.h \
@@ -10945,10 +11044,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/arm-linux-gnueabihf/bits/long-double.h \
   /usr/include/arm-linux-gnueabihf/gnu/stubs.h \
   /usr/include/arm-linux-gnueabihf/gnu/stubs-hard.h \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/cpu_defines.h \
-  /usr/include/c++/12/pstl/pstl_config.h \
-  /usr/include/stdio.h \
-  /usr/include/arm-linux-gnueabihf/bits/libc-header-start.h \
   /usr/lib/gcc/arm-linux-gnueabihf/12/include/stddef.h \
   /usr/lib/gcc/arm-linux-gnueabihf/12/include/stdarg.h \
   /usr/include/arm-linux-gnueabihf/bits/types.h \
@@ -10964,62 +11059,84 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/arm-linux-gnueabihf/bits/stdio_lim.h \
   /usr/include/arm-linux-gnueabihf/bits/floatn.h \
   /usr/include/arm-linux-gnueabihf/bits/floatn-common.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/bits/chrono.h \
-  /usr/include/c++/12/ratio \
-  /usr/include/c++/12/type_traits \
-  /usr/include/c++/12/cstdint \
-  /usr/lib/gcc/arm-linux-gnueabihf/12/include/stdint.h \
-  /usr/include/stdint.h \
-  /usr/include/arm-linux-gnueabihf/bits/wchar.h \
-  /usr/include/arm-linux-gnueabihf/bits/stdint-intn.h \
-  /usr/include/arm-linux-gnueabihf/bits/stdint-uintn.h \
-  /usr/include/c++/12/limits \
-  /usr/include/c++/12/ctime \
-  /usr/include/time.h \
-  /usr/include/arm-linux-gnueabihf/bits/time.h \
-  /usr/include/arm-linux-gnueabihf/bits/timex.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_timeval.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/clock_t.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/time_t.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_tm.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_timespec.h \
-  /usr/include/arm-linux-gnueabihf/bits/endian.h \
-  /usr/include/arm-linux-gnueabihf/bits/endianness.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/clockid_t.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/timer_t.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_itimerspec.h \
+  /usr/include/string.h \
   /usr/include/arm-linux-gnueabihf/bits/types/locale_t.h \
   /usr/include/arm-linux-gnueabihf/bits/types/__locale_t.h \
-  /usr/include/c++/12/bits/parse_numbers.h \
-  /usr/include/c++/12/ext/numeric_traits.h \
-  /usr/include/c++/12/bits/cpp_type_traits.h \
-  /usr/include/c++/12/ext/type_traits.h \
-  /usr/include/c++/12/concepts \
-  /usr/include/c++/12/compare \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/ios \
-  /usr/include/c++/12/iosfwd \
+  /usr/include/strings.h \
+  /usr/include/c++/12/stdlib.h \
+  /usr/include/c++/12/cstdlib \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/c++config.h \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/os_defines.h \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/cpu_defines.h \
+  /usr/include/c++/12/pstl/pstl_config.h \
+  /usr/include/stdlib.h \
+  /usr/include/arm-linux-gnueabihf/bits/waitflags.h \
+  /usr/include/arm-linux-gnueabihf/bits/waitstatus.h \
+  /usr/include/arm-linux-gnueabihf/sys/types.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/clock_t.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/clockid_t.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/time_t.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/timer_t.h \
+  /usr/include/arm-linux-gnueabihf/bits/stdint-intn.h \
+  /usr/include/endian.h \
+  /usr/include/arm-linux-gnueabihf/bits/endian.h \
+  /usr/include/arm-linux-gnueabihf/bits/endianness.h \
+  /usr/include/arm-linux-gnueabihf/bits/byteswap.h \
+  /usr/include/arm-linux-gnueabihf/bits/uintn-identity.h \
+  /usr/include/arm-linux-gnueabihf/sys/select.h \
+  /usr/include/arm-linux-gnueabihf/bits/select.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/sigset_t.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/__sigset_t.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_timeval.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_timespec.h \
+  /usr/include/arm-linux-gnueabihf/bits/pthreadtypes.h \
+  /usr/include/arm-linux-gnueabihf/bits/thread-shared-types.h \
+  /usr/include/arm-linux-gnueabihf/bits/pthreadtypes-arch.h \
+  /usr/include/arm-linux-gnueabihf/bits/atomic_wide_counter.h \
+  /usr/include/arm-linux-gnueabihf/bits/struct_mutex.h \
+  /usr/include/arm-linux-gnueabihf/bits/struct_rwlock.h \
+  /usr/include/alloca.h \
+  /usr/include/arm-linux-gnueabihf/bits/stdlib-float.h \
+  /usr/include/c++/12/bits/std_abs.h \
+  /usr/include/arm-linux-gnueabihf/sys/stat.h \
+  /usr/include/arm-linux-gnueabihf/bits/stat.h \
+  /usr/include/arm-linux-gnueabihf/bits/struct_stat.h \
+  /usr/include/arm-linux-gnueabihf/bits/statx.h \
+  /usr/include/linux/stat.h \
+  /usr/include/linux/types.h \
+  /usr/lib/linux/uapi/arm/asm/types.h \
+  /usr/include/asm-generic/int-ll64.h \
+  /usr/lib/linux/uapi/arm/asm/bitsperlong.h \
+  /usr/include/asm-generic/bitsperlong.h \
+  /usr/include/linux/posix_types.h \
+  /usr/include/linux/stddef.h \
+  /usr/lib/linux/uapi/arm/asm/posix_types.h \
+  /usr/include/asm-generic/posix_types.h \
+  /usr/include/arm-linux-gnueabihf/bits/statx-generic.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_statx_timestamp.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_statx.h \
+  /usr/include/locale.h \
+  /usr/include/arm-linux-gnueabihf/bits/locale.h \
+  /usr/local/include/FL/Enumerations.H \
+  /usr/local/include/FL/abi-version.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
+  /usr/include/c++/12/string \
   /usr/include/c++/12/bits/stringfwd.h \
   /usr/include/c++/12/bits/memoryfwd.h \
+  /usr/include/c++/12/bits/char_traits.h \
   /usr/include/c++/12/bits/postypes.h \
   /usr/include/c++/12/cwchar \
   /usr/include/wchar.h \
+  /usr/include/arm-linux-gnueabihf/bits/wchar.h \
   /usr/include/arm-linux-gnueabihf/bits/types/wint_t.h \
   /usr/include/arm-linux-gnueabihf/bits/types/mbstate_t.h \
-  /usr/include/c++/12/exception \
-  /usr/include/c++/12/bits/exception.h \
-  /usr/include/c++/12/bits/exception_ptr.h \
-  /usr/include/c++/12/bits/exception_defines.h \
-  /usr/include/c++/12/bits/cxxabi_init_exception.h \
-  /usr/include/c++/12/typeinfo \
-  /usr/include/c++/12/bits/hash_bytes.h \
-  /usr/include/c++/12/new \
-  /usr/include/c++/12/bits/move.h \
-  /usr/include/c++/12/bits/nested_exception.h \
-  /usr/include/c++/12/bits/char_traits.h \
+  /usr/include/c++/12/type_traits \
+  /usr/include/c++/12/compare \
+  /usr/include/c++/12/concepts \
   /usr/include/c++/12/bits/stl_construct.h \
+  /usr/include/c++/12/new \
+  /usr/include/c++/12/bits/exception.h \
+  /usr/include/c++/12/bits/move.h \
   /usr/include/c++/12/bits/stl_iterator_base_types.h \
   /usr/include/c++/12/bits/iterator_concepts.h \
   /usr/include/c++/12/bits/ptr_traits.h \
@@ -11027,45 +11144,29 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/c++/12/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/12/bits/concept_check.h \
   /usr/include/c++/12/debug/assertions.h \
-  /usr/include/c++/12/bits/localefwd.h \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/c++locale.h \
-  /usr/include/c++/12/clocale \
-  /usr/include/locale.h \
-  /usr/include/arm-linux-gnueabihf/bits/locale.h \
-  /usr/include/c++/12/cctype \
-  /usr/include/ctype.h \
-  /usr/include/c++/12/bits/ios_base.h \
-  /usr/include/c++/12/ext/atomicity.h \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/gthr.h \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/gthr-default.h \
-  /usr/include/pthread.h \
-  /usr/include/sched.h \
-  /usr/include/arm-linux-gnueabihf/bits/sched.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_sched_param.h \
-  /usr/include/arm-linux-gnueabihf/bits/cpu-set.h \
-  /usr/include/arm-linux-gnueabihf/bits/pthreadtypes.h \
-  /usr/include/arm-linux-gnueabihf/bits/thread-shared-types.h \
-  /usr/include/arm-linux-gnueabihf/bits/pthreadtypes-arch.h \
-  /usr/include/arm-linux-gnueabihf/bits/atomic_wide_counter.h \
-  /usr/include/arm-linux-gnueabihf/bits/struct_mutex.h \
-  /usr/include/arm-linux-gnueabihf/bits/struct_rwlock.h \
-  /usr/include/arm-linux-gnueabihf/bits/setjmp.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/__sigset_t.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct___jmp_buf_tag.h \
-  /usr/include/arm-linux-gnueabihf/bits/pthread_stack_min-dynamic.h \
-  /usr/include/arm-linux-gnueabihf/c++/12/bits/atomic_word.h \
-  /usr/include/arm-linux-gnueabihf/sys/single_threaded.h \
-  /usr/include/c++/12/bits/locale_classes.h \
-  /usr/include/c++/12/string \
+  /usr/include/c++/12/cstdint \
+  /usr/lib/gcc/arm-linux-gnueabihf/12/include/stdint.h \
+  /usr/include/stdint.h \
+  /usr/include/arm-linux-gnueabihf/bits/stdint-uintn.h \
   /usr/include/c++/12/bits/allocator.h \
   /usr/include/arm-linux-gnueabihf/c++/12/bits/c++allocator.h \
   /usr/include/c++/12/bits/new_allocator.h \
   /usr/include/c++/12/bits/functexcept.h \
+  /usr/include/c++/12/bits/exception_defines.h \
+  /usr/include/c++/12/bits/cpp_type_traits.h \
+  /usr/include/c++/12/bits/localefwd.h \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/c++locale.h \
+  /usr/include/c++/12/clocale \
+  /usr/include/c++/12/iosfwd \
+  /usr/include/c++/12/cctype \
+  /usr/include/ctype.h \
   /usr/include/c++/12/bits/ostream_insert.h \
   /usr/include/c++/12/bits/cxxabi_forced.h \
   /usr/include/c++/12/bits/stl_iterator.h \
+  /usr/include/c++/12/ext/type_traits.h \
   /usr/include/c++/12/bits/stl_function.h \
   /usr/include/c++/12/backward/binders.h \
+  /usr/include/c++/12/ext/numeric_traits.h \
   /usr/include/c++/12/bits/stl_algobase.h \
   /usr/include/c++/12/bits/stl_pair.h \
   /usr/include/c++/12/bits/utility.h \
@@ -11080,25 +11181,13 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/c++/12/bits/alloc_traits.h \
   /usr/include/c++/12/string_view \
   /usr/include/c++/12/bits/functional_hash.h \
+  /usr/include/c++/12/bits/hash_bytes.h \
   /usr/include/c++/12/bits/ranges_base.h \
   /usr/include/c++/12/bits/max_size_type.h \
   /usr/include/c++/12/numbers \
   /usr/include/c++/12/bits/string_view.tcc \
   /usr/include/c++/12/ext/string_conversions.h \
-  /usr/include/c++/12/cstdlib \
-  /usr/include/stdlib.h \
-  /usr/include/arm-linux-gnueabihf/bits/waitflags.h \
-  /usr/include/arm-linux-gnueabihf/bits/waitstatus.h \
-  /usr/include/arm-linux-gnueabihf/sys/types.h \
-  /usr/include/endian.h \
-  /usr/include/arm-linux-gnueabihf/bits/byteswap.h \
-  /usr/include/arm-linux-gnueabihf/bits/uintn-identity.h \
-  /usr/include/arm-linux-gnueabihf/sys/select.h \
-  /usr/include/arm-linux-gnueabihf/bits/select.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/sigset_t.h \
-  /usr/include/alloca.h \
-  /usr/include/arm-linux-gnueabihf/bits/stdlib-float.h \
-  /usr/include/c++/12/bits/std_abs.h \
+  /usr/include/c++/12/cstdio \
   /usr/include/c++/12/cerrno \
   /usr/include/errno.h \
   /usr/include/arm-linux-gnueabihf/bits/errno.h \
@@ -11109,19 +11198,168 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/arm-linux-gnueabihf/bits/types/error_t.h \
   /usr/include/c++/12/bits/charconv.h \
   /usr/include/c++/12/bits/basic_string.tcc \
+  /usr/include/c++/12/vector \
+  /usr/include/c++/12/bits/stl_uninitialized.h \
+  /usr/include/c++/12/bits/stl_vector.h \
+  /usr/include/c++/12/bits/stl_bvector.h \
+  /usr/include/c++/12/bits/vector.tcc \
+  /usr/local/include/FL/Fl_Input.H \
+  /usr/local/include/FL/Fl_Input_.H \
+  /usr/local/include/FL/Fl_Widget.H \
+  /usr/local/include/FL/Fl_Table.H \
+  /usr/local/include/FL/Fl_Group.H \
+  /usr/local/include/FL/Fl_Scroll.H \
+  /usr/local/include/FL/Fl_Group.H \
+  /usr/local/include/FL/Fl_Scrollbar.H \
+  /usr/local/include/FL/Fl_Slider.H \
+  /usr/local/include/FL/Fl_Valuator.H \
+  /usr/local/include/FL/Fl_Box.H \
+  /usr/local/include/FL/Fl_Scrollbar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
+  /usr/local/include/FL/Fl_Choice.H \
+  /usr/local/include/FL/Fl_Menu_.H \
+  /usr/local/include/FL/Fl_Menu_Item.H \
+  /usr/local/include/FL/Fl_Image.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
+  /usr/include/c++/12/utility \
+  /usr/include/c++/12/bits/stl_relops.h \
+  /usr/local/include/FL/Fl_Input_Choice.H \
+  /usr/local/include/FL/Fl_Menu_Button.H \
+  /usr/local/include/FL/fl_draw.H \
+  /usr/local/include/FL/x.H \
+  /usr/include/X11/Xlib.h \
+  /usr/include/X11/X.h \
+  /usr/include/X11/Xfuncproto.h \
+  /usr/include/X11/Xosdefs.h \
+  /usr/include/X11/Xutil.h \
+  /usr/include/X11/keysym.h \
+  /usr/include/X11/keysymdef.h \
+  /usr/include/X11/Xatom.h \
+  /usr/local/include/FL/Fl_Window.H \
+  /usr/local/include/FL/Fl_Bitmap.H \
+  /usr/local/include/FL/Enumerations.H \
+  /usr/local/include/FL/Fl_Window.H \
+  /usr/local/include/FL/Fl_Device.H \
+  /usr/local/include/FL/Fl_Plugin.H \
+  /usr/local/include/FL/Fl_Preferences.H \
+  /usr/local/include/FL/Fl_Image.H \
+  /usr/local/include/FL/Fl_Bitmap.H \
+  /usr/local/include/FL/Fl_Pixmap.H \
+  /usr/local/include/FL/Fl_RGB_Image.H \
+  /usr/local/include/FL/Fl_Double_Window.H \
+  /usr/local/include/FL/Fl_Menu_Bar.H \
+  /usr/local/include/FL/Fl_Tabs.H \
+  /usr/local/include/FL/Fl_Light_Button.H \
+  /usr/local/include/FL/Fl_Button.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
+  /usr/include/c++/12/array \
+  /usr/local/include/FL/Fl_Button.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Slider.h \
+  /usr/local/include/FL/Fl_Slider.H \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /usr/include/c++/12/unordered_map \
+  /usr/include/c++/12/ext/aligned_buffer.h \
+  /usr/include/c++/12/bits/hashtable.h \
+  /usr/include/c++/12/bits/hashtable_policy.h \
+  /usr/include/c++/12/tuple \
+  /usr/include/c++/12/bits/uses_allocator.h \
+  /usr/include/c++/12/bits/enable_special_members.h \
+  /usr/include/c++/12/bits/node_handle.h \
+  /usr/include/c++/12/bits/unordered_map.h \
+  /usr/include/c++/12/bits/erase_if.h \
+  /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
+  /home/lab2pi4/LABSoft/lib/AD9833/AD9833.h \
+  /home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.h \
+  /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/local/include/FL/Fl_Output.H \
+  /usr/local/include/FL/Fl_Input.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.h \
+  /usr/include/c++/12/functional \
+  /usr/include/c++/12/bits/std_function.h \
+  /usr/include/c++/12/typeinfo \
+  /usr/include/c++/12/bits/stl_algo.h \
+  /usr/include/c++/12/bits/algorithmfwd.h \
+  /usr/include/c++/12/bits/stl_heap.h \
+  /usr/include/c++/12/bits/stl_tempbuf.h \
+  /usr/include/c++/12/bits/uniform_int_dist.h \
+  /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
+  /usr/local/include/FL/Fl_Menu_Item.H \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
+  /home/lab2pi4/LABSoft/src/Utility/pugixml.hpp \
+  /home/lab2pi4/LABSoft/src/Utility/pugiconfig.hpp \
+  /usr/include/c++/12/exception \
+  /usr/include/c++/12/bits/exception_ptr.h \
+  /usr/include/c++/12/bits/cxxabi_init_exception.h \
+  /usr/include/c++/12/bits/nested_exception.h \
+  /usr/include/c++/12/iterator \
+  /usr/include/c++/12/bits/stream_iterator.h \
+  /usr/include/c++/12/bits/streambuf_iterator.h \
+  /usr/include/c++/12/streambuf \
+  /usr/include/c++/12/bits/ios_base.h \
+  /usr/include/c++/12/ext/atomicity.h \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/gthr.h \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/gthr-default.h \
+  /usr/include/pthread.h \
+  /usr/include/sched.h \
+  /usr/include/arm-linux-gnueabihf/bits/sched.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_sched_param.h \
+  /usr/include/arm-linux-gnueabihf/bits/cpu-set.h \
+  /usr/include/time.h \
+  /usr/include/arm-linux-gnueabihf/bits/time.h \
+  /usr/include/arm-linux-gnueabihf/bits/timex.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_tm.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct_itimerspec.h \
+  /usr/include/arm-linux-gnueabihf/bits/setjmp.h \
+  /usr/include/arm-linux-gnueabihf/bits/types/struct___jmp_buf_tag.h \
+  /usr/include/arm-linux-gnueabihf/bits/pthread_stack_min-dynamic.h \
+  /usr/include/arm-linux-gnueabihf/c++/12/bits/atomic_word.h \
+  /usr/include/arm-linux-gnueabihf/sys/single_threaded.h \
+  /usr/include/c++/12/bits/locale_classes.h \
   /usr/include/c++/12/bits/locale_classes.tcc \
   /usr/include/c++/12/system_error \
   /usr/include/arm-linux-gnueabihf/c++/12/bits/error_constants.h \
   /usr/include/c++/12/stdexcept \
-  /usr/include/c++/12/streambuf \
   /usr/include/c++/12/bits/streambuf.tcc \
+  /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_MCP23S17.h \
+  /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
+  /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
+  /usr/local/include/FL/Fl_Check_Button.H \
+  /usr/local/include/FL/Fl_Light_Button.H \
+  /usr/local/include/FL/Fl_Text_Display.H \
+  /usr/local/include/FL/fl_draw.H \
+  /usr/local/include/FL/Fl_Text_Buffer.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
+  /usr/local/include/FL/Fl_Multi_Browser.H \
+  /usr/local/include/FL/Fl_Browser.H \
+  /usr/local/include/FL/Fl_Browser_.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/bits/chrono.h \
+  /usr/include/c++/12/ratio \
+  /usr/include/c++/12/limits \
+  /usr/include/c++/12/ctime \
+  /usr/include/c++/12/bits/parse_numbers.h \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/ios \
   /usr/include/c++/12/bits/basic_ios.h \
   /usr/include/c++/12/bits/locale_facets.h \
   /usr/include/c++/12/cwctype \
   /usr/include/wctype.h \
   /usr/include/arm-linux-gnueabihf/bits/wctype-wchar.h \
   /usr/include/arm-linux-gnueabihf/c++/12/bits/ctype_base.h \
-  /usr/include/c++/12/bits/streambuf_iterator.h \
   /usr/include/arm-linux-gnueabihf/c++/12/bits/ctype_inline.h \
   /usr/include/c++/12/bits/locale_facets.tcc \
   /usr/include/c++/12/bits/basic_ios.tcc \
@@ -11162,8 +11400,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/arm-linux-gnueabihf/bits/syscall.h \
   /usr/include/c++/12/bits/std_mutex.h \
   /usr/include/c++/12/bits/std_thread.h \
-  /usr/include/c++/12/tuple \
-  /usr/include/c++/12/bits/uses_allocator.h \
   /usr/include/c++/12/bits/unique_ptr.h \
   /usr/include/c++/12/semaphore \
   /usr/include/c++/12/bits/semaphore_base.h \
@@ -11174,51 +11410,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/arm-linux-gnueabihf/bits/semaphore.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
-  /usr/include/c++/12/array \
-  /usr/include/c++/12/vector \
-  /usr/include/c++/12/bits/stl_uninitialized.h \
-  /usr/include/c++/12/bits/stl_vector.h \
-  /usr/include/c++/12/bits/stl_bvector.h \
-  /usr/include/c++/12/bits/vector.tcc \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
-  /usr/include/c++/12/unordered_map \
-  /usr/include/c++/12/ext/aligned_buffer.h \
-  /usr/include/c++/12/bits/hashtable.h \
-  /usr/include/c++/12/bits/hashtable_policy.h \
-  /usr/include/c++/12/bits/enable_special_members.h \
-  /usr/include/c++/12/bits/node_handle.h \
-  /usr/include/c++/12/bits/unordered_map.h \
-  /usr/include/c++/12/bits/erase_if.h \
-  /usr/local/include/FL/fl_draw.H \
-  /usr/local/include/FL/x.H \
-  /usr/include/X11/Xlib.h \
-  /usr/include/X11/X.h \
-  /usr/include/X11/Xfuncproto.h \
-  /usr/include/X11/Xosdefs.h \
-  /usr/include/X11/Xutil.h \
-  /usr/include/X11/keysym.h \
-  /usr/include/X11/keysymdef.h \
-  /usr/include/X11/Xatom.h \
-  /usr/local/include/FL/Fl_Window.H \
-  /usr/local/include/FL/Fl_Group.H \
-  /usr/local/include/FL/Fl_Bitmap.H \
-  /usr/local/include/FL/Fl_Image.H \
-  /usr/include/c++/12/stdlib.h \
-  /usr/local/include/FL/Enumerations.H \
-  /usr/local/include/FL/Fl_Window.H \
-  /usr/local/include/FL/Fl_Device.H \
-  /usr/local/include/FL/Fl_Plugin.H \
-  /usr/local/include/FL/Fl_Preferences.H \
-  /usr/local/include/FL/Fl_Image.H \
-  /usr/local/include/FL/Fl_Bitmap.H \
-  /usr/local/include/FL/Fl_Pixmap.H \
-  /usr/local/include/FL/Fl_RGB_Image.H \
-  /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
-  /home/lab2pi4/LABSoft/lib/AD9833/AD9833.h \
-  /home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.h \
-  /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Voltmeter.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Ohmmeter.h \
@@ -11231,12 +11422,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /home/lab2pi4/LABSoft/lib/MCP4XXX/MCP4XXX.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Logic_Analyzer.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
-  /home/lab2pi4/LABSoft/src/Utility/pugixml.hpp \
-  /home/lab2pi4/LABSoft/src/Utility/pugiconfig.hpp \
-  /usr/include/c++/12/iterator \
-  /usr/include/c++/12/bits/stream_iterator.h \
-  /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_MCP23S17.h \
-  /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Software_Navigation.h \
   /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Exporter.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
@@ -11246,66 +11431,19 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter.h \
-  /usr/local/include/FL/Fl_Tabs.H \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Oscilloscope.h \
-  /usr/local/include/FL/Fl_Choice.H \
-  /usr/local/include/FL/Fl_Menu_.H \
-  /usr/local/include/FL/Fl_Menu_Item.H \
-  /usr/local/include/FL/Fl_Slider.H \
-  /usr/local/include/FL/Fl_Valuator.H \
-  /usr/local/include/FL/Fl_Input_Choice.H \
-  /usr/local/include/FL/Fl.H \
-  /usr/local/include/FL/Fl_Export.H \
-  /usr/local/include/FL/fl_utf8.h \
-  /usr/include/string.h \
-  /usr/include/strings.h \
-  /usr/include/arm-linux-gnueabihf/sys/stat.h \
-  /usr/include/arm-linux-gnueabihf/bits/stat.h \
-  /usr/include/arm-linux-gnueabihf/bits/struct_stat.h \
-  /usr/include/arm-linux-gnueabihf/bits/statx.h \
-  /usr/include/linux/stat.h \
-  /usr/include/linux/types.h \
-  /usr/lib/linux/uapi/arm/asm/types.h \
-  /usr/include/asm-generic/int-ll64.h \
-  /usr/lib/linux/uapi/arm/asm/bitsperlong.h \
-  /usr/include/asm-generic/bitsperlong.h \
-  /usr/include/linux/posix_types.h \
-  /usr/include/linux/stddef.h \
-  /usr/lib/linux/uapi/arm/asm/posix_types.h \
-  /usr/include/asm-generic/posix_types.h \
-  /usr/include/arm-linux-gnueabihf/bits/statx-generic.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_statx_timestamp.h \
-  /usr/include/arm-linux-gnueabihf/bits/types/struct_statx.h \
-  /usr/local/include/FL/Fl_Input.H \
-  /usr/local/include/FL/Fl_Input_.H \
-  /usr/local/include/FL/Fl_Menu_Button.H \
-  /usr/local/include/FL/Fl_Light_Button.H \
-  /usr/local/include/FL/Fl_Button.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Slider.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
-  /usr/local/include/FL/Fl_Box.H \
-  /usr/local/include/FL/Fl_Button.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Slider.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
-  /usr/include/c++/12/utility \
-  /usr/include/c++/12/bits/stl_relops.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Ohmmeter.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Function_Generator.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
-  /usr/local/include/FL/Fl_Multi_Browser.H \
-  /usr/local/include/FL/Fl_Browser.H \
-  /usr/local/include/FL/Fl_Browser_.H \
-  /usr/local/include/FL/Fl_Scrollbar.H \
-  /usr/local/include/FL/Fl_Slider.H \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.h \
   /usr/local/include/FL/Fl_Native_File_Chooser.H \
   /usr/local/include/FL/Fl_File_Chooser.H \
-  /usr/local/include/FL/Fl_Double_Window.H \
   /usr/local/include/FL/Fl_Preferences.H \
   /usr/local/include/FL/Fl_Tile.H \
   /usr/local/include/FL/Fl_File_Browser.H \
@@ -11315,8 +11453,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /usr/include/dirent.h \
   /usr/include/arm-linux-gnueabihf/bits/dirent.h \
   /usr/include/arm-linux-gnueabihf/bits/dirent_ext.h \
-  /usr/local/include/FL/Fl_Check_Button.H \
-  /usr/local/include/FL/Fl_Light_Button.H \
   /usr/local/include/FL/Fl_File_Input.H \
   /usr/local/include/FL/Fl_Return_Button.H \
   /usr/local/include/FL/fl_ask.H \
@@ -11327,41 +11463,8 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.c
   /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
-  /usr/local/include/FL/Fl_Table.H \
-  /usr/local/include/FL/Fl_Scroll.H \
-  /usr/local/include/FL/Fl_Scrollbar.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
-  /usr/local/include/FL/Fl_Menu_Bar.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
-  /usr/local/include/FL/Fl_Output.H \
-  /usr/local/include/FL/Fl_Input.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.h \
-  /usr/include/c++/12/functional \
-  /usr/include/c++/12/bits/std_function.h \
-  /usr/include/c++/12/bits/stl_algo.h \
-  /usr/include/c++/12/bits/algorithmfwd.h \
-  /usr/include/c++/12/bits/stl_heap.h \
-  /usr/include/c++/12/bits/stl_tempbuf.h \
-  /usr/include/c++/12/bits/uniform_int_dist.h \
-  /usr/local/include/FL/Fl_Pack.H \
-  /usr/local/include/FL/Fl_Menu_Item.H \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
-  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
-  /usr/local/include/FL/Fl_Text_Display.H \
-  /usr/local/include/FL/fl_draw.H \
-  /usr/local/include/FL/Fl_Text_Buffer.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Unit.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.cpp \
@@ -11732,6 +11835,42 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Unit.cpp.o: /home/lab
   /home/lab2pi4/LABSoft/lib/MCP23S17/MCP23S17.h \
   /home/lab2pi4/LABSoft/lib/AikaPi/AikaPi.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
+  /usr/local/include/FL/Fl_Table.H \
+  /usr/local/include/FL/Fl_Scroll.H \
+  /usr/local/include/FL/Fl_Scrollbar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
+  /usr/local/include/FL/Fl_Menu_Bar.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
+  /usr/local/include/FL/Fl_Output.H \
+  /usr/local/include/FL/Fl_Input.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Display.h \
+  /usr/include/c++/12/functional \
+  /usr/include/c++/12/bits/std_function.h \
+  /usr/include/c++/12/bits/stl_algo.h \
+  /usr/include/c++/12/bits/algorithmfwd.h \
+  /usr/include/c++/12/bits/stl_heap.h \
+  /usr/include/c++/12/bits/stl_tempbuf.h \
+  /usr/include/c++/12/bits/uniform_int_dist.h \
+  /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
+  /usr/local/include/FL/Fl_Menu_Item.H \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
+  /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
+  /usr/local/include/FL/Fl_Text_Display.H \
+  /usr/local/include/FL/fl_draw.H \
+  /usr/local/include/FL/Fl_Text_Buffer.H \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /usr/include/c++/12/chrono \
   /usr/include/c++/12/sstream \
   /usr/include/c++/12/istream \
@@ -11744,7 +11883,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Unit.cpp.o: /home/lab
   /home/lab2pi4/LABSoft/src/LAB/LAB_Module.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h
 
@@ -12140,20 +12278,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.o: /hom
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -12175,6 +12299,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.o: /hom
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -12186,6 +12311,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.o: /hom
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp \
@@ -12584,19 +12723,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
-  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -12618,6 +12744,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -12629,6 +12756,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Constants.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Utility_Functions.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp \
@@ -13035,15 +13176,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -13076,6 +13208,17 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/Utility/LABSoft_GUI_Label_Values.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h
 
@@ -13476,18 +13619,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_D
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -13509,6 +13640,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_D
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -13519,7 +13651,20 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_D
   /usr/local/include/FL/fl_draw.H \
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.cpp \
   /usr/include/stdc-predef.h \
@@ -13916,19 +14061,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -13960,7 +14092,22 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.
   /usr/local/include/FL/fl_draw.H \
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h
 
 CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp.o: /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp \
   /usr/include/stdc-predef.h \
@@ -14356,20 +14503,6 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
-  /usr/include/c++/12/chrono \
-  /usr/include/c++/12/sstream \
-  /usr/include/c++/12/istream \
-  /usr/include/c++/12/bits/istream.tcc \
-  /usr/include/c++/12/bits/sstream.tcc \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
-  /usr/local/include/FL/Fl_Widget.H \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Sheet.h \
   /usr/local/include/FL/Fl_Table.H \
@@ -14391,6 +14524,7 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope
   /usr/include/c++/12/bits/stl_tempbuf.h \
   /usr/include/c++/12/bits/uniform_int_dist.h \
   /usr/local/include/FL/Fl_Pack.H \
+  /usr/local/include/FL/Fl_Widget.H \
   /usr/local/include/FL/Fl_Menu_Item.H \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Definitions.h \
   /home/lab2pi4/LABSoft/src/Utility/LAB_Defaults.h \
@@ -14401,7 +14535,22 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope
   /usr/local/include/FL/fl_draw.H \
   /usr/local/include/FL/Fl_Text_Buffer.H \
   /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
-  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
+  /usr/include/c++/12/chrono \
+  /usr/include/c++/12/sstream \
+  /usr/include/c++/12/istream \
+  /usr/include/c++/12/bits/istream.tcc \
+  /usr/include/c++/12/bits/sstream.tcc \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Unit.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LAB/Software/LAB_Calibration.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h
 
 CMakeFiles/LABSoft.dir/LAB_Libraries/LAB_AD9833.cpp.o: /home/lab2pi4/LABSoft/src/LAB_Libraries/LAB_AD9833.cpp \
   /usr/include/stdc-predef.h \
@@ -16943,6 +17092,8 @@ CMakeFiles/LABSoft.dir/main.cpp.o: /home/lab2pi4/LABSoft/src/main.cpp \
   /usr/local/include/FL/fl_ask.H \
   /home/lab2pi4/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/lab2pi4/LABSoft/src/LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.h \
+  /home/lab2pi4/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
+  /home/lab2pi4/LABSoft/src/Utility/LAB_Enumerations.h \
   /usr/include/c++/12/chrono \
   /usr/include/c++/12/sstream \
   /usr/include/c++/12/istream \
