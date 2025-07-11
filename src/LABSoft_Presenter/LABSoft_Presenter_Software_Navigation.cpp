@@ -5,18 +5,20 @@
 #include "../LABSoft_GUI/LABSoft_GUI.h"
 #include "../Utility/LABSoft_GUI_Label.h"
 
+using LABE::SNM::tab_label_to_id;
+
 LABSoft_Presenter_Software_Navigation::
 LABSoft_Presenter_Software_Navigation (LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit (_LABSoft_Presenter)
 {
-  tab_groups[0] = gui().main_fl_group_oscilloscope_tab;            // Oscilloscope
-  tab_groups[1] = gui().main_fl_group_voltmeter_tab;               // Voltmeter
-  tab_groups[2] = gui().main_fl_group_ohmmeter_tab;                // Ohmmeter
-  tab_groups[3] = gui().main_fl_group_function_generator_tab;      // Function Generator
-  tab_groups[4] = gui().main_fl_group_power_supply_tab;            // Power Supply
-  tab_groups[5] = gui().main_fl_group_logic_analyzer_tab;          // Logic Analyzer
-  tab_groups[6] = gui().main_fl_group_digital_circuit_checker_tab; // Digital Circuit Checker
-  tab_groups[7] = gui().main_fl_group_labchecker_digital;          // LABChecker - Digital
+  tab_groups[0] = gui().main_fl_group_oscilloscope_tab;
+  tab_groups[1] = gui().main_fl_group_voltmeter_tab;
+  tab_groups[2] = gui().main_fl_group_ohmmeter_tab;
+  tab_groups[3] = gui().main_fl_group_function_generator_tab;
+  tab_groups[4] = gui().main_fl_group_power_supply_tab;
+  tab_groups[5] = gui().main_fl_group_logic_analyzer_tab;
+  tab_groups[6] = gui().main_fl_group_digital_circuit_checker_tab;
+  tab_groups[7] = gui().main_fl_group_labchecker_digital;
 
   sync_current_tab_index();
 }
@@ -27,38 +29,6 @@ update_data_cycle()
 {
   auto data = lab().m_Software_Navigation.update_spi_data();
   if (data[0] == 0 && data[1] == 0 && data[2] == 0) return;
-
-  const char* current_tab_label = gui().main_fl_tabs->value()->label();
-  Fl_Group* current_tab_group = static_cast<Fl_Group*>(gui().main_fl_tabs->value());
-
-  const static std::unordered_map<std::string_view, std::vector<Fl_Group*>> focusable_groups_per_tab = {
-    { "Oscilloscope", {
-      gui().oscilloscope_fl_group_vertical_channel_0,
-      gui().oscilloscope_fl_group_vertical_channel_1,
-      gui().oscilloscope_fl_group_display,
-      gui().oscilloscope_fl_group_horizontal,
-      gui().oscilloscope_fl_group_trigger
-    } },
-    { "Function Generator", {
-      gui().function_generator_fl_group_1,
-      gui().function_generator_fl_group_2,
-      gui().function_generator_fl_group_3
-    } },
-    { "Logic Analyzer", {
-      gui().logic_analyzer_fl_group_display,
-      gui().logic_analyzer_fl_group_trigger,
-      gui().logic_analyzer_fl_group_add_remove_channels,
-      gui().logic_analyzer_fl_group_horizontal
-    } },
-    { "Digital Circuit Checker", {
-      gui().digital_circuit_checker_fl_group_1,
-      gui().digital_circuit_checker_fl_group_2
-    } },
-    { "LABChecker - Digital", {
-      gui().labchecker_digital_fl_group_1,
-      gui().labchecker_digital_fl_group_2
-    } },
-  };
 
   // Macro Keys
   if (data[0] == 1)
@@ -109,11 +79,11 @@ update_data_cycle()
 
       if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
       {
-        auto group_it = focusable_groups_per_tab.find(current_tab_label);
-        if (group_it != focusable_groups_per_tab.end())
-          current_groups_in_tab = group_it->second;
-        else
-          current_groups_in_tab.clear();
+        auto tab_id = get_current_tab_id();
+        auto focusable_map = get_focusable_groups_per_tab();
+
+        auto it = focusable_map.find(tab_id);
+        current_groups_in_tab = (it != focusable_map.end()) ? it->second : std::vector<Fl_Group*>{};
 
         group_index = 0;
 
@@ -182,7 +152,8 @@ update_data_cycle()
         }
       };
 
-      if (auto it = run_key_actions.find(current_tab_label); it != run_key_actions.end()) {
+      std::string_view label = gui().main_fl_tabs->value()->label();
+      if (auto it = run_key_actions.find(label); it != run_key_actions.end()) {
         it->second();
       }
     }
@@ -214,7 +185,9 @@ update_data_cycle()
 
   // Encoder Switch
   if (data[0] == 3)
-  {}
+  {
+    // Reserved for future use
+  }
 }
 
 void
@@ -313,6 +286,59 @@ get_widgets_in_group(Fl_Group* group)
   }
 
   return widgets;
+}
+
+LABE::SNM::TAB_ID
+LABSoft_Presenter_Software_Navigation::
+get_current_tab_id () const
+{
+  std::string_view label = gui().main_fl_tabs->value()->label();
+
+  if (auto it = tab_label_to_id.find(label); it != tab_label_to_id.end())
+    return it->second;
+
+  return LABE::SNM::TAB_ID::OSCILLOSCOPE;
+}
+
+std::unordered_map<LABE::SNM::TAB_ID, std::vector<Fl_Group*>>
+LABSoft_Presenter_Software_Navigation::
+get_focusable_groups_per_tab() const
+{
+  using TAB = LABE::SNM::TAB_ID;
+
+  return {
+    { TAB::OSCILLOSCOPE, {
+        gui().oscilloscope_fl_group_vertical_channel_0,
+        gui().oscilloscope_fl_group_vertical_channel_1,
+        gui().oscilloscope_fl_group_display,
+        gui().oscilloscope_fl_group_horizontal,
+        gui().oscilloscope_fl_group_trigger
+      }
+    },
+    { TAB::FUNCTION_GENERATOR, {
+        gui().function_generator_fl_group_1,
+        gui().function_generator_fl_group_2,
+        gui().function_generator_fl_group_3
+      }
+    },
+    { TAB::LOGIC_ANALYZER, {
+        gui().logic_analyzer_fl_group_display,
+        gui().logic_analyzer_fl_group_trigger,
+        gui().logic_analyzer_fl_group_add_remove_channels,
+        gui().logic_analyzer_fl_group_horizontal
+      }
+    },
+    { TAB::DIGITAL_CIRCUIT_CHECKER, {
+        gui().digital_circuit_checker_fl_group_1,
+        gui().digital_circuit_checker_fl_group_2
+      }
+    },
+    { TAB::LABCHECKER_DIGITAL, {
+        gui().labchecker_digital_fl_group_1,
+        gui().labchecker_digital_fl_group_2
+      }
+    }
+  };
 }
 
 // EOF

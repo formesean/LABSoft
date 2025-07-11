@@ -2,6 +2,7 @@
 #define LAB_ENUMERATIONS_H
 
 #include <cstdint>
+#include <unordered_map>
 
 namespace LABE
 {
@@ -161,6 +162,30 @@ namespace LABE
       TAB,
       GROUP,
       WIDGET
+    };
+
+    enum class TAB_ID
+    {
+      OSCILLOSCOPE,
+      VOLTMETER,
+      OHMMETER,
+      FUNCTION_GENERATOR,
+      POWER_SUPPLY,
+      LOGIC_ANALYZER,
+      DIGITAL_CIRCUIT_CHECKER,
+      LABCHECKER_DIGITAL
+    };
+
+    inline const std::unordered_map<std::string_view, LABE::SNM::TAB_ID> tab_label_to_id =
+    {
+      { "Oscilloscope",            LABE::SNM::TAB_ID::OSCILLOSCOPE },
+      { "Voltmeter",               LABE::SNM::TAB_ID::VOLTMETER },
+      { "Ohmmeter",                LABE::SNM::TAB_ID::OHMMETER },
+      { "Function Generator",      LABE::SNM::TAB_ID::FUNCTION_GENERATOR },
+      { "Power Supply",            LABE::SNM::TAB_ID::POWER_SUPPLY },
+      { "Logic Analyzer",          LABE::SNM::TAB_ID::LOGIC_ANALYZER },
+      { "Digital Circuit Checker", LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER },
+      { "LABChecker - Digital",    LABE::SNM::TAB_ID::LABCHECKER_DIGITAL }
     };
   }
 };

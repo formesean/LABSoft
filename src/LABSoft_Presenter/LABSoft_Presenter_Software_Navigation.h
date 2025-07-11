@@ -38,6 +38,9 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
   private:
     std::vector<Fl_Group*>  get_groups_in_tab    (Fl_Group* tab);
     std::vector<Fl_Widget*> get_widgets_in_group (Fl_Group* group);
+
+    LABE::SNM::TAB_ID       get_current_tab_id    () const;
+    std::unordered_map<LABE::SNM::TAB_ID, std::vector<Fl_Group*>> get_focusable_groups_per_tab() const;
 };
 
 #endif

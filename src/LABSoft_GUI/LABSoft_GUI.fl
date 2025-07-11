@@ -31,7 +31,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {298 178 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {347 49 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar {} {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -78,7 +78,7 @@ class LABSoft_GUI {open
         code0 {main_fl_tabs->value (main_fl_group_oscilloscope_tab);}
       } {
         Fl_Group main_fl_group_oscilloscope_tab {
-          label Oscilloscope open
+          label Oscilloscope
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Light_Button oscilloscope_fl_light_button_debug_measurements {
@@ -1388,7 +1388,7 @@ class LABSoft_GUI {open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Group function_generator_fl_group_1 {
-            xywh {190 200 240 60}
+            xywh {189 199 242 62} box BORDER_FRAME color 55
           } {
             Fl_Choice function_generator_fl_choice_wave_type {
               label {Wave Type}
@@ -1416,7 +1416,7 @@ class LABSoft_GUI {open
             }
           }
           Fl_Group function_generator_fl_group_2 {
-            xywh {490 200 240 60}
+            xywh {490 200 240 60} box BORDER_FRAME color 55
           } {
             Fl_Input_Choice function_generator_fl_input_choice_frequency {
               label Frequency
@@ -1512,7 +1512,7 @@ class LABSoft_GUI {open
             }
           }
           Fl_Group function_generator_fl_group_3 {
-            xywh {790 200 240 60}
+            xywh {790 200 240 60} box BORDER_FRAME color 55
           } {
             Fl_Input_Choice function_generator_fl_input_choice_period {
               label Period
@@ -1609,9 +1609,9 @@ class LABSoft_GUI {open
         }
         Fl_Group main_fl_group_logic_analyzer_tab {
           label {Logic Analyzer} open
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
-          Fl_Group logic_analyzer_fl_group_display {
+          Fl_Group logic_analyzer_fl_group_display {selected
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
           } {
             Fl_Button logic_analyzer_fl_button_record_config {
@@ -2085,7 +2085,7 @@ class LABSoft_GUI {open
         }
         Fl_Group main_fl_group_labchecker_digital {
           label {LABChecker - Digital} open
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Group labchecker_digital_fl_group_1 {
             xywh {20 70 220 230} box ROUNDED_FRAME
@@ -2174,7 +2174,7 @@ class LABSoft_GUI {open
               code0 {digital_fl_input_output_count->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
             }
           }
-          Fl_Group labchecker_digital_fl_group_2 {selected
+          Fl_Group labchecker_digital_fl_group_2 {
             xywh {20 474 220 100} box ROUNDED_FRAME
           } {
             Fl_Button digital_fl_button_create_file {
