@@ -25,6 +25,7 @@ add_executable(LABSoft
   LAB/LAB_Function_Generator.cpp
   LAB/LAB_Logic_Analyzer.cpp
   LAB/LAB_Digital_Circuit_Checker.cpp
+  LAB/LAB_Software_Navigation.cpp
 
   LAB/Software/LAB_Exporter.cpp
   LAB/Software/LAB_Calibration.cpp
@@ -40,6 +41,7 @@ add_executable(LABSoft
   LABSoft_Presenter/LABSoft_Presenter_Function_Generator.cpp
   LABSoft_Presenter/LABSoft_Presenter_Logic_Analyzer.cpp
   LABSoft_Presenter/LABSoft_Presenter_Digital_Circuit_Checker.cpp
+  LABSoft_Presenter/LABSoft_Presenter_Software_Navigation.cpp
 
   LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp
