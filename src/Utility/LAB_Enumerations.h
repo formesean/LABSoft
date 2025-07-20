@@ -1,6 +1,8 @@
 #ifndef LAB_ENUMERATIONS_H
 #define LAB_ENUMERATIONS_H
 
+#include <cstdint>
+
 namespace LABE
 {
   namespace LAB

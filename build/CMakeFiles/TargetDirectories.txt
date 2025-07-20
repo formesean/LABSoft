@@ -1,0 +1,3 @@
+/home/juztisleague/LABSoft/build/CMakeFiles/LABSoft.dir
+/home/juztisleague/LABSoft/build/CMakeFiles/edit_cache.dir
+/home/juztisleague/LABSoft/build/CMakeFiles/rebuild_cache.dir

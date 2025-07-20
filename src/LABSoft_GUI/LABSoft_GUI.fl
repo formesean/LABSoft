@@ -31,10 +31,10 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {323 101 1220 595} type Double color 53 selection_color 53 labelsize 12 hide
+      xywh {366 177 1220 595} type Double color 53 selection_color 53 labelsize 12 hide
     } {
-      Fl_Menu_Bar {} {
-        xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
+      Fl_Menu_Bar {} {selected
+        xywh {0 -5 1220 25} box FLAT_BOX color 54 labelsize 12 textsize 12
       } {
         Submenu {} {
           label Workspace
@@ -2179,57 +2179,61 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_analog_circuit_checker {
-          label {Analog Circuit Checker} selected
-          xywh {0 50 1220 550} color 54 labelsize 12
+          label {Analog Circuit Checker}
+          xywh {1 50 1220 550} color 54 labelsize 12 hide
         } {
-          Fl_Group {} {open
-            xywh {260 80 940 495} box FLAT_BOX color 32
+          Fl_Group analog_circuit_checker_labsoft_gui_analog_circuit_checker_display {open
+            xywh {261 80 940 495} box FLAT_BOX color 32
+            code0 {\#include "LABSoft_GUI_Oscilloscope_Display.h"}
+            class LABSoft_GUI_Analog_Circuit_Checker_Display
           } {}
           Fl_Group {} {open
-            xywh {20 80 220 285} box ROUNDED_FRAME labelsize 12
+            xywh {21 80 220 285} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Check_Button analog_circuit_checker_fl_checkbutton_time_domain {
               label {Time Domain}
-              xywh {55 235 69 20} down_box DOWN_BOX labelsize 12
+              xywh {56 235 69 20} down_box DOWN_BOX labelsize 12
             }
             Fl_Check_Button analog_circuit_checker_fl_checkbutton_frequency_domain {
               label {Frequency Domain}
-              xywh {55 260 69 25} down_box DOWN_BOX labelsize 12
+              xywh {56 260 69 25} down_box DOWN_BOX labelsize 12
             }
             Fl_Button analog_circuit_checker_fl_button_run_checker {
               label {Run Checker}
-              xywh {40 295 180 50} box GTK_UP_BOX color 54 labelsize 12
+              xywh {41 295 180 50} box GTK_UP_BOX color 54 labelsize 12
             }
             Fl_Button analog_circuit_checker_fl_button_load_file {
               label {Load File}
-              xywh {40 95 180 60} box GTK_UP_BOX color 54 labelsize 12
+              xywh {41 95 180 60} box GTK_UP_BOX color 54 labelsize 12
             }
           }
           Fl_Output analog_circuit_checker_fl_output_selected_file {
             label {Selected File}
-            xywh {45 182 180 39} labelsize 12 align 1 textsize 12
+            xywh {46 182 180 39} labelsize 12 align 1 textsize 12
           }
           Fl_Group {} {open
-            xywh {20 390 220 180} box ROUNDED_FRAME labelsize 12
+            xywh {21 390 220 180} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Button analog_circuit_checker_fl_button_export_results {
               label {Export Results}
-              xywh {40 485 180 65} box GTK_UP_BOX color 54 labelsize 12
+              xywh {41 485 180 65} box GTK_UP_BOX color 54 labelsize 12
             }
             Fl_Output analog_circuit_checker_fl_output_results {
               label Results
-              xywh {40 427 180 28} labelsize 12 align 1 textsize 12
+              xywh {41 427 180 28} labelsize 12 align 1 textsize 12
             }
           }
         }
-        Fl_Group main_fl_group_labchecker_analog {
-          label LABChecker_Analog open
-          xywh {0 50 1220 550} color 54 labelsize 12 hide
+        Fl_Group main_fl_group_labchecker_analog_tab {
+          label LABChecker_Analog
+          xywh {0 50 1220 550} color 54 labelsize 12
         } {
-          Fl_Group {} {open
+          Fl_Group analog_labsoft_gui_analog_checker_display {open
             xywh {260 80 940 495} box FLAT_BOX color 32
+            code0 {\#include "LABSoft_GUI_Oscilloscope_Display.h"}
+            class LABSoft_GUI_LABChecker_Analog_Checker_Display
           } {}
-          Fl_Group {} {open
+          Fl_Group {} {
             xywh {20 110 220 175} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Check_Button analog_fl_checkbutton_time_domain {
@@ -2245,7 +2249,7 @@ class LABSoft_GUI {open
               xywh {40 195 180 60} box GTK_UP_BOX color 54 labelsize 12
             }
           }
-          Fl_Group {} {open
+          Fl_Group {} {
             xywh {20 340 220 180} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Button analog_fl_button_create_file {

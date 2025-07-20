@@ -12,9 +12,11 @@
 
 #include "Software/LABSoft_Presenter_Exporter.h"
 #include "Software/LABSoft_Presenter_Calibration.h"
+#include "Software/LABSoft_Presenter_LABChecker_Analog_Display.h"
 #include "Software/LABSoft_Presenter_Main_Window.h"
 #include "Software/LABSoft_Presenter_LABChecker_Digital.h"
 #include "Software/LABSoft_Presenter_Oscilloscope_Display.h"
+
 
 class LABSoft_Presenter
 {
@@ -24,19 +26,22 @@ class LABSoft_Presenter
   
   public:
     // Hardware
-    LABSoft_Presenter_Oscilloscope            m_Oscilloscope;      
-    LABSoft_Presenter_Ohmmeter                m_Ohmmeter;   
-    LABSoft_Presenter_Voltmeter               m_Voltmeter;
-    LABSoft_Presenter_Function_Generator      m_Function_Generator;
-    LABSoft_Presenter_Logic_Analyzer          m_Logic_Analyzer;
-    LABSoft_Presenter_Digital_Circuit_Checker m_Digital_Circuit_Checker;
-    LABSoft_Presenter_LABChecker_Digital      m_LABChecker_Digital;
+    LABSoft_Presenter_Oscilloscope               m_Oscilloscope;      
+    LABSoft_Presenter_Ohmmeter                   m_Ohmmeter;   
+    LABSoft_Presenter_Voltmeter                  m_Voltmeter;
+    LABSoft_Presenter_Function_Generator         m_Function_Generator;
+    LABSoft_Presenter_Logic_Analyzer             m_Logic_Analyzer;
+    LABSoft_Presenter_Digital_Circuit_Checker    m_Digital_Circuit_Checker;
+    LABSoft_Presenter_LABChecker_Digital         m_LABChecker_Digital;
+  
 
     // Software/GUI
-    LABSoft_Presenter_Main_Window             m_Main_Window;
-    LABSoft_Presenter_Exporter                m_Exporter;
-    LABSoft_Presenter_Calibration             m_Calibration;
-    LABSoft_Presenter_Oscilloscope_Display    m_Oscilloscope_Display;
+    LABSoft_Presenter_Main_Window                m_Main_Window;
+    LABSoft_Presenter_Exporter                   m_Exporter;
+    LABSoft_Presenter_Calibration                m_Calibration;
+    LABSoft_Presenter_LABChecker_Analog_Display  m_LABChecker_Analog;
+    LABSoft_Presenter_Oscilloscope_Display       m_Oscilloscope_Display;
+    
 
   private:      
     void load_presenter_to_gui ();

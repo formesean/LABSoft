@@ -21,7 +21,8 @@ LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
     m_LABChecker_Digital      (*this),
     m_Exporter                (*this),
     m_Calibration             (*this),
-    m_Oscilloscope_Display    (*this)
+    m_Oscilloscope_Display    (*this),
+    m_LABChecker_Analog       (*this)
 {
   load_presenter_to_gui ();
 
@@ -71,10 +72,15 @@ update_gui_tab_colors ()
     m_LAB.m_Logic_Analyzer.is_running () ? 63 : 52
   );
 
-  // 5. logic analyzer
+  // 5. digital circuit checker
   gui.main_fl_group_digital_circuit_checker_tab->selection_color (
     m_LAB.m_Digital_Circuit_Checker.is_running () ? 63 : 52
   );
+
+  // 6. analog circuit checker
+ // gui.main_fl_group_labchecker_analog_tab->selection_color (
+  //  m_LAB.m_LABChecker_Analog.is_running () ? 63 : 52
+  //);
 
   tabs.selection_color  (tabs.value ()->selection_color () == 63 ? 63 : 54);
   tabs.redraw           ();

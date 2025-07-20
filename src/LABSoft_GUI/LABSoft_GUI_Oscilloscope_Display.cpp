@@ -12,7 +12,7 @@
 #include "../Utility/LABSoft_GUI_Label_Values.h"
 
 LABSoft_GUI_Oscilloscope_Display:: 
-LABSoft_GUI_Oscilloscope_Display (int         X, 
+LABSoft_GUI_Oscilloscope_Display(int         X, 
                                   int         Y, 
                                   int         W, 
                                   int         H, 
@@ -137,8 +137,7 @@ init_child_widgets_internal_display ()
   );
 }
 
-void LABSoft_GUI_Oscilloscope_Display:: 
-init_child_widgets_sliders ()
+void LABSoft_GUI_Oscilloscope_Display::init_child_widgets_sliders()
 {
   const LABSoft_GUI_Oscilloscope_Internal_Display& disp = *m_internal_display;
    
@@ -322,8 +321,7 @@ cb_channel_selector_static (Fl_Widget* w,
   LABSoft_GUI_Oscilloscope_Display& disp = 
     *(static_cast<LABSoft_GUI_Oscilloscope_Display*>(w->parent ()));
 
-  unsigned channel = reinterpret_cast<int>(data);
-
+  unsigned channel = static_cast<unsigned>(reinterpret_cast<uintptr_t>(data));
   // disp.select_channel (channel);
 }
 
