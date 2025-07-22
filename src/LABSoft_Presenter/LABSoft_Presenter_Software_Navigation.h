@@ -20,9 +20,12 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
 
     LABE::SNM::FOCUS_LEVEL current_focus_level = LABE::SNM::FOCUS_LEVEL::TAB;
 
-    int group_index                = 0;
-    int widget_index               = 0;
-    int current_tab_index          = 0;
+    bool is_encoder_switch_pressed = false;
+
+    int  group_index               = 0;
+    int  widget_index              = 0;
+    int  current_tab_index         = 0;
+
     static constexpr int tab_count = 8;
 
     std::vector<Fl_Group*>  current_groups_in_tab;

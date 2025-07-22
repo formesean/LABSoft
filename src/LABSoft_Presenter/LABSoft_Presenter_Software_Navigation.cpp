@@ -145,9 +145,57 @@ update_data_cycle()
       last_nav_time = now;
       int dir = (data[1] == 1) ? +1 : -1;
 
-      if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
-        switch_tab_by_direction(dir);
+      Fl_Widget* widget = previous_focused_widget;
 
+      if (is_encoder_switch_pressed && widget)
+      {
+        if (auto* custom_choice = dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(widget))
+        {
+          Fl_Menu_Button* menu = custom_choice->menubutton();
+          int n = menu->size();
+
+          if (n > 0)
+          {
+            const char* current = custom_choice->input()->value();
+            int curr_index = menu->find_index(current);
+            if (curr_index < 0) curr_index = -1;
+
+            int next_index = (curr_index + dir + n) % n;
+            const Fl_Menu_Item* item = menu->menu() + next_index;
+
+            if (item && item->text)
+            {
+              custom_choice->input()->value(item->text);
+              custom_choice->value(item->text);
+              custom_choice->do_callback();
+              custom_choice->redraw();
+            }
+          }
+          LOG(dir > 0 ? "Choice Scrolled CW (Scroll)" : "Choice Scrolled CCW (Scroll)");
+          return;
+        }
+        else if (auto* choice = dynamic_cast<Fl_Choice*>(widget))
+        {
+          int n = choice->size();
+          if (n > 0)
+          {
+            int curr = choice->value();
+            if (curr < 0) curr = -1;
+
+            int next = (curr + dir + n) % n;
+            choice->value(next);
+            choice->do_callback();
+            choice->redraw();
+          }
+          LOG(dir > 0 ? "Choice Rotated CW" : "Choice Rotated CCW");
+          return;
+        }
+      }
+
+      if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
+      {
+        switch_tab_by_direction(dir);
+      }
       else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::GROUP)
       {
         if (!current_groups_in_tab.empty())
@@ -157,7 +205,10 @@ update_data_cycle()
 
           if (!current_widgets_in_group.empty())
           {
-            widget_index = (widget_index == -1) ? 0 : (widget_index + dir + current_widgets_in_group.size()) % current_widgets_in_group.size();
+            widget_index = (widget_index == -1)
+              ? 0
+              : (widget_index + dir + current_widgets_in_group.size()) % current_widgets_in_group.size();
+
             auto* widget = current_widgets_in_group[widget_index];
             widget->take_focus();
             highlight_widget(widget);
@@ -165,24 +216,21 @@ update_data_cycle()
         }
       }
 
-      LOG(dir > 0 ? "Encoder Rotated CW" : "Encoder Rotated CCW");
+      LOG(dir > 0 ? "Encoder Rotated CW (Navigation)" : "Encoder Rotated CCW (Navigation)");
     }
   }
 
   // Encoder Switch
   if (data[0] == 3)
   {
-    if (data[1] == 1 && data[2] == 0)
+    if (data[1] == 1 && data[2] == 1) // Pressed
     {
       LOG("Encoder Switch Pressed");
+      is_encoder_switch_pressed = true;
 
       Fl_Widget* widget = previous_focused_widget;
 
-      if (!widget || !widget->visible() || !widget->active() || !widget->takesevents())
-      {
-        LOG("No valid widget to interact with.");
-        return;
-      }
+      if (!widget || !widget->visible() || !widget->active() || !widget->takesevents()) return;
 
       const char* widget_type = typeid(*widget).name();
       LOG(("Focused Widget Type: " + std::string(widget_type)).c_str());
@@ -194,93 +242,38 @@ update_data_cycle()
         lightBtn->value(next);
         lightBtn->do_callback();
         lightBtn->redraw();
-        LOG(("Fl_Light_Button toggled to: " + std::to_string(next)).c_str());
       }
       else if (auto* btn = dynamic_cast<Fl_Button*>(widget))
       {
         btn->set_changed();
         btn->do_callback();
-        btn->value(1);
         btn->redraw();
         Fl::flush();
 
         Fl::add_timeout(0.05, [](void* v) {
           auto* b = static_cast<Fl_Button*>(v);
-          b->value(0);
           b->set_changed();
           b->do_callback();
           b->redraw();
         }, btn);
-
-        LOG("Fl_Button press/release simulated via timeout");
       }
       else if (auto* input = dynamic_cast<Fl_Input*>(widget))
       {
         input->take_focus();
         input->position(input->size());
         input->redraw();
-        LOG("Fl_Input focused and cursor moved");
-      }
-      else if (auto* custom_choice = dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(widget))
-      {
-        Fl_Menu_Button* menu = custom_choice->menubutton();
-        int n = menu->size();
-
-        if (n > 0)
-        {
-          const char* current = custom_choice->input()->value();
-          int curr_index = menu->find_index(current);
-
-          if (curr_index < 0 || curr_index >= n)
-            curr_index = -1;
-
-          int next_index = (curr_index + 1) % n;
-          const Fl_Menu_Item* item = menu->menu() + next_index;
-
-          if (item && item->text)
-          {
-            custom_choice->input()->value(item->text);
-            custom_choice->value(item->text);
-            custom_choice->do_callback();
-            custom_choice->redraw();
-            LOG(("Custom Fl_Input_Choice set to index: " + std::to_string(next_index)).c_str());
-          }
-          else
-          {
-            LOG("Menu item is null or has no text.");
-          }
-        }
-        else
-        {
-            LOG("Custom Fl_Input_Choice has no menu entries.");
-        }
-      }
-      else if (auto* choice = dynamic_cast<Fl_Choice*>(widget))
-      {
-        int n = choice->size();
-        if (n > 0)
-        {
-          int curr = choice->value();
-          if (curr < 0 || curr >= n) curr = -1;
-
-          int next = (curr + 1) % n;
-          choice->value(next);
-          choice->do_callback();
-          choice->redraw();
-          LOG(("Fl_Choice set to index: " + std::to_string(next)).c_str());
-        }
-        else
-        {
-          LOG("Fl_Choice has no entries.");
-        }
       }
       else
       {
         widget->take_focus();
         widget->do_callback();
         widget->redraw();
-        LOG("Fallback: Generic widget callback called.");
       }
+    }
+    else if (data[1] == 1 && data[2] == 0) // Released
+    {
+      LOG("Encoder Switch Released");
+      is_encoder_switch_pressed = false;
     }
   }
 }
