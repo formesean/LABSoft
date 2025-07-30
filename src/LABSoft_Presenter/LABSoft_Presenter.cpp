@@ -77,6 +77,10 @@ update_gui_tab_colors ()
     m_LAB.m_Digital_Circuit_Checker.is_running () ? 63 : 52
   );
 
+  gui.main_fl_group_analog_circuit_checker->selection_color (52);
+
+  gui.main_fl_group_labchecker_analog_tab->selection_color (52);
+
   // 6. analog circuit checker
  // gui.main_fl_group_labchecker_analog_tab->selection_color (
   //  m_LAB.m_LABChecker_Analog.is_running () ? 63 : 52

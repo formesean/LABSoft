@@ -4,7 +4,6 @@
 #include "../LABSoft_Presenter/LABSoft_Presenter.h"
 #include "../Utility/LAB_Enumerations.h"
 
-
 void LABSoft_GUI::cb_main_menuitem_export_i(Fl_Menu_*, void*) {
   m_LABSoft_Presenter->m_Exporter.cb_show_window ();
 }
@@ -1902,7 +1901,6 @@ ly board.");
         main_fl_group_labchecker_digital->color(FL_LIGHT3);
         main_fl_group_labchecker_digital->selection_color(FL_LIGHT2);
         main_fl_group_labchecker_digital->labelsize(12);
-        main_fl_group_labchecker_digital->hide();
         { Fl_Group* o = new Fl_Group(20, 70, 220, 230);
           o->box(FL_ROUNDED_FRAME);
           { digital_fl_choice_input_bits = new Fl_Choice(40, 100, 180, 40, "Input Bits");
@@ -1964,6 +1962,7 @@ ly board.");
       { main_fl_group_analog_circuit_checker = new Fl_Group(1, 50, 1220, 550, "Analog Circuit Checker");
         main_fl_group_analog_circuit_checker->color(FL_LIGHT3);
         main_fl_group_analog_circuit_checker->labelsize(12);
+        main_fl_group_analog_circuit_checker->hide();
         { analog_circuit_checker_labsoft_gui_analog_circuit_checker_display = new LABSoft_GUI_Analog_Circuit_Checker_Display(261, 80, 940, 495);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->box(FL_FLAT_BOX);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->color(FL_GRAY0);
