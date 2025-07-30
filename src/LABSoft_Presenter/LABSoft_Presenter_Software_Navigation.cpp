@@ -14,6 +14,8 @@ LABSoft_Presenter_Software_Navigation::
 LABSoft_Presenter_Software_Navigation(LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit(_LABSoft_Presenter)
 {
+  Fl::visible_focus(0);
+
   tab_groups[0] = gui().main_fl_group_oscilloscope_tab;
   tab_groups[1] = gui().main_fl_group_voltmeter_tab;
   tab_groups[2] = gui().main_fl_group_ohmmeter_tab;
@@ -119,7 +121,7 @@ update_data_cycle()
           {
             current_focus_level = LABE::SNM::FOCUS_LEVEL::WIDGET;
             auto* widget = current_widgets_in_group[widget_index];
-            widget->take_focus();
+            Fl::focus(nullptr);
             highlight_widget(widget);
           }
         }
@@ -161,16 +163,26 @@ update_data_cycle()
             if (curr_index < 0) curr_index = -1;
 
             int next_index = (curr_index + dir + n) % n;
-            const Fl_Menu_Item* item = menu->menu() + next_index;
 
-            if (item && item->text)
+            int attempts = 0;
+            while (attempts < n)
             {
-              custom_choice->input()->value(item->text);
-              custom_choice->value(item->text);
-              custom_choice->do_callback();
-              custom_choice->redraw();
+              const Fl_Menu_Item* item = menu->menu() + next_index;
+
+              if (item && item->text && !(item->flags & FL_MENU_INACTIVE))
+              {
+                custom_choice->input()->value(item->text);
+                custom_choice->value(item->text);
+                custom_choice->do_callback();
+                custom_choice->redraw();
+                break;
+              }
+
+              next_index = (next_index + dir + n) % n;
+              attempts++;
             }
           }
+
           LOG(dir > 0 ? "Choice Scrolled CW (Scroll)" : "Choice Scrolled CCW (Scroll)");
           return;
         }
@@ -183,9 +195,22 @@ update_data_cycle()
             if (curr < 0) curr = -1;
 
             int next = (curr + dir + n) % n;
-            choice->value(next);
-            choice->do_callback();
-            choice->redraw();
+
+            int attempts = 0;
+            while (attempts < n)
+            {
+              const Fl_Menu_Item* item = choice->menu() + next;
+              if (!(item->flags & FL_MENU_INACTIVE))
+              {
+                choice->value(next);
+                choice->do_callback();
+                choice->redraw();
+                break;
+              }
+
+              next = (next + dir + n) % n;
+              ++attempts;
+            }
           }
           LOG(dir > 0 ? "Choice Rotated CW" : "Choice Rotated CCW");
           return;
@@ -210,7 +235,7 @@ update_data_cycle()
               : (widget_index + dir + current_widgets_in_group.size()) % current_widgets_in_group.size();
 
             auto* widget = current_widgets_in_group[widget_index];
-            widget->take_focus();
+            Fl::focus(nullptr);
             highlight_widget(widget);
           }
         }
@@ -265,7 +290,7 @@ update_data_cycle()
       }
       else
       {
-        widget->take_focus();
+        Fl::focus(nullptr);
         widget->do_callback();
         widget->redraw();
       }
