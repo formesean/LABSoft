@@ -31,9 +31,9 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {347 49 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {323 80 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
     } {
-      Fl_Menu_Bar {} {
+      Fl_Menu_Bar main_fl_menu {selected
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
       } {
         Submenu {} {
@@ -73,9 +73,12 @@ class LABSoft_GUI {open
         }
       }
       Fl_Tabs main_fl_tabs {
-        callback {m_LABSoft_Presenter->cb_tabs (o, v);} open
+        callback {m_LABSoft_Presenter->cb_tabs (o, v);}
         xywh {0 20 1220 580} box FLAT_BOX color 54 selection_color 54 labelsize 12
-        code0 {main_fl_tabs->value (main_fl_group_oscilloscope_tab);}
+        code0 {
+          main_fl_tabs->value (main_fl_group_oscilloscope_tab);
+          main_fl_tabs->labelcolor(Fl_Color(221));
+          }
       } {
         Fl_Group main_fl_group_oscilloscope_tab {
           label Oscilloscope
@@ -1611,7 +1614,7 @@ class LABSoft_GUI {open
           label {Logic Analyzer} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
-          Fl_Group logic_analyzer_fl_group_display {selected
+          Fl_Group logic_analyzer_fl_group_display {
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
           } {
             Fl_Button logic_analyzer_fl_button_record_config {

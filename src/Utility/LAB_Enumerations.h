@@ -159,6 +159,7 @@ namespace LABE
   {
     enum class FOCUS_LEVEL
     {
+      MENU,
       TAB,
       GROUP,
       WIDGET

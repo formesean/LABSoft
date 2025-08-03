@@ -32,7 +32,7 @@ void LABSoft_GUI::cb_About(Fl_Menu_* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->user_data()))->cb_About_i(o,v);
 }
 
-Fl_Menu_Item LABSoft_GUI::menu_[] = {
+Fl_Menu_Item LABSoft_GUI::menu_main_fl_menu[] = {
  {"Workspace", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Export", 0,  (Fl_Callback*)LABSoft_GUI::cb_main_menuitem_export, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Exit", 0,  (Fl_Callback*)LABSoft_GUI::cb_Exit, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -45,7 +45,7 @@ Fl_Menu_Item LABSoft_GUI::menu_[] = {
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
-Fl_Menu_Item* LABSoft_GUI::main_menuitem_export = LABSoft_GUI::menu_ + 1;
+Fl_Menu_Item* LABSoft_GUI::main_menuitem_export = LABSoft_GUI::menu_main_fl_menu + 1;
 
 void LABSoft_GUI::cb_main_fl_tabs_i(Fl_Tabs* o, void* v) {
   m_LABSoft_Presenter->cb_tabs (o, v);
@@ -1004,7 +1004,7 @@ void LABSoft_GUI::cb_Load(Fl_Menu_* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->user_data()))->cb_Load_i(o,v);
 }
 
-Fl_Menu_Item LABSoft_GUI::menu_1[] = {
+Fl_Menu_Item LABSoft_GUI::menu_[] = {
  {"File", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Open", 0,  (Fl_Callback*)LABSoft_GUI::cb_Open, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Save to File", 0,  (Fl_Callback*)LABSoft_GUI::cb_Save, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -1051,13 +1051,13 @@ LABSoft_GUI::LABSoft_GUI() {
     main_fl_window->selection_color((Fl_Color)53);
     main_fl_window->labelsize(12);
     main_fl_window->user_data((void*)(this));
-    { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 1220, 20);
-      o->box(FL_FLAT_BOX);
-      o->color(FL_LIGHT3);
-      o->labelsize(12);
-      o->textsize(12);
-      o->menu(menu_);
-    } // Fl_Menu_Bar* o
+    { main_fl_menu = new Fl_Menu_Bar(0, 0, 1220, 20);
+      main_fl_menu->box(FL_FLAT_BOX);
+      main_fl_menu->color(FL_LIGHT3);
+      main_fl_menu->labelsize(12);
+      main_fl_menu->textsize(12);
+      main_fl_menu->menu(menu_main_fl_menu);
+    } // Fl_Menu_Bar* main_fl_menu
     { main_fl_tabs = new Fl_Tabs(0, 20, 1220, 580);
       main_fl_tabs->box(FL_FLAT_BOX);
       main_fl_tabs->color(FL_LIGHT3);
@@ -1975,6 +1975,7 @@ ly board.");
         main_fl_group_labchecker_digital->end();
       } // Fl_Group* main_fl_group_labchecker_digital
       main_fl_tabs->value (main_fl_group_oscilloscope_tab);
+          main_fl_tabs->labelcolor(Fl_Color(221));
       main_fl_tabs->end();
     } // Fl_Tabs* main_fl_tabs
     main_fl_window->end();
@@ -2177,7 +2178,7 @@ ly board.");
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 800, 20);
       o->box(FL_FLAT_BOX);
       o->color(FL_LIGHT3);
-      o->menu(menu_1);
+      o->menu(menu_);
     } // Fl_Menu_Bar* o
     { Fl_Group* o = new Fl_Group(20, 40, 440, 440, "Oscilloscope");
       o->box(FL_ROUNDED_FRAME);

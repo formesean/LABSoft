@@ -1,3 +1,0 @@
-/home/lab2pi4/LABSoft/build/CMakeFiles/LABSoft.dir
-/home/lab2pi4/LABSoft/build/CMakeFiles/edit_cache.dir
-/home/lab2pi4/LABSoft/build/CMakeFiles/rebuild_cache.dir
