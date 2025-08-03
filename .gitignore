@@ -30,3 +30,43 @@
 *.exe
 *.out
 *.app
+
+# CMake & Build Artifacts
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+install_manifest.txt
+
+# IDE/Editor Files
+.vscode/
+.idea/
+*.swp
+*~
+*.user
+*.sublime-workspace
+*.sublime-project
+
+# OS-specific Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Debug/Profiling Files
+*.dSYM/
+*.pdb
+*.idb
+core.*
+vgcore.*
+
+# Temporary/Backup Files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
