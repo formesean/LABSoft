@@ -33,7 +33,8 @@ public:
   LABSoft_Presenter *m_LABSoft_Presenter; 
   LABSoft_GUI();
   Fl_Double_Window *main_fl_window;
-  static Fl_Menu_Item menu_[];
+  Fl_Menu_Bar *main_fl_menu;
+  static Fl_Menu_Item menu_main_fl_menu[];
   static Fl_Menu_Item *main_menuitem_export;
 private:
   inline void cb_main_menuitem_export_i(Fl_Menu_*, void*);
@@ -420,7 +421,7 @@ private:
   static void cb_exporter_fl_light_button_labels(Fl_Light_Button*, void*);
 public:
   Fl_Double_Window *main_fl_window_calibration;
-  static Fl_Menu_Item menu_1[];
+  static Fl_Menu_Item menu_[];
 private:
   inline void cb_Open_i(Fl_Menu_*, void*);
   static void cb_Open(Fl_Menu_*, void*);
