@@ -1,4 +1,0 @@
-/home/glen/Desktop/LABSoft/build/CMakeFiles/LABSoft_Libs.dir
-/home/glen/Desktop/LABSoft/build/CMakeFiles/LABSoft.dir
-/home/glen/Desktop/LABSoft/build/CMakeFiles/edit_cache.dir
-/home/glen/Desktop/LABSoft/build/CMakeFiles/rebuild_cache.dir
