@@ -1,5 +1,4 @@
-#include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
-
+#include "LABSoft_GUI_Oscilloscope_Display.h"
 #include <cmath>
 #include <chrono>
 #include <iomanip>
@@ -10,6 +9,35 @@
 #include "../LABSoft_Presenter/LABSoft_Presenter.h"
 #include "LABSoft_GUI_Oscilloscope_Internal_Display.h"
 #include "../Utility/LABSoft_GUI_Label_Values.h"
+
+#include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
+#include "LABSoft_GUI_Oscilloscope_Display.h"
+
+LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Checker_Display(
+    int X, int Y, int W, int H, const char* label)
+    : Fl_Group(X, Y, W, H, label)
+{
+    // Initialize other child widgets
+    //init_child_widgets();
+
+    // Initialize oscilloscope display
+    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(10, 10, 500, 300, "Oscilloscope");
+    this->add(oscilloscope_display);   // Add to group
+    oscilloscope_display->show();      // Show it if using FLTK
+
+    end(); // Important: Close Fl_Group after adding children
+}
+
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+load_presenter (const LABSoft_Presenter& presenter)
+{
+  m_presenter = &presenter;
+
+  m_internal_display->load_presenter (presenter);
+}
+
+/*
 
 LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
 LABSoft_GUI_LABChecker_Analog_Checker_Display(int         X, 
@@ -578,3 +606,4 @@ show_voltage_per_division_labels (unsigned channel)
     labels[row]->show ();
   }
 }
+*/

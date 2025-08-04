@@ -6200,8 +6200,6 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_LABChecker_Analog_Checker_Display
   /home/juztisleague/LABSoft/src/Utility/pugixml.hpp \
   /home/juztisleague/LABSoft/src/LAB/LAB_Digital_Circuit_Checker.h \
   /home/juztisleague/LABSoft/src/LAB/LAB_Module.h \
-  /home/juztisleague/LABSoft/src/Utility/LAB_Constants.h \
-  /home/juztisleague/LABSoft/src/Utility/LAB_Enumerations.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Slider.h \
@@ -6236,6 +6234,7 @@ CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_LABChecker_Analog_Checker_Display
   /home/juztisleague/LABSoft/src/Utility/LAB_Utility_Functions.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Slider.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Analog_Checker_Display.h \
+  /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Display.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Oscilloscope_Internal_Display.h \
   /usr/include/X11/X.h \
   /usr/include/X11/Xatom.h \

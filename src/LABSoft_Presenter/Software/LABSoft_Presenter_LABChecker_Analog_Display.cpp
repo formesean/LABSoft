@@ -4,7 +4,21 @@
 #include "../LABSoft_Presenter.h"
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
 
-LABSoft_Presenter_LABChecker_Analog_Display:: 
+LABSoft_Presenter_LABChecker_Analog_Display::LABSoft_Presenter_LABChecker_Analog_Display(LABSoft_Presenter& _LABSoft_Presenter)
+  : LABSoft_Presenter_Unit(_LABSoft_Presenter)
+{
+  load_gui();
+}
+
+void LABSoft_Presenter_LABChecker_Analog_Display::load_gui()
+{
+  LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_disp_gui = *(gui ().analog_labsoft_gui_analog_checker_display);
+
+   analog_disp_gui.load_presenter         (m_presenter);
+  
+}
+
+/*LABSoft_Presenter_LABChecker_Analog_Display:: 
 LABSoft_Presenter_LABChecker_Analog_Display (LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit (_LABSoft_Presenter)
 {
@@ -57,4 +71,4 @@ update_display ()
 
   osc_disp       .update_pixel_points  ();
   analog_disp_gui.update_display       ();
-}
+}*/
