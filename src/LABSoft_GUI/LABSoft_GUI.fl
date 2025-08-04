@@ -31,7 +31,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {576 165 1220 595} type Double color 53 selection_color 53 labelsize 12 hide
+      xywh {576 165 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar {} {
         xywh {0 -5 1220 25} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -1305,7 +1305,7 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_voltmeter_tab {
-          label Voltmeter selected
+          label Voltmeter
           xywh {2 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Box {} {
@@ -2180,7 +2180,7 @@ class LABSoft_GUI {open
         }
         Fl_Group main_fl_group_analog_circuit_checker {
           label {Analog Circuit Checker}
-          xywh {1 50 1220 550} color 54 labelsize 12
+          xywh {1 50 1220 550} color 54 labelsize 12 hide
         } {
           Fl_Group analog_circuit_checker_labsoft_gui_analog_circuit_checker_display {open
             xywh {261 80 940 495} box FLAT_BOX color 32
@@ -2225,15 +2225,15 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_labchecker_analog_tab {
-          label LABChecker_Analog
-          xywh {0 50 1220 550} color 54 labelsize 12 hide
+          label LABChecker_Analog open
+          xywh {0 50 1220 550} color 54 labelsize 12
         } {
           Fl_Group analog_labsoft_gui_analog_checker_display {open
             xywh {260 80 940 495} box FLAT_BOX color 32
             code0 {\#include "LABSoft_GUI_Oscilloscope_Display.h"}
             class LABSoft_GUI_LABChecker_Analog_Checker_Display
           } {}
-          Fl_Group {} {
+          Fl_Group {} {open
             xywh {20 110 220 175} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Check_Button analog_fl_checkbutton_time_domain {
@@ -2245,7 +2245,7 @@ class LABSoft_GUI {open
               xywh {55 150 69 25} down_box DOWN_BOX labelsize 12
             }
             Fl_Button analog_fl_button_capture_signal {
-              label {Capture Signal}
+              label {Plot Captured Signal} selected
               xywh {40 195 180 60} box GTK_UP_BOX color 54 labelsize 12
             }
           }

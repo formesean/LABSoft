@@ -17307,13 +17307,11 @@ CMakeFiles/LABSoft.dir/main.cpp.o: /home/juztisleague/LABSoft/src/main.cpp \
   /home/juztisleague/LABSoft/src/Utility/LAB_Definitions.h \
   /home/juztisleague/LABSoft/src/Utility/LAB_Enumerations.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI.h \
-  /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Analog_Circuit_Checker_Display.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Exporter_Data_Table.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Choice_With_Scroll.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Input_Choice_With_Scroll.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Fl_Slider.h \
-  /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Analog_Checker_Display.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.h \
   /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h \
