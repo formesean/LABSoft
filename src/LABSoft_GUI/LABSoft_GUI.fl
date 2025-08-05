@@ -31,8 +31,13 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
 <<<<<<< HEAD
+<<<<<<< HEAD
       label {LABSoft (for Educators)} open
       xywh {323 80 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
+=======
+      label {LABSoft (for Educators)}
+      xywh {0 83 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
+>>>>>>> 01a7d23 (feature key shortcuts window)
 =======
       label {LABSoft (for Educators)}
       xywh {0 83 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
