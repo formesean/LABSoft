@@ -25,6 +25,13 @@ void LABSoft_GUI::cb_Calibration(Fl_Menu_* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->user_data()))->cb_Calibration_i(o,v);
 }
 
+void LABSoft_GUI::cb_Shortcuts_i(Fl_Menu_*, void*) {
+  m_LABSoft_Presenter->m_Shortcuts.cb_show_window ();
+}
+void LABSoft_GUI::cb_Shortcuts(Fl_Menu_* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->user_data()))->cb_Shortcuts_i(o,v);
+}
+
 void LABSoft_GUI::cb_About_i(Fl_Menu_* o, void* v) {
   m_LABSoft_Presenter->m_Main_Window.cb_help_about (o, v);
 }
@@ -39,6 +46,7 @@ Fl_Menu_Item LABSoft_GUI::menu_main_fl_menu[] = {
  {0,0,0,0,0,0,0,0,0},
  {"Settings", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Calibration", 0,  (Fl_Callback*)LABSoft_GUI::cb_Calibration, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Shortcuts", 0,  (Fl_Callback*)LABSoft_GUI::cb_Shortcuts, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Help", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"About", 0,  (Fl_Callback*)LABSoft_GUI::cb_About, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -1045,6 +1053,56 @@ void LABSoft_GUI::cb_calibration_fl_button_close(Fl_Button* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->user_data()))->cb_calibration_fl_button_close_i(o,v);
 }
 
+Fl_Menu_Item LABSoft_GUI::menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action[] = {
+ {"Go to", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Run", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+Fl_Menu_Item LABSoft_GUI::menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value[] = {
+ {"Oscilloscope", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Voltmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Ohmmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Function Generator", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Power Supply", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Logic Analyzer", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Digital Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"LABChecker - Digital", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+Fl_Menu_Item LABSoft_GUI::menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action[] = {
+ {"Go to", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Run", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+Fl_Menu_Item LABSoft_GUI::menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value[] = {
+ {"Oscilloscope", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Voltmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Ohmmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Function Generator", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Power Supply", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Logic Analyzer", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Digital Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"LABChecker - Digital", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+void LABSoft_GUI::cb_shortcuts_fl_button_apply_i(Fl_Button*, void*) {
+  m_LABSoft_Presenter->m_Shortcuts.cb_apply ();
+}
+void LABSoft_GUI::cb_shortcuts_fl_button_apply(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->user_data()))->cb_shortcuts_fl_button_apply_i(o,v);
+}
+
+void LABSoft_GUI::cb_shortcuts_fl_button_close_i(Fl_Button*, void*) {
+  m_LABSoft_Presenter->m_Shortcuts.cb_close ();
+}
+void LABSoft_GUI::cb_shortcuts_fl_button_close(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->user_data()))->cb_shortcuts_fl_button_close_i(o,v);
+}
+
 LABSoft_GUI::LABSoft_GUI() {
   { main_fl_window = new Fl_Double_Window(1220, 600, "LABSoft (for Educators)");
     main_fl_window->color((Fl_Color)53);
@@ -1068,7 +1126,6 @@ LABSoft_GUI::LABSoft_GUI() {
         main_fl_group_oscilloscope_tab->color(FL_LIGHT3);
         main_fl_group_oscilloscope_tab->selection_color(FL_LIGHT2);
         main_fl_group_oscilloscope_tab->labelsize(12);
-        main_fl_group_oscilloscope_tab->hide();
         { oscilloscope_fl_light_button_debug_measurements = new Fl_Light_Button(1070, 280, 120, 40, "DEBUG: Measurements");
           oscilloscope_fl_light_button_debug_measurements->color((Fl_Color)172);
           oscilloscope_fl_light_button_debug_measurements->labelsize(12);
@@ -1669,6 +1726,7 @@ ly board.");
         main_fl_group_logic_analyzer_tab->color(FL_LIGHT3);
         main_fl_group_logic_analyzer_tab->selection_color(FL_LIGHT2);
         main_fl_group_logic_analyzer_tab->labelsize(12);
+        main_fl_group_logic_analyzer_tab->hide();
         { logic_analyzer_fl_group_display = new Fl_Group(20, 70, 400, 70);
           logic_analyzer_fl_group_display->box(FL_ROUNDED_FRAME);
           logic_analyzer_fl_group_display->color(FL_LIGHT2);
@@ -2275,4 +2333,91 @@ ly board.");
     } // Fl_Button* calibration_fl_button_close
     main_fl_window_calibration->end();
   } // Fl_Double_Window* main_fl_window_calibration
+  { main_fl_window_shortcuts = new Fl_Double_Window(500, 200, "Shortcuts");
+    main_fl_window_shortcuts->color(FL_LIGHT3);
+    main_fl_window_shortcuts->user_data((void*)(this));
+    { main_fl_shortcuts_window_group_1 = new Fl_Group(43, 35, 427, 35);
+      { new Fl_Box(43, 52, 35, 0, "Key 1:");
+      } // Fl_Box* o
+      { shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action = new LABSoft_GUI_Fl_Choice_With_Scroll(100, 35, 160, 35);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->box(FL_NO_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->down_box(FL_BORDER_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->color(FL_LIGHT3);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->selection_color((Fl_Color)229);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->labeltype(FL_NORMAL_LABEL);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->labelfont(0);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->labelsize(12);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->labelcolor(FL_FOREGROUND_COLOR);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->textsize(11);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->user_data((void*)(0));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->align(Fl_Align(FL_ALIGN_TOP));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->when(FL_WHEN_RELEASE);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->menu(menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action);
+      } // LABSoft_GUI_Fl_Choice_With_Scroll* shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action
+      { shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value = new LABSoft_GUI_Fl_Choice_With_Scroll(280, 35, 190, 35);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->box(FL_NO_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->down_box(FL_BORDER_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->color(FL_LIGHT3);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->selection_color((Fl_Color)229);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->labeltype(FL_NORMAL_LABEL);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->labelfont(0);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->labelsize(12);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->labelcolor(FL_FOREGROUND_COLOR);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->textsize(11);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->user_data((void*)(0));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->align(Fl_Align(FL_ALIGN_TOP));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->when(FL_WHEN_RELEASE);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->menu(menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value);
+      } // LABSoft_GUI_Fl_Choice_With_Scroll* shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value
+      main_fl_shortcuts_window_group_1->end();
+    } // Fl_Group* main_fl_shortcuts_window_group_1
+    { main_fl_shortcuts_window_group_2 = new Fl_Group(43, 95, 427, 35);
+      { new Fl_Box(43, 112, 35, 0, "Key 2:");
+      } // Fl_Box* o
+      { shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action = new LABSoft_GUI_Fl_Choice_With_Scroll(100, 95, 160, 35);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->box(FL_NO_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->down_box(FL_BORDER_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->color(FL_LIGHT3);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->selection_color((Fl_Color)229);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->labeltype(FL_NORMAL_LABEL);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->labelfont(0);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->labelsize(12);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->labelcolor(FL_FOREGROUND_COLOR);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->textsize(11);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->user_data((void*)(0));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->align(Fl_Align(FL_ALIGN_TOP));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->when(FL_WHEN_RELEASE);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->menu(menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action);
+      } // LABSoft_GUI_Fl_Choice_With_Scroll* shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action
+      { shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value = new LABSoft_GUI_Fl_Choice_With_Scroll(280, 95, 190, 35);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->box(FL_NO_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->down_box(FL_BORDER_BOX);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->color(FL_LIGHT3);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->selection_color((Fl_Color)229);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->labeltype(FL_NORMAL_LABEL);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->labelfont(0);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->labelsize(12);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->labelcolor(FL_FOREGROUND_COLOR);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->textsize(11);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->user_data((void*)(0));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->align(Fl_Align(FL_ALIGN_TOP));
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->when(FL_WHEN_RELEASE);
+        shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->menu(menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value);
+      } // LABSoft_GUI_Fl_Choice_With_Scroll* shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value
+      main_fl_shortcuts_window_group_2->end();
+    } // Fl_Group* main_fl_shortcuts_window_group_2
+    { shortcuts_fl_button_apply = new Fl_Button(280, 155, 90, 30, "Apply");
+      shortcuts_fl_button_apply->box(FL_GTK_UP_BOX);
+      shortcuts_fl_button_apply->color(FL_LIGHT3);
+      shortcuts_fl_button_apply->labelsize(12);
+      shortcuts_fl_button_apply->callback((Fl_Callback*)cb_shortcuts_fl_button_apply);
+    } // Fl_Button* shortcuts_fl_button_apply
+    { shortcuts_fl_button_close = new Fl_Button(380, 155, 90, 30, "Close");
+      shortcuts_fl_button_close->box(FL_GTK_UP_BOX);
+      shortcuts_fl_button_close->color(FL_LIGHT3);
+      shortcuts_fl_button_close->labelsize(12);
+      shortcuts_fl_button_close->callback((Fl_Callback*)cb_shortcuts_fl_button_close);
+    } // Fl_Button* shortcuts_fl_button_close
+    main_fl_window_shortcuts->end();
+  } // Fl_Double_Window* main_fl_window_shortcuts
 }

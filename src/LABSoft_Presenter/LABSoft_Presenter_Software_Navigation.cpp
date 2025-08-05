@@ -7,9 +7,6 @@
 
 #define LOG(msg) fprintf(stdout, "%s\n", msg)
 
-using LABE::SNM::tab_label_to_id;
-using LABE::SNM::TAB_ID;
-
 LABSoft_Presenter_Software_Navigation::
 LABSoft_Presenter_Software_Navigation(LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit(_LABSoft_Presenter)
@@ -39,6 +36,18 @@ update_data_cycle()
   // Macro Keys
   if (data[0] == 1)
   {
+    // Customizable Key 1
+    if (data[1] == 1 && data[2] == 0)
+    {
+      handle_customizable_macro_key(1);
+    }
+
+    // Customizable Key 2
+    if (data[1] == 2 && data[2] == 0)
+    {
+      handle_customizable_macro_key(2);
+    }
+
     // Back Key
     if (data[1] == 3 && data[2] == 0)
     {
@@ -101,6 +110,14 @@ update_data_cycle()
       else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
       {
         auto tab_id = get_current_tab_id();
+
+        if (tab_id == LABE::SNM::TAB_ID::OHMMETER ||
+            tab_id == LABE::SNM::TAB_ID::VOLTMETER ||
+            tab_id == LABE::SNM::TAB_ID::POWER_SUPPLY)
+        {
+          return;
+        }
+
         auto focusable_map = get_focusable_groups_map();
         auto it = focusable_map.find(tab_id);
 
@@ -539,6 +556,59 @@ get_groups_in_tab(Fl_Group* tab) const
   return groups;
 }
 
+void
+LABSoft_Presenter_Software_Navigation::
+handle_customizable_macro_key(int key_id)
+{
+  using LABE::SNM::ACTION_TYPE;
+  using LABE::SNM::TAB_ID;
+  using LABE::SNM::tab_label_to_id;
+
+  const auto config = lab().m_Shortcuts.get_config(key_id);
+
+  if (config.action == ACTION_TYPE::GOTO)
+  {
+    if (std::holds_alternative<TAB_ID>(config.target))
+    {
+      TAB_ID tab_id = std::get<TAB_ID>(config.target);
+      int tab_index = static_cast<int>(tab_id);
+
+      if (tab_index >= 0 && tab_index < tab_count)
+      {
+        current_tab_index = tab_index;
+        gui().main_fl_tabs->value(tab_groups[current_tab_index]);
+        gui().main_fl_tabs->redraw();
+      }
+    }
+  }
+  else if (config.action == ACTION_TYPE::RUN)
+  {
+    std::string_view target_label;
+
+    if (std::holds_alternative<TAB_ID>(config.target))
+    {
+      for (const auto& [label, id] : tab_label_to_id)
+      {
+        if (id == std::get<TAB_ID>(config.target))
+        {
+          target_label = label;
+          break;
+        }
+      }
+    }
+    else
+    {
+      target_label = std::get<std::string>(config.target);
+    }
+
+    if (!target_label.empty())
+    {
+      if (auto it = run_key_actions.find(target_label); it != run_key_actions.end())
+        it->second();
+    }
+  }
+}
+
 std::vector<Fl_Widget*>
 LABSoft_Presenter_Software_Navigation::
 get_widgets_in_group(Fl_Group* group) const
@@ -598,9 +668,12 @@ LABE::SNM::TAB_ID
 LABSoft_Presenter_Software_Navigation::
 get_current_tab_id() const
 {
+  using LABE::SNM::tab_label_to_id;
+
   std::string_view label = gui().main_fl_tabs->value()->label();
   if (auto it = tab_label_to_id.find(label); it != tab_label_to_id.end())
     return it->second;
+
   return LABE::SNM::TAB_ID::OSCILLOSCOPE;
 }
 

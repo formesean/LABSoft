@@ -2,6 +2,7 @@
 #define LABSOFT_PRESENTER_SOFTWARE_NAVIGATION_H
 
 #include "LABSoft_Presenter_Unit.h"
+#include "../LAB/Software/LAB_Shortcuts.h"
 #include "../LABSoft_GUI/LABSoft_GUI.h"
 #include "../Utility/LAB_Enumerations.h"
 
@@ -51,11 +52,12 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     void highlight_widget        (Fl_Widget* widget);
 
   private:
-    void clear_tab_focus            ();
-    void clear_menu_focus           ();
-    void clear_group_focus          ();
-    void clear_widget_focus         ();
-    void initialize_run_key_actions ();
+    void clear_tab_focus               ();
+    void clear_menu_focus              ();
+    void clear_group_focus             ();
+    void clear_widget_focus            ();
+    void initialize_run_key_actions    ();
+    void handle_customizable_macro_key (int key_id);
 
     std::vector<Fl_Group*>  get_groups_in_tab          (Fl_Group* tab)   const;
     std::vector<Fl_Widget*> get_widgets_in_group       (Fl_Group* group) const;

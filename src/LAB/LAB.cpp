@@ -13,7 +13,8 @@ LAB::LAB ()
   m_Exporter                (*this),
   m_Oscilloscope_Display    (*this, m_Oscilloscope),
   m_Calibration             (*this),
-  m_Software_Navigation     (*this)
+  m_Software_Navigation     (*this),
+  m_Shortcuts               (*this)
 {
 
 }

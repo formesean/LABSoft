@@ -13,6 +13,7 @@
 #include "Software/LAB_Calibration.h"
 #include "Software/LAB_LABChecker_Digital.h"
 #include "Software/LAB_Oscilloscope_Display.h"
+#include "Software/LAB_Shortcuts.h"
 
 class AikaPi;
 
@@ -36,6 +37,7 @@ class LAB
     LAB_Exporter                m_Exporter;
     LAB_Oscilloscope_Display    m_Oscilloscope_Display;
     LAB_Calibration             m_Calibration;
+    LAB_Shortcuts               m_Shortcuts;
 
     AikaPi& rpi () const;
 };

@@ -30,10 +30,10 @@ class LABSoft_GUI {open
   Function {LABSoft_GUI()} {open
   } {
     Fl_Window main_fl_window {
-      label {LABSoft (for Educators)} open
-      xywh {323 80 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
+      label {LABSoft (for Educators)}
+      xywh {323 294 1220 600} type Double color 53 selection_color 53 labelsize 12 hide
     } {
-      Fl_Menu_Bar main_fl_menu {selected
+      Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
       } {
         Submenu {} {
@@ -52,12 +52,17 @@ class LABSoft_GUI {open
           }
         }
         Submenu {} {
-          label Settings
+          label Settings open
           xywh {0 0 10 10} labelsize 12
         } {
           MenuItem {} {
             label Calibration
             callback {m_LABSoft_Presenter->m_Calibration.cb_show_window ();}
+            xywh {10 10 10 10} labelsize 12
+          }
+          MenuItem {} {
+            label Shortcuts
+            callback {m_LABSoft_Presenter->m_Shortcuts.cb_show_window ();}
             xywh {10 10 10 10} labelsize 12
           }
         }
@@ -75,14 +80,12 @@ class LABSoft_GUI {open
       Fl_Tabs main_fl_tabs {
         callback {m_LABSoft_Presenter->cb_tabs (o, v);}
         xywh {0 20 1220 580} box FLAT_BOX color 54 selection_color 54 labelsize 12
-        code0 {
-          main_fl_tabs->value (main_fl_group_oscilloscope_tab);
-          main_fl_tabs->labelcolor(Fl_Color(221));
-          }
+        code0 {main_fl_tabs->value (main_fl_group_oscilloscope_tab);
+          main_fl_tabs->labelcolor(Fl_Color(221));}
       } {
         Fl_Group main_fl_group_oscilloscope_tab {
           label Oscilloscope
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
           Fl_Light_Button oscilloscope_fl_light_button_debug_measurements {
             label {DEBUG: Measurements}
@@ -1612,7 +1615,7 @@ class LABSoft_GUI {open
         }
         Fl_Group main_fl_group_logic_analyzer_tab {
           label {Logic Analyzer} open
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Group logic_analyzer_fl_group_display {
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
@@ -2197,13 +2200,13 @@ class LABSoft_GUI {open
     }
     Fl_Window oscilloscope_fl_window_record_config {
       label {Record Configuration}
-      xywh {2084 187 360 300} type Double hide
+      xywh {1398 224 360 300} type Double hide
     } {
       Fl_Group oscilloscope_fl_group_record_config {
         xywh {0 0 360 300} box UP_BOX color 54
       } {
         Fl_Choice {} {
-          label {Samples:                  }
+          label {Samples:                  } open
           xywh {190 20 120 30} down_box BORDER_BOX
         } {
           MenuItem {} {
@@ -2272,7 +2275,7 @@ class LABSoft_GUI {open
           }
         }
         Fl_Choice {} {
-          label {Sampling Rate:       } open
+          label {Sampling Rate:       }
           xywh {190 65 120 30} down_box BORDER_BOX
         } {}
         Fl_Choice {} {
@@ -2351,7 +2354,7 @@ class LABSoft_GUI {open
     }
     Fl_Window main_fl_window_about {
       label LABSoft
-      xywh {1066 253 420 300} type Double color 54 hide
+      xywh {1074 284 420 300} type Double color 54 hide
     } {
       Fl_Box {} {
         label LABSoft
@@ -2383,7 +2386,7 @@ class LABSoft_GUI {open
     } {}
     Fl_Window main_fl_window_exporter {
       label Export
-      xywh {1954 57 800 500} type Double color 54 hide
+      xywh {503 100 800 500} type Double color 54 hide
     } {
       Fl_Tabs exporter_fl_tabs {
         xywh {180 20 600 410} box BORDER_BOX color 54 selection_color 54 labelsize 12
@@ -2435,7 +2438,7 @@ class LABSoft_GUI {open
     }
     Fl_Window main_fl_window_calibration {
       label {Device Calibration}
-      xywh {110 375 980 500} type Double color 54 hide
+      xywh {29 300 980 500} type Double color 54 hide
     } {
       Fl_Menu_Bar {} {
         xywh {0 0 800 20} box FLAT_BOX color 54
@@ -2477,7 +2480,7 @@ class LABSoft_GUI {open
         }
       }
       Fl_Group {} {
-        label Oscilloscope open
+        label Oscilloscope
         xywh {20 40 440 440} box ROUNDED_FRAME labelsize 12
       } {
         Fl_Table calibration_labsoft_gui_sheet_oscilloscope_calibration_table {
@@ -2491,7 +2494,7 @@ class LABSoft_GUI {open
         }
       }
       Fl_Group {} {
-        label Ohmmeter open
+        label Ohmmeter
         xywh {480 40 140 190} box ROUNDED_FRAME labelsize 12
       } {
         Fl_Light_Button calibration_fl_light_button_ohmmeter_enable_calibration {
@@ -2534,6 +2537,141 @@ class LABSoft_GUI {open
         label Close
         callback {m_LABSoft_Presenter->m_Calibration.cb_close ();}
         xywh {870 450 90 30} box GTK_UP_BOX color 54 labelsize 12
+      }
+    }
+    Fl_Window main_fl_window_shortcuts {
+      label Shortcuts open
+      xywh {1036 111 500 200} type Double color 54 visible
+    } {
+      Fl_Group main_fl_shortcuts_window_group_1 {
+        xywh {43 35 427 35}
+      } {
+        Fl_Box {} {
+          label {Key 1:}
+          xywh {43 52 35 0}
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action {
+          user_data 0 user_data_type long
+          xywh {100 35 160 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label {Go to}
+            xywh {770 50 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Run
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value {
+          user_data 0 user_data_type long open
+          xywh {280 35 190 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label Oscilloscope
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Voltmeter
+            xywh {790 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Ohmmeter
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Function Generator}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Power Supply}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Logic Analyzer}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Digital Circuit Checker}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {LABChecker - Digital}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+        }
+      }
+      Fl_Group main_fl_shortcuts_window_group_2 {open selected
+        xywh {43 95 427 35}
+      } {
+        Fl_Box {} {
+          label {Key 2:}
+          xywh {43 112 35 0}
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action {
+          user_data 0 user_data_type long
+          xywh {100 95 160 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label {Go to}
+            xywh {770 50 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Run
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value {
+          user_data 0 user_data_type long
+          xywh {280 95 190 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label Oscilloscope
+            xywh {770 50 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Voltmeter
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Ohmmeter
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Function Generator}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Power Supply}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Logic Analyzer}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Digital Circuit Checker}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {LABChecker - Digital}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+        }
+      }
+      Fl_Button shortcuts_fl_button_apply {
+        label Apply
+        callback {m_LABSoft_Presenter->m_Shortcuts.cb_apply ();}
+        xywh {280 155 90 30} box GTK_UP_BOX color 54 labelsize 12
+      }
+      Fl_Button shortcuts_fl_button_close {
+        label Close
+        callback {m_LABSoft_Presenter->m_Shortcuts.cb_close ();}
+        xywh {380 155 90 30} box GTK_UP_BOX color 54 labelsize 12
       }
     }
   }

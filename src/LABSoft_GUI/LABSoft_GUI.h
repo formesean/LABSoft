@@ -43,6 +43,8 @@ private:
   static void cb_Exit(Fl_Menu_*, void*);
   inline void cb_Calibration_i(Fl_Menu_*, void*);
   static void cb_Calibration(Fl_Menu_*, void*);
+  inline void cb_Shortcuts_i(Fl_Menu_*, void*);
+  static void cb_Shortcuts(Fl_Menu_*, void*);
   inline void cb_About_i(Fl_Menu_*, void*);
   static void cb_About(Fl_Menu_*, void*);
 public:
@@ -456,5 +458,26 @@ public:
 private:
   inline void cb_calibration_fl_button_close_i(Fl_Button*, void*);
   static void cb_calibration_fl_button_close(Fl_Button*, void*);
+public:
+  Fl_Double_Window *main_fl_window_shortcuts;
+  Fl_Group *main_fl_shortcuts_window_group_1;
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action[];
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value[];
+  Fl_Group *main_fl_shortcuts_window_group_2;
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action[];
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value[];
+  Fl_Button *shortcuts_fl_button_apply;
+private:
+  inline void cb_shortcuts_fl_button_apply_i(Fl_Button*, void*);
+  static void cb_shortcuts_fl_button_apply(Fl_Button*, void*);
+public:
+  Fl_Button *shortcuts_fl_button_close;
+private:
+  inline void cb_shortcuts_fl_button_close_i(Fl_Button*, void*);
+  static void cb_shortcuts_fl_button_close(Fl_Button*, void*);
 };
 #endif
