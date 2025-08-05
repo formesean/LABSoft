@@ -16,6 +16,7 @@
 #include "Software/LABSoft_Presenter_Main_Window.h"
 #include "Software/LABSoft_Presenter_LABChecker_Digital.h"
 #include "Software/LABSoft_Presenter_Oscilloscope_Display.h"
+#include "Software/LABSoft_Presenter_Shortcuts.h"
 
 class LABSoft_Presenter
 {
@@ -39,6 +40,7 @@ class LABSoft_Presenter
     LABSoft_Presenter_Exporter                m_Exporter;
     LABSoft_Presenter_Calibration             m_Calibration;
     LABSoft_Presenter_Oscilloscope_Display    m_Oscilloscope_Display;
+    LABSoft_Presenter_Shortcuts               m_Shortcuts;
 
   private:
     void load_presenter_to_gui ();

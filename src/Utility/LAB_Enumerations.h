@@ -3,6 +3,9 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <variant>
+#include <string_view>
+#include <string>
 
 namespace LABE
 {
@@ -177,6 +180,13 @@ namespace LABE
       LABCHECKER_DIGITAL
     };
 
+    enum class ACTION_TYPE
+    {
+      GOTO,
+      RUN,
+      UNKNOWN
+    };
+
     inline const std::unordered_map<std::string_view, LABE::SNM::TAB_ID> tab_label_to_id =
     {
       { "Oscilloscope",            LABE::SNM::TAB_ID::OSCILLOSCOPE },
@@ -187,6 +197,24 @@ namespace LABE
       { "Logic Analyzer",          LABE::SNM::TAB_ID::LOGIC_ANALYZER },
       { "Digital Circuit Checker", LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER },
       { "LABChecker - Digital",    LABE::SNM::TAB_ID::LABCHECKER_DIGITAL }
+    };
+
+    inline const std::unordered_map<LABE::SNM::TAB_ID, std::string_view> tab_id_to_label =
+    {
+      { LABE::SNM::TAB_ID::OSCILLOSCOPE,            "Oscilloscope" },
+      { LABE::SNM::TAB_ID::VOLTMETER,               "Voltmeter" },
+      { LABE::SNM::TAB_ID::OHMMETER,                "Ohmmeter" },
+      { LABE::SNM::TAB_ID::FUNCTION_GENERATOR,      "Function Generator" },
+      { LABE::SNM::TAB_ID::POWER_SUPPLY,            "Power Supply" },
+      { LABE::SNM::TAB_ID::LOGIC_ANALYZER,          "Logic Analyzer" },
+      { LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER, "Digital Circuit Checker" },
+      { LABE::SNM::TAB_ID::LABCHECKER_DIGITAL,      "LABChecker - Digital" }
+    };
+
+    struct MACRO_KEY_CONFIG
+    {
+      ACTION_TYPE action;
+      std::variant<LABE::SNM::TAB_ID, std::string> target;
     };
   }
 };

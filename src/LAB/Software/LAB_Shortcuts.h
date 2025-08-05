@@ -14,22 +14,19 @@ class LAB_Shortcuts : public LAB_Module
 
   private:
     std::unordered_map<int, Config> macro_key_map;
-    std::unordered_map<int, Config> macro_key_defaults;
+    std::string                     config_path;
 
   public:
-    LAB_Shortcuts(LAB& lab);
-    ~LAB_Shortcuts();
+    LAB_Shortcuts  (LAB& lab, const std::string& config_file = "../data/software_navigation/shortcuts.snm");
+    ~LAB_Shortcuts ();
 
-    void load_config(const std::string& path = "data/software navigation/shortcuts.snm");
-    void save_config(const std::string& path = "data/software navigation/shortcuts.snm") const;
+    void          load_config ();
+    void          save_config () const;
 
-    const Config& get_config(int key_id) const;
-    void set_config(int key_id, const std::string& action, const std::string& value);
+    const Config& get_config (int key_id) const;
+    void          set_config (int key_id, const std::string& action, const std::string& value);
 
-    bool has_key(int key_id) const;
-
-  private:
-    void initialize_defaults();
+    bool          has_key    (int key_id) const;
 };
 
 #endif

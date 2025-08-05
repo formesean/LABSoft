@@ -32,6 +32,7 @@ add_executable(LABSoft
   LAB/Software/LAB_Data_Measurer.cpp
   LAB/Software/LAB_LABChecker_Digital.cpp
   LAB/Software/LAB_Oscilloscope_Display.cpp
+  LAB/Software/LAB_Shortcuts.cpp
 
   LABSoft_Presenter/LABSoft_Presenter_Unit.cpp
   LABSoft_Presenter/LABSoft_Presenter.cpp
@@ -48,6 +49,7 @@ add_executable(LABSoft
   LABSoft_Presenter/Software/LABSoft_Presenter_Main_Window.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp
+  LABSoft_Presenter/Software/LABSoft_Presenter_Shortcuts.cpp
 
 
   LABSoft_GUI/LABSoft_GUI.cpp

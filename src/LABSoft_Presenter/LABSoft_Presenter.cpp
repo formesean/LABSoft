@@ -22,7 +22,8 @@ LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
     m_Exporter                (*this),
     m_Calibration             (*this),
     m_Oscilloscope_Display    (*this),
-    m_Software_Navigation     (*this)
+    m_Software_Navigation     (*this),
+    m_Shortcuts               (*this)
 {
   load_presenter_to_gui ();
 
