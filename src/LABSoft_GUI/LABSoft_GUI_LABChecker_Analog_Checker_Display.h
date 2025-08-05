@@ -18,10 +18,16 @@ class LABSoft_Presenter;
 class LABSoft_GUI_Oscilloscope_Internal_Display;
 
 class LABSoft_GUI_LABChecker_Analog_Checker_Display : public Fl_Group {
+
 private:
+   
+    void init_child_widgets();
+    void init_child_widgets_internal_display();
+
+
     LABSoft_GUI_Oscilloscope_Display* oscilloscope_display;
-    const LABSoft_Presenter* m_presenter  = nullptr;
-    LABSoft_GUI_Oscilloscope_Internal_Display*  m_internal_display          = nullptr;
+    const LABSoft_Presenter* m_presenter                                 = nullptr;
+    LABSoft_GUI_Oscilloscope_Internal_Display*  m_internal_display       = nullptr;
 
 
 public:

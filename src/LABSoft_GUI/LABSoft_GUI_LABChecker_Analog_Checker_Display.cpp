@@ -1,4 +1,5 @@
 #include "LABSoft_GUI_Oscilloscope_Display.h"
+
 #include <cmath>
 #include <chrono>
 #include <iomanip>
@@ -11,15 +12,13 @@
 #include "../Utility/LABSoft_GUI_Label_Values.h"
 
 #include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
-#include "LABSoft_GUI_Oscilloscope_Display.h"
 
 LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Checker_Display(
     int X, int Y, int W, int H, const char* label)
     : Fl_Group(X, Y, W, H, label)
 {
     // Initialize other child widgets
-    //init_child_widgets();
-
+    init_child_widgets();
     // Initialize oscilloscope display
     oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(10, 10, 500, 300, "Oscilloscope");
     this->add(oscilloscope_display);   // Add to group
@@ -35,6 +34,28 @@ load_presenter (const LABSoft_Presenter& presenter)
   m_presenter = &presenter;
 
   m_internal_display->load_presenter (presenter);
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+init_child_widgets ()
+{
+
+  init_child_widgets_internal_display             ();
+
+  end ();
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+init_child_widgets_internal_display ()
+{
+  m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display (
+    x () + LABC::OSC_DISPLAY::INTERNAL_DISPLAY_LEFT_MARGIN,
+    y () + LABC::OSC_DISPLAY::INTERNAL_DISPLAY_TOP_MARGIN, 
+    w () - LABC::OSC_DISPLAY::INTERNAL_DISPLAY_LEFT_MARGIN - 
+      LABC::OSC_DISPLAY::INTERNAL_DISPLAY_RIGHT_MARGIN,
+    h () - LABC::OSC_DISPLAY::INTERNAL_DISPLAY_TOP_MARGIN - 
+      LABC::OSC_DISPLAY::INTERNAL_DISPLAY_BOTTOM_MARGIN
+  );
 }
 
 /*
