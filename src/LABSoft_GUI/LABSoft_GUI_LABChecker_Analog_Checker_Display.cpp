@@ -18,9 +18,9 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     : Fl_Group(X, Y, W, H, label)
 {
     // Initialize other child widgets
-    init_child_widgets();
+   
     // Initialize oscilloscope display
-    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(10, 10, 500, 300, "Oscilloscope");
+    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 940, 495, "Oscilloscope");
     this->add(oscilloscope_display);   // Add to group
     oscilloscope_display->show();      // Show it if using FLTK
 
@@ -36,6 +36,7 @@ load_presenter (const LABSoft_Presenter& presenter)
   m_internal_display->load_presenter (presenter);
 }
 
+/*
 void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
 init_child_widgets ()
 {
@@ -57,7 +58,7 @@ init_child_widgets_internal_display ()
       LABC::OSC_DISPLAY::INTERNAL_DISPLAY_BOTTOM_MARGIN
   );
 }
-
+*/
 /*
 
 LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
