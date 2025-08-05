@@ -31,15 +31,9 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-<<<<<<< HEAD
-      xywh {323 80 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {598 157 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
     } {
-      Fl_Menu_Bar main_fl_menu {selected
-=======
-      xywh {461 150 1220 600} type Double color 53 selection_color 53 labelsize 12 visible
-    } {
-      Fl_Menu_Bar main_fl_menu {
->>>>>>> 7dc833846348b672955ca504d12005e7709237bf
+      Fl_Menu_Bar main_fl_menu {open
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
       } {
         Submenu {} {
@@ -58,12 +52,17 @@ class LABSoft_GUI {open
           }
         }
         Submenu {} {
-          label Settings
+          label Settings open
           xywh {0 0 10 10} labelsize 12
         } {
           MenuItem {} {
             label Calibration
             callback {m_LABSoft_Presenter->m_Calibration.cb_show_window ();}
+            xywh {10 10 10 10} labelsize 12
+          }
+          MenuItem {} {
+            label Shortcuts
+            callback {m_LABSoft_Presenter->m_Calibration.cb_show_window ();} selected
             xywh {10 10 10 10} labelsize 12
           }
         }
@@ -81,15 +80,8 @@ class LABSoft_GUI {open
       Fl_Tabs main_fl_tabs {
         callback {m_LABSoft_Presenter->cb_tabs (o, v);}
         xywh {0 20 1220 580} box FLAT_BOX color 54 selection_color 54 labelsize 12
-<<<<<<< HEAD
-        code0 {
-          main_fl_tabs->value (main_fl_group_oscilloscope_tab);
-          main_fl_tabs->labelcolor(Fl_Color(221));
-          }
-=======
         code0 {main_fl_tabs->value (main_fl_group_oscilloscope_tab);
           main_fl_tabs->labelcolor(Fl_Color(221));}
->>>>>>> 7dc833846348b672955ca504d12005e7709237bf
       } {
         Fl_Group main_fl_group_oscilloscope_tab {
           label Oscilloscope
@@ -2446,7 +2438,7 @@ class LABSoft_GUI {open
     }
     Fl_Window main_fl_window_calibration {
       label {Device Calibration}
-      xywh {-2 184 980 500} type Double color 54 hide
+      xywh {13 238 980 500} type Double color 54 hide
     } {
       Fl_Menu_Bar {} {
         xywh {0 0 800 20} box FLAT_BOX color 54
@@ -2548,8 +2540,8 @@ class LABSoft_GUI {open
       }
     }
     Fl_Window main_fl_window_shortcuts {
-      label Shortcuts open selected
-      xywh {107 183 500 200} type Double color 54 hide
+      label Shortcuts
+      xywh {119 237 500 200} type Double color 54 hide
     } {
       Fl_Group {} {open
         xywh {0 0 500 300} color 53

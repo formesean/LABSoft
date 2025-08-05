@@ -25,6 +25,13 @@ void LABSoft_GUI::cb_Calibration(Fl_Menu_* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->user_data()))->cb_Calibration_i(o,v);
 }
 
+void LABSoft_GUI::cb_Shortcuts_i(Fl_Menu_*, void*) {
+  m_LABSoft_Presenter->m_Calibration.cb_show_window ();
+}
+void LABSoft_GUI::cb_Shortcuts(Fl_Menu_* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->user_data()))->cb_Shortcuts_i(o,v);
+}
+
 void LABSoft_GUI::cb_About_i(Fl_Menu_* o, void* v) {
   m_LABSoft_Presenter->m_Main_Window.cb_help_about (o, v);
 }
@@ -39,6 +46,7 @@ Fl_Menu_Item LABSoft_GUI::menu_main_fl_menu[] = {
  {0,0,0,0,0,0,0,0,0},
  {"Settings", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Calibration", 0,  (Fl_Callback*)LABSoft_GUI::cb_Calibration, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Shortcuts", 0,  (Fl_Callback*)LABSoft_GUI::cb_Shortcuts, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Help", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"About", 0,  (Fl_Callback*)LABSoft_GUI::cb_About, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -1108,7 +1116,6 @@ LABSoft_GUI::LABSoft_GUI() {
         main_fl_group_oscilloscope_tab->color(FL_LIGHT3);
         main_fl_group_oscilloscope_tab->selection_color(FL_LIGHT2);
         main_fl_group_oscilloscope_tab->labelsize(12);
-        main_fl_group_oscilloscope_tab->hide();
         { oscilloscope_fl_light_button_debug_measurements = new Fl_Light_Button(1070, 280, 120, 40, "DEBUG: Measurements");
           oscilloscope_fl_light_button_debug_measurements->color((Fl_Color)172);
           oscilloscope_fl_light_button_debug_measurements->labelsize(12);
@@ -1501,6 +1508,7 @@ LABSoft_GUI::LABSoft_GUI() {
         main_fl_group_voltmeter_tab->color(FL_LIGHT3);
         main_fl_group_voltmeter_tab->selection_color(FL_LIGHT2);
         main_fl_group_voltmeter_tab->labelsize(12);
+        main_fl_group_voltmeter_tab->hide();
         { Fl_Box* o = new Fl_Box(390, 90, 35, 17, "Channel 1");
           o->labelsize(12);
         } // Fl_Box* o
