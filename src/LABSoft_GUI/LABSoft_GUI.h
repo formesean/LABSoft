@@ -456,5 +456,11 @@ public:
 private:
   inline void cb_calibration_fl_button_close_i(Fl_Button*, void*);
   static void cb_calibration_fl_button_close(Fl_Button*, void*);
+public:
+  Fl_Double_Window *main_fl_window_shortcuts;
+  static Fl_Menu_Item menu_Key[];
+  static Fl_Menu_Item menu_Key1[];
+  static Fl_Menu_Item menu_Value[];
+  static Fl_Menu_Item menu_Value1[];
 };
 #endif

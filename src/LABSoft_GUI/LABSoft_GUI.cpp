@@ -1045,6 +1045,46 @@ void LABSoft_GUI::cb_calibration_fl_button_close(Fl_Button* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->user_data()))->cb_calibration_fl_button_close_i(o,v);
 }
 
+Fl_Menu_Item LABSoft_GUI::menu_Key[] = {
+ {"Go to", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Run", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+Fl_Menu_Item LABSoft_GUI::menu_Key1[] = {
+ {"Go to", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Run", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+Fl_Menu_Item LABSoft_GUI::menu_Value[] = {
+ {"Oscillocope", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Voltmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Ohmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Function Generator", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Power Supply", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Logic Analyzer", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Digital Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"LABChecker-Digital", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Analog Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"LABChecker-Analog", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+Fl_Menu_Item LABSoft_GUI::menu_Value1[] = {
+ {"Oscillocope", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Voltmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Ohmeter", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Function Generator", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Power Supply", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Logic Analyzer", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Digital Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"LABChecker-Digital", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Analog Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"LABChecker-Analog", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
 LABSoft_GUI::LABSoft_GUI() {
   { main_fl_window = new Fl_Double_Window(1220, 600, "LABSoft (for Educators)");
     main_fl_window->color((Fl_Color)53);
@@ -1461,7 +1501,6 @@ LABSoft_GUI::LABSoft_GUI() {
         main_fl_group_voltmeter_tab->color(FL_LIGHT3);
         main_fl_group_voltmeter_tab->selection_color(FL_LIGHT2);
         main_fl_group_voltmeter_tab->labelsize(12);
-        main_fl_group_voltmeter_tab->hide();
         { Fl_Box* o = new Fl_Box(390, 90, 35, 17, "Channel 1");
           o->labelsize(12);
         } // Fl_Box* o
@@ -1669,6 +1708,7 @@ ly board.");
         main_fl_group_logic_analyzer_tab->color(FL_LIGHT3);
         main_fl_group_logic_analyzer_tab->selection_color(FL_LIGHT2);
         main_fl_group_logic_analyzer_tab->labelsize(12);
+        main_fl_group_logic_analyzer_tab->hide();
         { logic_analyzer_fl_group_display = new Fl_Group(20, 70, 400, 70);
           logic_analyzer_fl_group_display->box(FL_ROUNDED_FRAME);
           logic_analyzer_fl_group_display->color(FL_LIGHT2);
@@ -2275,4 +2315,41 @@ ly board.");
     } // Fl_Button* calibration_fl_button_close
     main_fl_window_calibration->end();
   } // Fl_Double_Window* main_fl_window_calibration
+  { main_fl_window_shortcuts = new Fl_Double_Window(500, 200, "Shortcuts");
+    main_fl_window_shortcuts->color(FL_LIGHT3);
+    main_fl_window_shortcuts->user_data((void*)(this));
+    { Fl_Group* o = new Fl_Group(0, 0, 500, 300);
+      o->color((Fl_Color)53);
+      { Fl_Choice* o = new Fl_Choice(110, 35, 155, 35, "Key  1:     ");
+        o->down_box(FL_BORDER_BOX);
+        o->menu(menu_Key);
+      } // Fl_Choice* o
+      { Fl_Choice* o = new Fl_Choice(110, 95, 155, 35, "Key  2:     ");
+        o->down_box(FL_BORDER_BOX);
+        o->menu(menu_Key1);
+      } // Fl_Choice* o
+      { Fl_Choice* o = new Fl_Choice(285, 35, 185, 35, "Value # 1:");
+        o->down_box(FL_BORDER_BOX);
+        o->labeltype(FL_NO_LABEL);
+        o->menu(menu_Value);
+      } // Fl_Choice* o
+      { Fl_Choice* o = new Fl_Choice(285, 95, 185, 35, "Value # 2:");
+        o->down_box(FL_BORDER_BOX);
+        o->labeltype(FL_NO_LABEL);
+        o->menu(menu_Value1);
+      } // Fl_Choice* o
+      { Fl_Button* o = new Fl_Button(290, 155, 90, 30, "Apply");
+        o->box(FL_GTK_UP_BOX);
+        o->color(FL_LIGHT3);
+        o->labelsize(12);
+      } // Fl_Button* o
+      { Fl_Button* o = new Fl_Button(395, 155, 90, 30, "Close");
+        o->box(FL_GTK_UP_BOX);
+        o->color(FL_LIGHT3);
+        o->labelsize(12);
+      } // Fl_Button* o
+      o->end();
+    } // Fl_Group* o
+    main_fl_window_shortcuts->end();
+  } // Fl_Double_Window* main_fl_window_shortcuts
 }
