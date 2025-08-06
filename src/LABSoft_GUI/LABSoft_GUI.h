@@ -27,8 +27,8 @@ class LABSoft_Presenter;
 #include <FL/Fl_Text_Display.H>
 #include "LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h"
 #include "LABSoft_GUI_Exporter_Data_Table.h"
-#include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 #include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
+#include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 
 class LABSoft_GUI {
 public:

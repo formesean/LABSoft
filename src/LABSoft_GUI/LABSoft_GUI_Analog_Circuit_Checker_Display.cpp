@@ -1,3 +1,4 @@
+#include "LABSoft_GUI_Oscilloscope_Display.h"
 #include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 
 #include <cmath>
@@ -11,6 +12,48 @@
 #include "LABSoft_GUI_Oscilloscope_Internal_Display.h"
 #include "../Utility/LABSoft_GUI_Label_Values.h"
 
+
+LABSoft_GUI_Analog_Circuit_Checker_Display::LABSoft_GUI_Analog_Circuit_Checker_Display(
+    int X, int Y, int W, int H, const char* label)
+    : Fl_Group(X, Y, W, H, label)
+{
+  
+    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 100, 920, 450, " ");
+    this->add(oscilloscope_display);
+    oscilloscope_display->show();
+
+    oscilloscope_display->voltage_per_division(0, 1.0);
+    oscilloscope_display->voltage_per_division(1, 1.0);
+
+    oscilloscope_display->time_per_division(0.005);
+
+    oscilloscope_display->samples(1024);
+    oscilloscope_display->sampling_rate(2000.0);
+
+    oscilloscope_display->update_display();
+   
+
+    end(); // Important: Close Fl_Group after adding children
+}
+
+
+void LABSoft_GUI_Analog_Circuit_Checker_Display:: 
+load_presenter (const LABSoft_Presenter& presenter)
+{
+  m_presenter = &presenter;
+
+   oscilloscope_display->load_presenter(presenter);
+}
+
+void LABSoft_GUI_Analog_Circuit_Checker_Display:: 
+update_display ()
+{
+  oscilloscope_display->update_display ();
+}
+
+
+
+/*
 LABSoft_GUI_Analog_Circuit_Checker_Display:: 
 LABSoft_GUI_Analog_Circuit_Checker_Display(int         X, 
                                   int         Y, 
@@ -577,4 +620,4 @@ show_voltage_per_division_labels (unsigned channel)
   {
     labels[row]->show ();
   }
-}
+}*/

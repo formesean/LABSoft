@@ -22,8 +22,8 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     this->add(oscilloscope_display);
     oscilloscope_display->show();
 
-    oscilloscope_display->voltage_per_division(0, 100.0);
-    oscilloscope_display->voltage_per_division(1, 100.0);
+    oscilloscope_display->voltage_per_division(0, 1.0);
+    oscilloscope_display->voltage_per_division(1, 1.0);
 
     oscilloscope_display->time_per_division(0.005);
 

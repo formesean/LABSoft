@@ -13,6 +13,7 @@
 #include "Software/LABSoft_Presenter_Exporter.h"
 #include "Software/LABSoft_Presenter_Calibration.h"
 #include "Software/LABSoft_Presenter_LABChecker_Analog_Display.h"
+#include "Software/LABSoft_Presenter_Analog_Circuit_Checker.h"
 #include "Software/LABSoft_Presenter_Main_Window.h"
 #include "Software/LABSoft_Presenter_LABChecker_Digital.h"
 #include "Software/LABSoft_Presenter_Oscilloscope_Display.h"
@@ -40,6 +41,7 @@ class LABSoft_Presenter
     LABSoft_Presenter_Exporter                   m_Exporter;
     LABSoft_Presenter_Calibration                m_Calibration;
     LABSoft_Presenter_LABChecker_Analog_Display  m_LABChecker_Analog;
+    LABSoft_Presenter_Analog_Circuit_Checker     m_Analog_Circuit_Checker;
     LABSoft_Presenter_Oscilloscope_Display       m_Oscilloscope_Display;
     
 

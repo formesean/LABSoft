@@ -77,6 +77,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Unit.cpp.o.d"
   "CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.o"
   "CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.o.d"
+  "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o"
+  "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o.d"
   "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp.o"
   "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp.o.d"
   "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp.o"

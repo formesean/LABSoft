@@ -1065,6 +1065,30 @@ LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.s
 .PHONY : LABSoft_Presenter/LABSoft_Presenter_Voltmeter.cpp.s
 
+LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.o: LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.o
+
+# target to build an object file
+LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o
+
+LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.i: LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.i
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.i
+
+# target to preprocess a source file
+LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.i
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.i
+
+LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.s: LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.s
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.s
+
+# target to generate assembly for a file
+LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.s
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.s
+
 LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.o: LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.cpp.o
 .PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.o
 
@@ -1623,6 +1647,9 @@ help:
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Voltmeter.o"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Voltmeter.i"
 	@echo "... LABSoft_Presenter/LABSoft_Presenter_Voltmeter.s"
+	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.o"
+	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.i"
+	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.s"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.o"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.i"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Calibration.s"
