@@ -39,12 +39,14 @@ update_data_cycle()
     // Customizable Key 1
     if (data[1] == 1 && data[2] == 0)
     {
+      LOG("Customizable Key 1 Pressed");
       handle_customizable_macro_key(1);
     }
 
     // Customizable Key 2
     if (data[1] == 2 && data[2] == 0)
     {
+      LOG("Customizable Key 2 Pressed");
       handle_customizable_macro_key(2);
     }
 
