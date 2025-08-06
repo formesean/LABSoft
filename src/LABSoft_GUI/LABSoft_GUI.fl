@@ -1596,8 +1596,8 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_logic_analyzer_tab {
-          label {Logic Analyzer}
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
+          label {Logic Analyzer} selected
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
           Fl_Group logic_analyzer_fl_group_display {open
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
@@ -2226,7 +2226,7 @@ class LABSoft_GUI {open
         }
         Fl_Group main_fl_group_labchecker_analog_tab {
           label LABChecker_Analog open
-          xywh {0 50 1220 550} color 54 labelsize 12
+          xywh {0 50 1220 550} color 54 labelsize 12 hide
         } {
           Fl_Group analog_labsoft_gui_analog_checker_display {open
             xywh {260 80 940 495} box FLAT_BOX color 32
@@ -2245,7 +2245,7 @@ class LABSoft_GUI {open
               xywh {55 150 69 25} down_box DOWN_BOX labelsize 12
             }
             Fl_Button analog_fl_button_capture_signal {
-              label {Plot Captured Signal} selected
+              label {Plot Captured Signal}
               xywh {40 195 180 60} box GTK_UP_BOX color 54 labelsize 12
             }
           }

@@ -19,11 +19,10 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
 {
    
   
-  oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 940, 495, "Oscilloscope");
+  oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 920, 450, "Oscilloscope");
     this->add(oscilloscope_display);
     oscilloscope_display->show();
 
-    // Initialize internal display (example coords; adjust to your layout)
    
 
     end(); // Important: Close Fl_Group after adding children
