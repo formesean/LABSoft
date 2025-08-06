@@ -31,7 +31,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {576 165 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {576 165 1220 595} type Double color 53 selection_color 53 labelsize 12 hide
     } {
       Fl_Menu_Bar {} {
         xywh {0 -5 1220 25} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -1596,8 +1596,8 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_logic_analyzer_tab {
-          label {Logic Analyzer} selected
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
+          label {Logic Analyzer}
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Group logic_analyzer_fl_group_display {open
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
@@ -2179,11 +2179,11 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_analog_circuit_checker {
-          label {Analog Circuit Checker}
+          label {Analog Circuit Checker} open
           xywh {1 50 1220 550} color 54 labelsize 12 hide
         } {
           Fl_Group analog_circuit_checker_labsoft_gui_analog_circuit_checker_display {open
-            xywh {261 80 940 495} box FLAT_BOX color 32
+            xywh {261 100 920 450} box FLAT_BOX color 32
             code0 {\#include "LABSoft_GUI_Oscilloscope_Display.h"}
             class LABSoft_GUI_Analog_Circuit_Checker_Display
           } {}
@@ -2226,10 +2226,10 @@ class LABSoft_GUI {open
         }
         Fl_Group main_fl_group_labchecker_analog_tab {
           label LABChecker_Analog open
-          xywh {0 50 1220 550} color 54 labelsize 12 hide
+          xywh {0 50 1220 550} color 54 labelsize 12
         } {
-          Fl_Group analog_labsoft_gui_analog_checker_display {open
-            xywh {260 80 940 495} box FLAT_BOX color 32
+          Fl_Group analog_labsoft_gui_analog_checker_display {open selected
+            xywh {260 100 920 450} box FLAT_BOX color 32
             code0 {\#include "LABSoft_GUI_Oscilloscope_Display.h"}
             class LABSoft_GUI_LABChecker_Analog_Checker_Display
           } {}

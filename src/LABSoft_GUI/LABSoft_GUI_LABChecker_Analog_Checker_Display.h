@@ -42,6 +42,11 @@ public:
     // Optional methods
     void update_display();  // A method to update or interact with the oscilloscope
     void load_presenter       (const LABSoft_Presenter& presenter);  
+    void voltage_per_division             (unsigned channel, double value);
+    void time_per_division                (double value);
+    void samples                          (unsigned value); 
+    void sampling_rate                    (double value);
+
     
 };
 

@@ -17,12 +17,20 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     int X, int Y, int W, int H, const char* label)
     : Fl_Group(X, Y, W, H, label)
 {
-   
   
-  oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 920, 450, "Oscilloscope");
+    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 100, 920, 450, " ");
     this->add(oscilloscope_display);
     oscilloscope_display->show();
 
+    oscilloscope_display->voltage_per_division(0, 100.0);
+    oscilloscope_display->voltage_per_division(1, 100.0);
+
+    oscilloscope_display->time_per_division(0.005);
+
+    oscilloscope_display->samples(1024);
+    oscilloscope_display->sampling_rate(2000.0);
+
+    oscilloscope_display->update_display();
    
 
     end(); // Important: Close Fl_Group after adding children
@@ -36,6 +44,13 @@ load_presenter (const LABSoft_Presenter& presenter)
 
    oscilloscope_display->load_presenter(presenter);
 }
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+update_display ()
+{
+  oscilloscope_display->update_display ();
+}
+
 
 /*
  m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");
