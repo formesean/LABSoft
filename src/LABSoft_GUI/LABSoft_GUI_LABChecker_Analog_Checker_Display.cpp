@@ -20,12 +20,10 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     // Initialize other child widgets
    
     // Initialize oscilloscope display
-    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 940, 495, "Oscilloscope");
-    this->add(oscilloscope_display);
-    oscilloscope_display->show();
+    
 
     // Initialize internal display (example coords; adjust to your layout)
-    m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, "Internal");
+    m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");
     this->add(m_internal_display);
     m_internal_display->show();
 
@@ -42,6 +40,11 @@ load_presenter (const LABSoft_Presenter& presenter)
 }
 
 /*
+
+oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 940, 495, "Oscilloscope");
+    this->add(oscilloscope_display);
+    oscilloscope_display->show();
+
 void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
 init_child_widgets ()
 {
