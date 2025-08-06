@@ -18,7 +18,7 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     : Fl_Group(X, Y, W, H, label)
 {
   
-    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(250, 80, 930, 485, " ");
+    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(270, 90, 930, 485, " ");
     this->add(oscilloscope_display);
     oscilloscope_display->show();
 
