@@ -17,15 +17,14 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     int X, int Y, int W, int H, const char* label)
     : Fl_Group(X, Y, W, H, label)
 {
-    // Initialize other child widgets
    
-    // Initialize oscilloscope display
-    
+  
+  oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 940, 495, "Oscilloscope");
+    this->add(oscilloscope_display);
+    oscilloscope_display->show();
 
     // Initialize internal display (example coords; adjust to your layout)
-    m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");
-    this->add(m_internal_display);
-    m_internal_display->show();
+   
 
     end(); // Important: Close Fl_Group after adding children
 }
@@ -36,14 +35,13 @@ load_presenter (const LABSoft_Presenter& presenter)
 {
   m_presenter = &presenter;
 
-  m_internal_display->load_presenter (presenter);
+   oscilloscope_display->load_presenter(presenter);
 }
 
 /*
-
-oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 80, 940, 495, "Oscilloscope");
-    this->add(oscilloscope_display);
-    oscilloscope_display->show();
+ m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");
+    this->add(m_internal_display);
+    m_internal_display->show();
 
 void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
 init_child_widgets ()
