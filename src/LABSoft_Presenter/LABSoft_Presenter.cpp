@@ -17,6 +17,7 @@ LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
     m_Function_Generator      (*this),
     m_Logic_Analyzer          (*this),
     m_Digital_Circuit_Checker (*this),
+    m_Analog_Circuit_Checker (*this),
     m_Main_Window             (*this),
     m_LABChecker_Digital      (*this),
     m_Exporter                (*this),
@@ -76,6 +77,10 @@ update_gui_tab_colors ()
   gui.main_fl_group_digital_circuit_checker_tab->selection_color (
     m_LAB.m_Digital_Circuit_Checker.is_running () ? 63 : 52
   );
+
+  gui.main_fl_group_analog_circuit_checker->selection_color (52);
+
+  gui.main_fl_group_labchecker_analog_tab->selection_color (52);
 
   // 6. analog circuit checker
  // gui.main_fl_group_labchecker_analog_tab->selection_color (

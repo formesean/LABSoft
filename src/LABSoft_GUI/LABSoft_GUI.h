@@ -7,7 +7,7 @@
 #include "LABSoft_GUI_Fl_Input.h"
 #include "LABSoft_GUI_Fl_Choice_With_Scroll.h"
 #include "LABSoft_GUI_Fl_Input_Choice_With_Scroll.h"
-
+class LABSoft_Presenter;
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Tabs.H>
@@ -27,11 +27,9 @@
 #include <FL/Fl_Text_Display.H>
 #include "LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h"
 #include "LABSoft_GUI_Exporter_Data_Table.h"
-#include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 #include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
+#include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 
-
-class LABSoft_Presenter;
 class LABSoft_GUI {
 public:
   LABSoft_Presenter *m_LABSoft_Presenter; 
@@ -358,7 +356,6 @@ private:
   static void cb_digital_fl_button_create_file(Fl_Button*, void*);
 public:
   LABSoft_GUI_LABChecker_Digital_Input_Table *labchecker_digital_labsoft_gui_labchecker_digital_input_table;
- 
   Fl_Group *main_fl_group_analog_circuit_checker;
   LABSoft_GUI_Analog_Circuit_Checker_Display *analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_time_domain;
@@ -368,7 +365,6 @@ public:
   Fl_Output *analog_circuit_checker_fl_output_selected_file;
   Fl_Button *analog_circuit_checker_fl_button_export_results;
   Fl_Output *analog_circuit_checker_fl_output_results;
- 
   Fl_Group *main_fl_group_labchecker_analog_tab;
   LABSoft_GUI_LABChecker_Analog_Checker_Display *analog_labsoft_gui_analog_checker_display;
   Fl_Check_Button *analog_fl_checkbutton_time_domain;

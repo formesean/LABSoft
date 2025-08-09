@@ -1,4 +1,4 @@
-#include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
+#include "LABSoft_GUI_Oscilloscope_Display.h"
 
 #include <cmath>
 #include <chrono>
@@ -10,6 +10,76 @@
 #include "../LABSoft_Presenter/LABSoft_Presenter.h"
 #include "LABSoft_GUI_Oscilloscope_Internal_Display.h"
 #include "../Utility/LABSoft_GUI_Label_Values.h"
+
+#include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
+
+LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Checker_Display(
+    int X, int Y, int W, int H, const char* label)
+    : Fl_Group(X, Y, W, H, label)
+{
+  
+    oscilloscope_display = new LABSoft_GUI_Oscilloscope_Display(260, 100, 920, 450, " ");
+    this->add(oscilloscope_display);
+    oscilloscope_display->show();
+
+    oscilloscope_display->voltage_per_division(0, 1.0);
+    oscilloscope_display->voltage_per_division(1, 1.0);
+
+    oscilloscope_display->time_per_division(0.005);
+
+    oscilloscope_display->samples(1024);
+    oscilloscope_display->sampling_rate(2000.0);
+
+    oscilloscope_display->update_display();
+   
+
+    end(); // Important: Close Fl_Group after adding children
+}
+
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+load_presenter (const LABSoft_Presenter& presenter)
+{
+  m_presenter = &presenter;
+
+   oscilloscope_display->load_presenter(presenter);
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+update_display ()
+{
+  oscilloscope_display->update_display ();
+}
+
+
+/*
+ m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");
+    this->add(m_internal_display);
+    m_internal_display->show();
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+init_child_widgets ()
+{
+
+  init_child_widgets_internal_display             ();
+
+  end ();
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+init_child_widgets_internal_display ()
+{
+  m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display (
+    x () + LABC::OSC_DISPLAY::INTERNAL_DISPLAY_LEFT_MARGIN,
+    y () + LABC::OSC_DISPLAY::INTERNAL_DISPLAY_TOP_MARGIN, 
+    w () - LABC::OSC_DISPLAY::INTERNAL_DISPLAY_LEFT_MARGIN - 
+      LABC::OSC_DISPLAY::INTERNAL_DISPLAY_RIGHT_MARGIN,
+    h () - LABC::OSC_DISPLAY::INTERNAL_DISPLAY_TOP_MARGIN - 
+      LABC::OSC_DISPLAY::INTERNAL_DISPLAY_BOTTOM_MARGIN
+  );
+}
+*/
+/*
 
 LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
 LABSoft_GUI_LABChecker_Analog_Checker_Display(int         X, 
@@ -578,3 +648,4 @@ show_voltage_per_division_labels (unsigned channel)
     labels[row]->show ();
   }
 }
+*/

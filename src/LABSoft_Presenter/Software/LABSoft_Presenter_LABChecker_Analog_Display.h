@@ -12,9 +12,7 @@ class LABSoft_Presenter_LABChecker_Analog_Display : public LABSoft_Presenter_Uni
 
   public:
     LABSoft_Presenter_LABChecker_Analog_Display (LABSoft_Presenter& _LABSoft_Presenter);
-
-    void cb_horizontal_offset (double value);
-    void cb_mouse_wheel       (int direction) const;
+    
     void update_display       ();
 };
 

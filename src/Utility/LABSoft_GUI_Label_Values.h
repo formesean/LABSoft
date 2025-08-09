@@ -17,7 +17,9 @@ namespace LABS_GUI_VALUES
       {"Function Generator",      LABE::LAB::INSTRUMENT::FUNCTION_GENERATOR},
       {"Logic Analyzer",          LABE::LAB::INSTRUMENT::LOGIC_ANALYZER},
       {"Digital Circuit Checker", LABE::LAB::INSTRUMENT::DIGITAL_CIRCUIT_CHECKER},
-      {"LABChecker - Digital",    LABE::LAB::INSTRUMENT::LABCHECKER_DIGITAL}
+      {"LABChecker - Digital",    LABE::LAB::INSTRUMENT::LABCHECKER_DIGITAL},
+      {"Analog Circuit Checker",  LABE::LAB::INSTRUMENT::ANALOG_CIRCUIT_CHECKER},
+      {"LABChecker - Analog",     LABE::LAB::INSTRUMENT::LABCHECKER_ANALOG}
     };
   };
 
