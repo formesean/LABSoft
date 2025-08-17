@@ -3595,6 +3595,7 @@ CMakeFiles/LABSoft.dir/LAB/Software/LAB_LABChecker_Analog.cpp.o
  /home/juztisleague/LABSoft/src/LAB/Software/LAB_LABChecker_Digital.h
  /home/juztisleague/LABSoft/src/LAB/Software/LAB_Oscilloscope_Display.h
  /home/juztisleague/LABSoft/src/LAB/Software/LAB_LABChecker_Analog.h
+ /home/juztisleague/LABSoft/src/LAB/Software/LAB_Oscilloscope_Display.h
  /usr/include/X11/X.h
  /usr/include/X11/Xatom.h
  /usr/include/X11/Xfuncproto.h
