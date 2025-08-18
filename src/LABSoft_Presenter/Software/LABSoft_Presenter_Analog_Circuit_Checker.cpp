@@ -95,7 +95,12 @@ capture_oscilloscope_and_function_generator_data()
   std::cout << "Samples: " << osc.samples() << std::endl;
   std::cout << "Sampling rate: " << osc.sampling_rate() << std::endl;
   std::cout << "Trigger mode: " << (int)osc.trigger_mode() << std::endl;
-  // std::cout << "Wave type: " << (int)fg.wave_type() << std::endl;
-  // std::cout << "Frequency: " << fg.frequency() << " Hz" << std::endl;
-  // std::cout << "Period: " << fg.period() << " s" << std::endl;
+  
+  std::cout << "Wave type: " << (int)fg.wave_type(0) << std::endl;
+  std::cout << "Frequency: " << fg.frequency(0) << " Hz" << std::endl;
+  std::cout << "Period: " << fg.period(0) << " s" << std::endl;
+  std::cout << "Wave type: " << (int)fg.wave_type(1) << std::endl;
+  std::cout << "Frequency: " << fg.frequency(1) << " Hz" << std::endl;
+  std::cout << "Period: " << fg.period(1) << " s" << std::endl;
+  
 }
