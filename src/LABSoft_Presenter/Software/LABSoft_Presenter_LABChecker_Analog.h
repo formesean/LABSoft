@@ -12,6 +12,7 @@ class LABSoft_Presenter_LABChecker_Analog : public LABSoft_Presenter_Unit
     void load_gui                                           ();
     bool can_capture_signal                                 () const;
     void capture_oscilloscope_and_function_generator_data   ();
+    void update_gui_with_captured_data                      ();
 
   public:
     LABSoft_Presenter_LABChecker_Analog (LABSoft_Presenter& _LABSoft_Presenter);
