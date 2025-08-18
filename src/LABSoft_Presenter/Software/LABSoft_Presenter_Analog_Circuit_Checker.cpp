@@ -56,11 +56,11 @@ can_capture_signal() const
   LAB_Oscilloscope& osc = lab().m_Oscilloscope;
   LAB_Function_Generator& fg = lab().m_Function_Generator;
 
-  if (osc.mode() != LABE::OSC::MODE::RECORD)
-  {
-    std::cout << "ERROR: Oscilloscope not in RECORD mode" << std::endl;
-    return false;
-  }  
+  // if (osc.mode() != LABE::OSC::MODE::RECORD)
+  // {
+  //   std::cout << "ERROR: Oscilloscope not in RECORD mode" << std::endl;
+  //   return false;
+  // }  
 
   if (!osc.is_frontend_running())
   {
