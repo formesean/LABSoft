@@ -85,15 +85,6 @@ update_data_cycle()
           highlight_tab();
         }
       }
-      else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
-      {
-        clear_tab_focus();
-        top_level_menu_indices = get_top_level_menu_indices();
-        current_menu_index = 0;
-        highlight_menu();
-        current_focus_level = LABE::SNM::FOCUS_LEVEL::MENU;
-        gui().main_fl_menu->take_focus();
-      }
     }
 
     // Next Key
@@ -101,15 +92,7 @@ update_data_cycle()
     {
       LOG("Next Key Pressed");
 
-      if (current_focus_level == LABE::SNM::FOCUS_LEVEL::MENU)
-      {
-        current_focus_level = LABE::SNM::FOCUS_LEVEL::TAB;
-        gui().main_fl_tabs->take_focus();
-        clear_menu_focus();
-        highlight_tab();
-        return;
-      }
-      else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
+      if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
       {
         auto tab_id = get_current_tab_id();
 
@@ -260,14 +243,6 @@ update_data_cycle()
       {
         switch_tab_by_direction(dir);
       }
-      else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::MENU)
-      {
-        if (top_level_menu_indices.empty()) return;
-        clear_menu_focus();
-        int count = top_level_menu_indices.size();
-        current_menu_index = (current_menu_index + dir + count) % count;
-        highlight_menu();
-      }
       else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::GROUP)
       {
         if (!current_groups_in_tab.empty())
@@ -300,72 +275,47 @@ update_data_cycle()
       LOG("Encoder Switch Pressed");
       is_encoder_switch_pressed = true;
 
-      if (current_focus_level == LABE::SNM::FOCUS_LEVEL::MENU)
+      Fl_Widget* widget = previous_focused_widget;
+
+      if (!widget || !widget->visible() || !widget->active() || !widget->takesevents()) return;
+
+      const char* widget_type = typeid(*widget).name();
+      LOG(("Focused Widget Type: " + std::string(widget_type)).c_str());
+      LOG(("Widget Label: " + std::string(widget->label() ? widget->label() : "<no label>")).c_str());
+
+      if (auto* lightBtn = dynamic_cast<Fl_Light_Button*>(widget))
       {
-        LOG("Encoder: Menu Item Activated");
+        int next = !lightBtn->value();
+        lightBtn->value(next);
+        lightBtn->do_callback();
+        lightBtn->redraw();
+      }
+      else if (auto* btn = dynamic_cast<Fl_Button*>(widget))
+      {
+        btn->set_changed();
+        btn->do_callback();
+        btn->redraw();
+        Fl::flush();
 
-        const Fl_Menu_Item* menu = gui().main_fl_menu->menu();
-        if (menu && current_menu_index < top_level_menu_indices.size())
-        {
-          int index = top_level_menu_indices[current_menu_index];
-          const Fl_Menu_Item* item = &menu[index];
-
-          if (item->submenu())
-          {
-            // Show submenu as popup at the menu item's approximate screen position
-            const int x = gui().main_fl_menu->x() + 10;
-            const int y = gui().main_fl_menu->y() + gui().main_fl_menu->h();
-            item->popup(x, y);
-          }
-        }
-
-        return;
+        Fl::add_timeout(0.05, [](void* v) {
+          auto* b = static_cast<Fl_Button*>(v);
+          b->set_changed();
+          b->do_callback();
+          b->redraw();
+        }, btn);
+      }
+      else if (auto* input = dynamic_cast<Fl_Input*>(widget))
+      {
+        input->take_focus();
+        input->position(input->size());
+        input->redraw();
       }
       else
       {
-        Fl_Widget* widget = previous_focused_widget;
-
-        if (!widget || !widget->visible() || !widget->active() || !widget->takesevents()) return;
-
-        const char* widget_type = typeid(*widget).name();
-        LOG(("Focused Widget Type: " + std::string(widget_type)).c_str());
-        LOG(("Widget Label: " + std::string(widget->label() ? widget->label() : "<no label>")).c_str());
-
-        if (auto* lightBtn = dynamic_cast<Fl_Light_Button*>(widget))
-        {
-          int next = !lightBtn->value();
-          lightBtn->value(next);
-          lightBtn->do_callback();
-          lightBtn->redraw();
-        }
-        else if (auto* btn = dynamic_cast<Fl_Button*>(widget))
-        {
-          btn->set_changed();
-          btn->do_callback();
-          btn->redraw();
-          Fl::flush();
-
-          Fl::add_timeout(0.05, [](void* v) {
-            auto* b = static_cast<Fl_Button*>(v);
-            b->set_changed();
-            b->do_callback();
-            b->redraw();
-          }, btn);
-        }
-        else if (auto* input = dynamic_cast<Fl_Input*>(widget))
-        {
-          input->take_focus();
-          input->position(input->size());
-          input->redraw();
-        }
-        else
-        {
-          Fl::focus(nullptr);
-          widget->do_callback();
-          widget->redraw();
-        }
+        Fl::focus(nullptr);
+        widget->do_callback();
+        widget->redraw();
       }
-
     }
     else if (data[1] == 1 && data[2] == 0) // Released
     {
@@ -413,18 +363,6 @@ highlight_tab()
 
 void
 LABSoft_Presenter_Software_Navigation::
-highlight_menu()
-{
-  if (current_menu_index < top_level_menu_indices.size())
-  {
-    int idx = top_level_menu_indices[current_menu_index];
-    const_cast<Fl_Menu_Item*>(&gui().main_fl_menu->menu()[idx])->labelcolor(Fl_Color(221));
-    gui().main_fl_menu->redraw();
-  }
-}
-
-void
-LABSoft_Presenter_Software_Navigation::
 highlight_group(Fl_Group* group)
 {
   if (previous_focused_group && previous_focused_group != group)
@@ -467,15 +405,6 @@ clear_tab_focus()
 {
   gui().main_fl_tabs->labelcolor(FL_BLACK);
   gui().main_fl_tabs->redraw();
-}
-
-void
-LABSoft_Presenter_Software_Navigation::
-clear_menu_focus()
-{
-  for (int idx : top_level_menu_indices)
-    const_cast<Fl_Menu_Item*>(&gui().main_fl_menu->menu()[idx])->labelcolor(FL_BLACK);
-  gui().main_fl_menu->redraw();
 }
 
 void
@@ -639,31 +568,6 @@ get_widgets_in_group(Fl_Group* group) const
   }
 
   return widgets;
-}
-
-std::vector<int>
-LABSoft_Presenter_Software_Navigation::
-get_top_level_menu_indices() const
-{
-  std::vector<int> top;
-  const Fl_Menu_Item* items = gui().main_fl_menu->menu();
-
-  for (int i = 0; items[i].text != nullptr; ++i)
-  {
-    if (items[i].flags & FL_SUBMENU)
-    {
-      top.push_back(i);
-
-      while (items[i].text != nullptr)
-      {
-        ++i;
-        if (items[i].text == nullptr)
-          break;
-      }
-    }
-  }
-
-  return top;
 }
 
 LABE::SNM::TAB_ID
