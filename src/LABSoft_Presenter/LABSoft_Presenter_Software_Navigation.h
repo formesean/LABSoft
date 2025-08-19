@@ -26,7 +26,6 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     int  group_index               = 0;
     int  widget_index              = 0;
     int  current_tab_index         = 0;
-    int  current_menu_index        = 0;
 
     static constexpr int tab_count = 8;
 
