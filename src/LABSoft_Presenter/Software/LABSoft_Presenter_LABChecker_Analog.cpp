@@ -96,22 +96,16 @@ capture_oscilloscope_and_function_generator_data()
   LOG("Oscilloscope Data:");
   for (int ch = 0; ch < 2; ++ch)
   {
-    const auto& samples = osc.chan_samples(ch);
     const auto& ch_data = osc_data.channel_data[ch];
 
-    std::cout << "Channel " << (ch+1) << " samples: "          << samples.size()              << '\n'
-              << "Channel " << (ch+1) << " Coupling: "         << (int)osc.coupling(ch)       << '\n'
-              << "Channel " << (ch+1) << " Scaling: "          << (int)osc.scaling(ch)        << '\n'
-              << "Channel " << (ch+1) << " Voltage/div: "      << osc.voltage_per_division(ch)<< '\n'
-              << "Channel " << (ch+1) << " Vertical offset: "  << osc.vertical_offset(ch)     << '\n';
+    std::cout << "Channel " << (ch+1) << " samples: "          << ch_data.samples.size()      << '\n'
+              << "Channel " << (ch+1) << " Coupling: "         << (int)ch_data.coupling       << '\n'
+              << "Channel " << (ch+1) << " Scaling: "          << (int)ch_data.scaling        << '\n'
+              << "Channel " << (ch+1) << " Voltage/div: "      << ch_data.voltage_per_division<< '\n'
+              << "Channel " << (ch+1) << " Vertical offset: "  << ch_data.vertical_offset     << '\n';
 
-    std::cout << "Channel " << (ch+1) << " Data:\n"
-              << "  is_enabled: "         << ch_data.is_enabled           << '\n'
+    std::cout << "  is_enabled: "         << ch_data.is_enabled           << '\n'
               << "  scaling_corrector: "  << ch_data.scaling_corrector    << '\n'
-              << "  voltage_per_div: "    << ch_data.voltage_per_division << '\n'
-              << "  vertical_offset: "    << ch_data.vertical_offset      << '\n'
-              << "  scaling: "            << (int)ch_data.scaling         << '\n'
-              << "  coupling: "           << (int)ch_data.coupling        << '\n'
               << "  measurements: "
               << "min=" << ch_data.measurements.min
               << ", max=" << ch_data.measurements.max
@@ -121,7 +115,7 @@ capture_oscilloscope_and_function_generator_data()
 
     std::cout << "  First 10 samples: ";
     for (size_t i = 0; i < std::min<size_t>(10, ch_data.samples.size()); ++i)
-      std::cout << ch_data.samples[i] << ' ';
+        std::cout << ch_data.samples[i] << ' ';
     std::cout << '\n';
   }
 
