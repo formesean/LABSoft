@@ -595,13 +595,31 @@ fill_raw_osc_samp_buff_from_dma_buff ()
     static_cast<LAB_DMA_Data_Oscilloscope*>(m_uncached_memory.virt ())
   );
 
-  bool data_received = false; // added for dummy data
+  unsigned sz = m_parent_data.raw_data_buffer.size();
+  double amplitude = 1500;
+  double offset    = 2048;
+  double freq_hz   = 1000; // 1kHz sine
+  double sample_rate = m_parent_data.sampling_rate;
+
+  for (unsigned i = 0; i < sz; ++i)
+  {
+    double t = static_cast<double>(i) / sample_rate;
+    double sine_val = amplitude * sin(2.0 * M_PI * freq_hz * t);
+    int val = static_cast<int>(offset + sine_val);
+
+    if (val < 0) val = 0;
+    else if (val > 4095) val = 4095;
+
+    uint16_t ch1 = static_cast<uint16_t>(val);
+    uint16_t ch2 = ch1;
+
+    m_parent_data.raw_data_buffer[i] = (ch2 << 16) | ch1;
+  }
 
   switch (m_parent_data.mode)
   {
     case (LABE::OSC::MODE::REPEATED):
     {
-      bool data_copied = false; // added for dummy data
       for (int buff = 0; buff < 2; buff++)
       {
         if (dma_data.status[buff])
@@ -611,7 +629,6 @@ fill_raw_osc_samp_buff_from_dma_buff ()
             const_cast<const void*>(static_cast<volatile void*>(dma_data.rxd[buff])),
             sizeof (uint32_t) * m_parent_data.samples
           );
-          data_copied = true; // added for dummy data
 
           // std::cout << std::bitset <32> (dma_data.rxd[buff][10]) << "\n";
         }
@@ -633,31 +650,6 @@ fill_raw_osc_samp_buff_from_dma_buff ()
         }
       }
 
-      // added for dummy data
-      if (!data_copied)
-      {
-        unsigned sz = m_parent_data.raw_data_buffer.size();
-        double amplitude = 1500;
-        double offset    = 2048;
-        double freq_hz   = 1000; // 1kHz sine
-        double sample_rate = m_parent_data.sampling_rate;
-
-        for (unsigned i = 0; i < sz; ++i)
-        {
-          double t = static_cast<double>(i) / sample_rate;
-          double sine_val = amplitude * sin(2.0 * M_PI * freq_hz * t);
-          int val = static_cast<int>(offset + sine_val);
-
-          if (val < 0) val = 0;
-          else if (val > 4095) val = 4095;
-
-          uint16_t ch1 = static_cast<uint16_t>(val);
-          uint16_t ch2 = ch1;
-
-          m_parent_data.raw_data_buffer[i] = (ch2 << 16) | ch1;
-        }
-      }
-
       break;
     }
 
@@ -668,28 +660,6 @@ fill_raw_osc_samp_buff_from_dma_buff ()
         const_cast<const void*>(static_cast<volatile void*>(dma_data.rxd[0])),
         sizeof (uint32_t) * m_parent_data.samples
       );
-
-      // added for dummy data
-      unsigned sz = m_parent_data.raw_data_buffer.size();
-      double amplitude = 1500;
-      double offset    = 2048;
-      double freq_hz   = 1000; // 1kHz sine
-      double sample_rate = m_parent_data.sampling_rate;
-
-      for (unsigned i = 0; i < sz; ++i)
-      {
-        double t = static_cast<double>(i) / sample_rate;
-        double sine_val = amplitude * sin(2.0 * M_PI * freq_hz * t);
-        int val = static_cast<int>(offset + sine_val);
-
-        if (val < 0) val = 0;
-        else if (val > 4095) val = 4095;
-
-        uint16_t ch1 = static_cast<uint16_t>(val);
-        uint16_t ch2 = ch1;
-
-        m_parent_data.raw_data_buffer[i] = (ch2 << 16) | ch1;
-      }
 
       break;
     }

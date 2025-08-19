@@ -123,10 +123,12 @@ capture_oscilloscope_and_function_generator_data()
   std::cout << "Period: "                             << fg.period(0) << " s" << std::endl;
 
   LOG("Channel 2:");
-  std::cout << "Wave type: " << (int)fg.wave_type(1) << std::endl;
-  std::cout << "Frequency: " << fg.frequency(1) << " Hz" << std::endl;
-  std::cout << "Period: " << fg.period(1) << " s" << std::endl;
-  
+  std::cout << "Wave type: "                          << (int)fg.wave_type(1) << std::endl;
+  std::cout << "Frequency: "                          << fg.frequency(1) << " Hz" << std::endl;
+  std::cout << "Period: "                             << fg.period(1) << " s" << std::endl;
+
+  LOG("====================");
+  LOG(" ");
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
