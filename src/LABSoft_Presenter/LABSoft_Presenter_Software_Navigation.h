@@ -26,13 +26,11 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     int  group_index               = 0;
     int  widget_index              = 0;
     int  current_tab_index         = 0;
-    int  current_menu_index        = 0;
 
     static constexpr int tab_count = 8;
 
     std::vector<Fl_Group*>  current_groups_in_tab;
     std::vector<Fl_Widget*> current_widgets_in_group;
-    std::vector<int>        top_level_menu_indices;
 
     Fl_Group*  tab_groups[tab_count];
     Fl_Group*  previous_focused_group  = nullptr;
@@ -47,13 +45,11 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     void switch_tab_by_direction (int direction);
     void sync_current_tab_index  ();
     void highlight_tab           ();
-    void highlight_menu          ();
     void highlight_group         (Fl_Group* group);
     void highlight_widget        (Fl_Widget* widget);
 
   private:
     void clear_tab_focus               ();
-    void clear_menu_focus              ();
     void clear_group_focus             ();
     void clear_widget_focus            ();
     void initialize_run_key_actions    ();
@@ -61,7 +57,6 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
 
     std::vector<Fl_Group*>  get_groups_in_tab          (Fl_Group* tab)   const;
     std::vector<Fl_Widget*> get_widgets_in_group       (Fl_Group* group) const;
-    std::vector<int>        get_top_level_menu_indices ()                const;
     LABE::SNM::TAB_ID       get_current_tab_id         ()                const;
 
     std::unordered_map<LABE::SNM::TAB_ID, std::vector<Fl_Group*>> get_focusable_groups_map() const;
