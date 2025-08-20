@@ -14,6 +14,7 @@
 #include "Software/LABSoft_Presenter_Exporter.h"
 #include "Software/LABSoft_Presenter_Calibration.h"
 #include "Software/LABSoft_Presenter_LABChecker_Analog.h"
+#include "Software/LABSoft_Presenter_LABChecker_Analog.h"
 #include "Software/LABSoft_Presenter_Analog_Circuit_Checker.h"
 #include "Software/LABSoft_Presenter_Main_Window.h"
 #include "Software/LABSoft_Presenter_LABChecker_Digital.h"

@@ -45,12 +45,18 @@ load_presenter (const LABSoft_Presenter& presenter)
    oscilloscope_display->load_presenter(presenter);
 }
 
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
+load_pixel_points (const LABSoft_GUI_LABChecker_Analog_Checker_Display::PixelPoints& pixel_points)
+{
+  oscilloscope_display->load_pixel_points (pixel_points);
+}
+
 void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
 update_display ()
 {
   oscilloscope_display->update_display ();
 }
-
 
 /*
  m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");

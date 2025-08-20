@@ -6,6 +6,10 @@
 #include "../LAB.h"
 #include "../LAB_Oscilloscope.h"
 #include "../../Utility/LAB_Utility_Functions.h"
+#include "LAB_Oscilloscope_Display.h"
+
+
+
 
 /* LAB_LABChecker_Analog::
 LAB_LABChecker_Analog (
@@ -395,6 +399,5 @@ mark_samples () const
 {
   return (m_mark_samples);
 }
-
 
 

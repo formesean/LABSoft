@@ -21,10 +21,22 @@ LABSoft_Presenter_LABChecker_Analog::LABSoft_Presenter_LABChecker_Analog(LABSoft
 
 void LABSoft_Presenter_LABChecker_Analog::load_gui()
 {
-  LABSoft_GUI_Analog_Circuit_Checker_Display& analog_checker_disp_gui = *(gui ().analog_circuit_checker_labsoft_gui_analog_circuit_checker_display);
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display;
+  LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_checker_disp_gui = *(gui ().analog_labsoft_gui_analog_checker_display);
 
    analog_checker_disp_gui.load_presenter         (m_presenter);
+   analog_checker_disp_gui.load_pixel_points              (osc_disp.pixel_points ());
 
+}
+
+void LABSoft_Presenter_LABChecker_Analog::
+update_display ()
+{
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display;
+  LABSoft_GUI_LABChecker_Analog_Checker_Display&   analog_checker_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
+
+  osc_disp       .update_pixel_points  ();
+  analog_checker_disp_gui.update_display       ();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
@@ -48,7 +60,7 @@ cb_capture_signal(Fl_Button* w,
     acc->capture_oscilloscope_and_function_generator_data();
 
     // Update the GUI with the captured data
-    acc->update_gui_with_captured_data();
+    //acc->update_gui_with_captured_data();
   }
   else
   {
@@ -139,7 +151,7 @@ capture_oscilloscope_and_function_generator_data()
   LOG("====================\n");
 }
 
-void LABSoft_Presenter_LABChecker_Analog::
+/*void LABSoft_Presenter_LABChecker_Analog::
 update_gui_with_captured_data()
 {
   LAB_Oscilloscope& osc = lab().m_Oscilloscope;
@@ -158,3 +170,116 @@ update_gui_with_captured_data()
 
   std::cout << "GUI updated with captured oscilloscope data" << std::endl;
 }
+
+void LABSoft_Presenter_LABChecker_Analog::create_file()
+{
+
+  if (!can_capture_signal())
+  {
+    std::cout << "ERROR: Cannot create file - capture signal requirements not met" << std::endl;
+    return;
+  }
+
+  std::string file_name("analog_checker.labacc");
+
+  Fl_Native_File_Chooser chooser;
+
+  chooser.title("Save Analog Circuit Checker File...");
+  chooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+  chooser.directory("/");
+  chooser.preset_file(file_name.c_str());
+  chooser.options(Fl_Native_File_Chooser::NEW_FOLDER |
+                  Fl_Native_File_Chooser::SAVEAS_CONFIRM);
+
+  switch (chooser.show())
+  {
+    case 1: // cancel
+    {
+      std::cout << "File save cancelled by user" << std::endl;
+      break;
+    }
+
+    default:
+    {
+      try
+      {
+        // Get the captured data
+        LAB_Oscilloscope& osc = lab().m_Oscilloscope;
+        LAB_Function_Generator& fg = lab().m_Function_Generator;
+
+        // Call the LAB component to create the file
+        // This assumes you have an analog checker component in your LAB class
+        // that can handle oscilloscope and function generator data
+
+        m_presenter.lab().m_LABChecker_Analog.create_file(
+          osc, fg, chooser.filename());
+
+        std::cout << "Analog circuit checker file saved successfully: "
+                  << chooser.filename() << std::endl;
+      }
+      catch (const std::exception& err)
+      {
+        std::cout << "ERROR: Failed to save file - " << err.what() << std::endl;
+      }
+
+      break;
+    }
+  }
+}*/
+
+
+
+/*LABSoft_Presenter_LABChecker_Analog_Display::
+LABSoft_Presenter_LABChecker_Analog_Display (LABSoft_Presenter& _LABSoft_Presenter)
+  : LABSoft_Presenter_Unit (_LABSoft_Presenter)
+{
+  load_gui ();
+}
+
+void LABSoft_Presenter_LABChecker_Analog_Display::
+load_gui ()
+{
+  LAB_Oscilloscope&                                   osc              = lab ().m_Oscilloscope;
+  LAB_Oscilloscope_Display&                           osc_disp         = lab ().m_Oscilloscope_Display;
+  LABSoft_GUI_LABChecker_Analog_Checker_Display&      analog_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
+
+  analog_disp_gui.channel_enable_disable (0, osc.is_channel_enabled    (0));
+  analog_disp_gui.channel_enable_disable (0, osc.is_channel_enabled    (1));
+  analog_disp_gui.voltage_per_division   (0, osc.voltage_per_division  (0));
+  analog_disp_gui.voltage_per_division   (1, osc.voltage_per_division  (1));
+  analog_disp_gui.vertical_offset        (1, osc.vertical_offset       (1));
+  analog_disp_gui.vertical_offset        (1, osc.vertical_offset       (1));
+  analog_disp_gui.horizontal_offset      (osc.horizontal_offset        ( ));
+  analog_disp_gui.time_per_division      (osc.time_per_division        ( ));
+  analog_disp_gui.load_presenter         (m_presenter);
+  analog_disp_gui.load_pixel_points      (osc_disp.pixel_points ());
+
+  osc_disp.display_parameters (
+    analog_disp_gui.display_width (),
+    analog_disp_gui.display_height (),
+    LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+    LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+  );
+}
+
+void LABSoft_Presenter_LABChecker_Analog_Display::
+cb_horizontal_offset (double value)
+{
+
+}
+
+void LABSoft_Presenter_LABChecker_Analog_Display::
+cb_mouse_wheel (int direction) const
+{
+
+}
+
+void LABSoft_Presenter_LABChecker_Analog_Display::
+update_display ()
+{
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display;
+  LABSoft_GUI_LABChecker_Analog_Checker_Display&   analog_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
+
+  osc_disp       .update_pixel_points  ();
+  analog_disp_gui.update_display       ();
+}*/
