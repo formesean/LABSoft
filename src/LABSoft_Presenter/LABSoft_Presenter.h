@@ -43,6 +43,8 @@ class LABSoft_Presenter
     LABSoft_Presenter_Calibration             m_Calibration;
     LABSoft_Presenter_Oscilloscope_Display    m_Oscilloscope_Display;
     LABSoft_Presenter_Shortcuts               m_Shortcuts;
+    LABSoft_Presenter_Analog_Circuit_Checker  m_Analog_Circuit_Checker;
+    LABSoft_Presenter_LABChecker_Analog       m_LABChecker_Analog;
 
   private:
     void load_presenter_to_gui ();

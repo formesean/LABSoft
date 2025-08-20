@@ -17,7 +17,7 @@ LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
     m_Function_Generator      (*this),
     m_Logic_Analyzer          (*this),
     m_Digital_Circuit_Checker (*this),
-    m_Analog_Circuit_Checker (*this),
+    m_Analog_Circuit_Checker  (*this),
     m_Main_Window             (*this),
     m_LABChecker_Digital      (*this),
     m_Exporter                (*this),
