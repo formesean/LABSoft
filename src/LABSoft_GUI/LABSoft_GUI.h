@@ -35,7 +35,8 @@ public:
   LABSoft_Presenter *m_LABSoft_Presenter; 
   LABSoft_GUI();
   Fl_Double_Window *main_fl_window;
-  static Fl_Menu_Item menu_[];
+  Fl_Menu_Bar *main_fl_menu;
+  static Fl_Menu_Item menu_main_fl_menu[];
   static Fl_Menu_Item *main_menuitem_export;
 private:
   inline void cb_main_menuitem_export_i(Fl_Menu_*, void*);
@@ -44,6 +45,8 @@ private:
   static void cb_Exit(Fl_Menu_*, void*);
   inline void cb_Calibration_i(Fl_Menu_*, void*);
   static void cb_Calibration(Fl_Menu_*, void*);
+  inline void cb_Shortcuts_i(Fl_Menu_*, void*);
+  static void cb_Shortcuts(Fl_Menu_*, void*);
   inline void cb_About_i(Fl_Menu_*, void*);
   static void cb_About(Fl_Menu_*, void*);
 public:
@@ -222,18 +225,21 @@ private:
   static void cb_ohmmeter_fl_light_button_run_stop(Fl_Light_Button*, void*);
 public:
   Fl_Group *main_fl_group_function_generator_tab;
+  Fl_Group *function_generator_fl_group_1;
   LABSoft_GUI_Fl_Choice_With_Scroll *function_generator_fl_choice_wave_type;
 private:
   inline void cb_function_generator_fl_choice_wave_type_i(LABSoft_GUI_Fl_Choice_With_Scroll*, long);
   static void cb_function_generator_fl_choice_wave_type(LABSoft_GUI_Fl_Choice_With_Scroll*, long);
   static Fl_Menu_Item menu_function_generator_fl_choice_wave_type[];
 public:
+  Fl_Group *function_generator_fl_group_2;
   LABSoft_GUI_Fl_Input_Choice_With_Scroll *function_generator_fl_input_choice_frequency;
 private:
   inline void cb_function_generator_fl_input_choice_frequency_i(LABSoft_GUI_Fl_Input_Choice_With_Scroll*, long);
   static void cb_function_generator_fl_input_choice_frequency(LABSoft_GUI_Fl_Input_Choice_With_Scroll*, long);
   static Fl_Menu_Item menu_function_generator_fl_input_choice_frequency[];
 public:
+  Fl_Group *function_generator_fl_group_3;
   LABSoft_GUI_Fl_Input_Choice_With_Scroll *function_generator_fl_input_choice_period;
 private:
   inline void cb_function_generator_fl_input_choice_period_i(LABSoft_GUI_Fl_Input_Choice_With_Scroll*, long);
@@ -313,6 +319,7 @@ private:
 public:
   LABSoft_GUI_Logic_Analyzer_Display *logic_analyzer_labsoft_gui_logic_analyzer_display;
   Fl_Group *main_fl_group_digital_circuit_checker_tab;
+  Fl_Group *digital_circuit_checker_fl_group_1;
   Fl_Button *digital_circuit_checker_fl_button_load_file;
 private:
   inline void cb_digital_circuit_checker_fl_button_load_file_i(Fl_Button*, void*);
@@ -329,10 +336,12 @@ private:
   inline void cb_digital_circuit_checker_fl_button_run_checker_i(Fl_Button*, void*);
   static void cb_digital_circuit_checker_fl_button_run_checker(Fl_Button*, void*);
 public:
+  Fl_Group *digital_circuit_checker_fl_group_2;
   Fl_Output *digital_circuit_checker_fl_output_results;
   Fl_Button *digital_circuit_checker_fl_button_export_results;
   LABSoft_GUI_LABChecker_Digital_Output_Table *digital_circuit_checker_labchecker_gui_digital_output_table_table;
   Fl_Group *main_fl_group_labchecker_digital;
+  Fl_Group *labchecker_digital_fl_group_1;
   Fl_Choice *digital_fl_choice_input_bits;
 private:
   inline void cb_digital_fl_choice_input_bits_i(Fl_Choice*, void*);
@@ -350,6 +359,7 @@ private:
   inline void cb_digital_fl_input_output_count_i(Fl_Input*, void*);
   static void cb_digital_fl_input_output_count(Fl_Input*, void*);
 public:
+  Fl_Group *labchecker_digital_fl_group_2;
   Fl_Button *digital_fl_button_create_file;
 private:
   inline void cb_digital_fl_button_create_file_i(Fl_Button*, void*);
@@ -431,7 +441,7 @@ private:
   static void cb_exporter_fl_light_button_labels(Fl_Light_Button*, void*);
 public:
   Fl_Double_Window *main_fl_window_calibration;
-  static Fl_Menu_Item menu_1[];
+  static Fl_Menu_Item menu_[];
 private:
   inline void cb_Open_i(Fl_Menu_*, void*);
   static void cb_Open(Fl_Menu_*, void*);
@@ -466,5 +476,26 @@ public:
 private:
   inline void cb_calibration_fl_button_close_i(Fl_Button*, void*);
   static void cb_calibration_fl_button_close(Fl_Button*, void*);
+public:
+  Fl_Double_Window *main_fl_window_shortcuts;
+  Fl_Group *main_fl_shortcuts_window_group_1;
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action[];
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value[];
+  Fl_Group *main_fl_shortcuts_window_group_2;
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action[];
+  LABSoft_GUI_Fl_Choice_With_Scroll *shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value;
+  static Fl_Menu_Item menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value[];
+  Fl_Button *shortcuts_fl_button_apply;
+private:
+  inline void cb_shortcuts_fl_button_apply_i(Fl_Button*, void*);
+  static void cb_shortcuts_fl_button_apply(Fl_Button*, void*);
+public:
+  Fl_Button *shortcuts_fl_button_close;
+private:
+  inline void cb_shortcuts_fl_button_close_i(Fl_Button*, void*);
+  static void cb_shortcuts_fl_button_close(Fl_Button*, void*);
 };
 #endif

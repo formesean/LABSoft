@@ -13,13 +13,15 @@ LAB::LAB ()
   m_Exporter                (*this),
   m_Oscilloscope_Display    (*this, m_Oscilloscope),
   m_Calibration             (*this),
+  m_Software_Navigation     (*this),
+  m_Shortcuts               (*this),
   m_LABChecker_Analog       (*this, m_Oscilloscope)
 {
 
 }
 
-AikaPi& LAB:: 
-rpi () const 
+AikaPi& LAB::
+rpi () const
 {
   return (m_LAB_Core);
 }
