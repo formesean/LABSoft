@@ -27,6 +27,16 @@ void LABSoft_Presenter_LABChecker_Analog::load_gui()
 
 }
 
+void LABSoft_Presenter_LABChecker_Analog_Display:: 
+update_display ()
+{
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display; 
+  LABSoft_GUI_LABChecker_Analog_Checker_Display&   analog_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
+
+  osc_disp       .update_pixel_points  ();
+  analog_disp_gui.update_display       ();
+}
+
 void LABSoft_Presenter_LABChecker_Analog::
 init_gui_callbacks()
 {
