@@ -21,7 +21,7 @@ LABSoft_Presenter_LABChecker_Analog::LABSoft_Presenter_LABChecker_Analog(LABSoft
 
 void LABSoft_Presenter_LABChecker_Analog::load_gui()
 {
-  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display; 
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_checker_disp_gui = *(gui ().analog_labsoft_gui_analog_checker_display);
 
    analog_checker_disp_gui.load_presenter         (m_presenter);
@@ -29,10 +29,10 @@ void LABSoft_Presenter_LABChecker_Analog::load_gui()
 
 }
 
-void LABSoft_Presenter_LABChecker_Analog:: 
+void LABSoft_Presenter_LABChecker_Analog::
 update_display ()
 {
-  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display; 
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display&   analog_checker_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
 
   osc_disp       .update_pixel_points  ();
@@ -180,7 +180,7 @@ void LABSoft_Presenter_LABChecker_Analog::create_file()
     return;
   }
 
-  std::string file_name("analog_checker.labacc"); 
+  std::string file_name("analog_checker.labacc");
 
   Fl_Native_File_Chooser chooser;
 
@@ -188,7 +188,7 @@ void LABSoft_Presenter_LABChecker_Analog::create_file()
   chooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
   chooser.directory("/");
   chooser.preset_file(file_name.c_str());
-  chooser.options(Fl_Native_File_Chooser::NEW_FOLDER | 
+  chooser.options(Fl_Native_File_Chooser::NEW_FOLDER |
                   Fl_Native_File_Chooser::SAVEAS_CONFIRM);
 
   switch (chooser.show())
@@ -199,9 +199,9 @@ void LABSoft_Presenter_LABChecker_Analog::create_file()
       break;
     }
 
-    default: 
+    default:
     {
-      try 
+      try
       {
         // Get the captured data
         LAB_Oscilloscope& osc = lab().m_Oscilloscope;
@@ -214,35 +214,35 @@ void LABSoft_Presenter_LABChecker_Analog::create_file()
         m_presenter.lab().m_LABChecker_Analog.create_file(
           osc, fg, chooser.filename());
 
-        std::cout << "Analog circuit checker file saved successfully: " 
+        std::cout << "Analog circuit checker file saved successfully: "
                   << chooser.filename() << std::endl;
       }
       catch (const std::exception& err)
       {
         std::cout << "ERROR: Failed to save file - " << err.what() << std::endl;
       }
-      
+
       break;
     }
-  }  
+  }
 }*/
 
 
 
-/*LABSoft_Presenter_LABChecker_Analog_Display:: 
+/*LABSoft_Presenter_LABChecker_Analog_Display::
 LABSoft_Presenter_LABChecker_Analog_Display (LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit (_LABSoft_Presenter)
 {
   load_gui ();
 }
 
-void LABSoft_Presenter_LABChecker_Analog_Display:: 
+void LABSoft_Presenter_LABChecker_Analog_Display::
 load_gui ()
 {
   LAB_Oscilloscope&                                   osc              = lab ().m_Oscilloscope;
   LAB_Oscilloscope_Display&                           osc_disp         = lab ().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display&      analog_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
-  
+
   analog_disp_gui.channel_enable_disable (0, osc.is_channel_enabled    (0));
   analog_disp_gui.channel_enable_disable (0, osc.is_channel_enabled    (1));
   analog_disp_gui.voltage_per_division   (0, osc.voltage_per_division  (0));
@@ -262,22 +262,22 @@ load_gui ()
   );
 }
 
-void LABSoft_Presenter_LABChecker_Analog_Display:: 
+void LABSoft_Presenter_LABChecker_Analog_Display::
 cb_horizontal_offset (double value)
 {
 
 }
 
-void LABSoft_Presenter_LABChecker_Analog_Display:: 
+void LABSoft_Presenter_LABChecker_Analog_Display::
 cb_mouse_wheel (int direction) const
 {
 
 }
 
-void LABSoft_Presenter_LABChecker_Analog_Display:: 
+void LABSoft_Presenter_LABChecker_Analog_Display::
 update_display ()
 {
-  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display; 
+  LAB_Oscilloscope_Display&           osc_disp      = lab ().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display&   analog_disp_gui  = *(gui ().analog_labsoft_gui_analog_checker_display);
 
   osc_disp       .update_pixel_points  ();

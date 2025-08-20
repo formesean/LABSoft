@@ -51,6 +51,31 @@ update_display ()
   oscilloscope_display->update_display ();
 }
 
+// test function
+void LABSoft_GUI_Analog_Circuit_Checker_Display::
+voltage_per_division(unsigned channel, double value)
+{
+  oscilloscope_display->voltage_per_division(channel, value);
+}
+
+void LABSoft_GUI_Analog_Circuit_Checker_Display::
+time_per_division(double value)
+{
+  oscilloscope_display->time_per_division(value);
+}
+
+void LABSoft_GUI_Analog_Circuit_Checker_Display::
+samples(unsigned value)
+{
+  oscilloscope_display->samples(value);
+}
+
+void LABSoft_GUI_Analog_Circuit_Checker_Display::
+sampling_rate(double value)
+{
+  oscilloscope_display->sampling_rate(value);
+}
+
 
 
 /*

@@ -7,7 +7,7 @@
 
 LABSoft::
 LABSoft (int    argc,
-         char** argv) 
+         char** argv)
   : m_LABSoft_Presenter (m_LAB, m_LABSoft_GUI)
 {
   // initialize threading support
@@ -25,7 +25,7 @@ LABSoft (int    argc,
 }
 
 LABSoft::
-~LABSoft() 
+~LABSoft()
 {
 
 }

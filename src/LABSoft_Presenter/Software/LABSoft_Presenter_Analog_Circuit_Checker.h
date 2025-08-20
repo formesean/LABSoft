@@ -1,6 +1,6 @@
-
-#ifndef LABSOFT_PRESENTER_ANALOG_CIRCUIT_CHECKER_H
-#define LABSOFT_PRESENTER_ANALOG_CIRCUIT_CHECKER_H
+//student side
+#ifndef LABSoft_Presenter_Analog_Circuit_Checker_H
+#define LABSoft_Presenter_Analog_Circuit_Checker_H
 
 #include "../LABSoft_Presenter_Unit.h"
 

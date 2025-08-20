@@ -665,12 +665,12 @@ for (unsigned i = 0; i < sz; ++i)
     }
   }
 
-  //unsigned sz          = m_parent_data.raw_data_buffer.size();
-  //double   amplitude   = 1500;
+  unsigned sz          = m_parent_data.raw_data_buffer.size();
+  double   amplitude   = 1500;
 
- // double   offset      = 2048;
-  //double   freq_hz     = 1000;
-  //double   sample_rate = m_parent_data.sampling_rate;
+  double   offset      = 2048;
+  double   freq_hz     = 1000;
+  double   sample_rate = m_parent_data.sampling_rate;
 
   for (unsigned i = 0; i < sz; ++i)
   {
@@ -2037,4 +2037,3 @@ calibration ()
 
 
 // EOF
-

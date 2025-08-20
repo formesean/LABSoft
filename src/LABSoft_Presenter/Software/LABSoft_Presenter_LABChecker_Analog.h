@@ -17,7 +17,7 @@ class LABSoft_Presenter_LABChecker_Analog : public LABSoft_Presenter_Unit
 
   public:
     LABSoft_Presenter_LABChecker_Analog (LABSoft_Presenter& _LABSoft_Presenter);
-    
+
     void update_display             ();
     void init_gui_callbacks         ();
     static void cb_capture_signal   (Fl_Button* w, void* data);

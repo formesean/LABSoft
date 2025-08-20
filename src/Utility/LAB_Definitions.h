@@ -6,7 +6,7 @@
 
 #include "LAB_Constants.h"
 #include "LAB_Defaults.h"
-#include "LAB_Enumerations.h" 
+#include "LAB_Enumerations.h"
 
 // Calibration Data
 struct LAB_Calibration_Data_Oscilloscope
@@ -14,7 +14,7 @@ struct LAB_Calibration_Data_Oscilloscope
   double adc_reference_voltage        = LABD::OSC::ADC_REFERENCE_VOLTAGE;
   double conversion_reference_voltage = LABD::OSC::CONVERSION_REFERENCE_VOLTAGE;
   double conversion_constant          = LABD::OSC::CONVERSION_CONSTANT;
-  
+
   std::unordered_map <LABE::OSC::SCALING, double> vertical_offset_corrector   = LABD::OSC::VERTICAL_OFFSET_CORRECTOR;
   std::unordered_map <LABE::OSC::SCALING, double> scaling_corrector_to_unity  = LABD::OSC::SCALING_CORRECTOR_TO_UNITY;
   std::unordered_map <LABE::OSC::SCALING, double> scaling_corrector_to_actual = LABD::OSC::SCALING_CORRECTOR_TO_ACTUAL;
@@ -99,18 +99,18 @@ struct LAB_Channel_Data_Logic_Analyzer
 // Parent Data
 struct LAB_Parent_Data_Oscilloscope
 {
-  public:    
-    // state 
-    bool              is_backend_running      = false; 
+  public:
+    // state
+    bool              is_backend_running      = false;
     bool              is_frontend_running     = false;
     bool              single                  = false;
     bool              do_measurements         = false;
     LABE::OSC::STATUS status                  = LABE::OSC::STATUS::READY;
     bool              is_calibration_enabled  = true;
-    
+
     // mode
     LABE::OSC::MODE mode                      = LABD::OSC::MODE;
-    LABE::OSC::MODE last_mode_before_repeated = LABE::OSC::MODE::SCREEN; 
+    LABE::OSC::MODE last_mode_before_repeated = LABE::OSC::MODE::SCREEN;
     bool            auto_mode_frame_ready     = false;
 
     // horizontal
@@ -119,9 +119,9 @@ struct LAB_Parent_Data_Oscilloscope
     double    time_per_division               = LABD::OSC::TIME_PER_DIVISION;
     double    time_per_division_last_repeated = time_per_division;
     double    time_per_division_raw_buffer    = time_per_division;
-    unsigned  samples                         = LABD::OSC::SAMPLES;              
-    unsigned  samples_raw_buffer              = samples;           
-    double    samples_displayed               = 0;              
+    unsigned  samples                         = LABD::OSC::SAMPLES;
+    unsigned  samples_raw_buffer              = samples;
+    double    samples_displayed               = 0;
     double    sampling_rate                   = LABD::OSC::SAMPLING_RATE;
     double    sampling_rate_raw_buffer        = sampling_rate;
 
@@ -129,17 +129,17 @@ struct LAB_Parent_Data_Oscilloscope
     std::vector<uint32_t> recording_raw_sample_buffer;
 
     std::array<
-      uint32_t, 
+      uint32_t,
       LABC::OSC::NUMBER_OF_SAMPLES
-    > raw_data_buffer;              
+    > raw_data_buffer;
 
     std::array<
-      LAB_Channel_Data_Oscilloscope, 
+      LAB_Channel_Data_Oscilloscope,
       LABC::OSC::NUMBER_OF_CHANNELS
     > channel_data;
-  
+
     // trigger
-    bool                  trigger_enabled         = false; 
+    bool                  trigger_enabled         = false;
     bool                  trigger_frame_ready     = false;
     bool                  trigger_found           = false;
     bool                  find_trigger_timeout    = false;
@@ -152,7 +152,7 @@ struct LAB_Parent_Data_Oscilloscope
     unsigned              find_trig_sample_skip   = 4;
     unsigned              trigger_buffer_index    = 0;
     unsigned              trig_index              = 0;
-    
+
     // Debug
     unsigned              buffer_overflow_count   = 0;
 
@@ -169,7 +169,7 @@ struct LAB_Parent_Data_Oscilloscope
       > post_trigger;
 
       std::array<uint32_t, LABC::OSC::NUMBER_OF_SAMPLES> assembled_block;
-    } trig_buffs;      
+    } trig_buffs;
 
   public:
     bool has_enabled_channels () const
@@ -202,7 +202,7 @@ struct LAB_Parent_Data_Ohmmeter
   bool is_backend_running     = false;
   bool is_frontend_running    = false;
   bool is_calibration_enabled = true;
-  
+
   std::array<
     LAB_Channel_Data_Ohmmeter,
     LABC::OHMMETER::NUMBER_OF_CHANNELS
@@ -213,7 +213,7 @@ class LAB_Parent_Data_Function_Generator
 {
   public:
     std::array <LAB_Channel_Data_Function_Generator, LABC::FUNC_GEN::NUMBER_OF_CHANNELS> channel_data;
-  
+
   public:
     bool has_enabled_channels ()
     {
@@ -251,21 +251,21 @@ struct LAB_Parent_Data_Logic_Analyzer
   double    sampling_period               = LABD::LOGAN::SAMPLING_PERIOD;
 
   std::array <
-    uint32_t, 
+    uint32_t,
     LABC::LOGAN::MAX_NUMBER_OF_SAMPLES
   > raw_data_buffer;
-    
-  std::array <LAB_Channel_Data_Logic_Analyzer, 
+
+  std::array <LAB_Channel_Data_Logic_Analyzer,
     LABC::LOGAN::NUMBER_OF_CHANNELS> channel_data;
 
-  // Trigger 
-  bool                    trigger_enabled             = false; 
+  // Trigger
+  bool                    trigger_enabled             = false;
   bool                    trigger_frame_ready         = false;
   bool                    trigger_found               = false;
   bool                    find_trigger_timeout        = false;
   LABE::LOGAN::TRIG::MODE trigger_mode                = LABD::LOGAN::TRIGGER_MODE;
   double                  check_trigger_sleep_period  = LABD::LOGAN::CHECK_TRIGGER_SLEEP_PERIOD;
-  uint32_t                trigger_flags               = 0; 
+  uint32_t                trigger_flags               = 0;
   unsigned                trigger_buffer_index        = 0;
   unsigned                trigger_index               = 0;
   std::vector<unsigned>   trigger_cache_edge;
@@ -284,10 +284,21 @@ struct LAB_Parent_Data_Logic_Analyzer
       > post_trigger;
 
       std::array<
-        uint32_t, 
+        uint32_t,
         LABC::OSC::NUMBER_OF_SAMPLES
       > assembled_frame;
-    } trigger_buffers; 
+    } trigger_buffers;
+};
+
+struct LAB_Parent_Data_Software_Navigation
+{
+  int     BAUD_RATE     = LABC::PIN::SNM::BAUD_RATE;
+  uint8_t CS_PIN        = LABC::PIN::SNM::CS_PIN;
+  uint8_t MISO_PIN      = LABC::PIN::SNM::MISO_PIN;
+  uint8_t MOSI_PIN      = LABC::PIN::SNM::MOSI_PIN;
+  uint8_t SCLK_PIN      = LABC::PIN::SNM::SCLK_PIN;
+
+  uint8_t TRANSFER_SIZE = LABC::PIN::SNM::TRANSFER_SIZE;
 };
 
 // DMA Data
@@ -309,7 +320,7 @@ struct LAB_DMA_Data_Oscilloscope
 struct LAB_DMA_Data_Logic_Analyzer
 {
   AP::DMA::CTL_BLK cbs[15];
-  
+
   uint32_t  buffer_ok_flag = 0x1,
             pwm_duty_cycle;
 

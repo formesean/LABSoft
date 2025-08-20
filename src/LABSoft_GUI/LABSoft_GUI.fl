@@ -33,8 +33,8 @@ class LABSoft_GUI {open
       label {LABSoft (for Educators)} open
       xywh {281 471 1220 595} type Double color 53 selection_color 53 labelsize 12 hide
     } {
-      Fl_Menu_Bar {} {
-        xywh {0 -5 1220 25} box FLAT_BOX color 54 labelsize 12 textsize 12
+      Fl_Menu_Bar main_fl_menu {
+        xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
       } {
         Submenu {} {
           label Workspace
@@ -52,12 +52,17 @@ class LABSoft_GUI {open
           }
         }
         Submenu {} {
-          label Settings
+          label Settings open
           xywh {0 0 10 10} labelsize 12
         } {
           MenuItem {} {
             label Calibration
             callback {m_LABSoft_Presenter->m_Calibration.cb_show_window ();}
+            xywh {10 10 10 10} labelsize 12
+          }
+          MenuItem {} {
+            label Shortcuts
+            callback {m_LABSoft_Presenter->m_Shortcuts.cb_show_window ();}
             xywh {10 10 10 10} labelsize 12
           }
         }
@@ -73,9 +78,10 @@ class LABSoft_GUI {open
         }
       }
       Fl_Tabs main_fl_tabs {
-        callback {m_LABSoft_Presenter->cb_tabs (o, v);} open
-        xywh {-1 20 1223 585} box FLAT_BOX color 54 selection_color 54 labelsize 12
-        code0 {main_fl_tabs->value (main_fl_group_oscilloscope_tab);}
+        callback {m_LABSoft_Presenter->cb_tabs (o, v);}
+        xywh {0 20 1220 580} box FLAT_BOX color 54 selection_color 54 labelsize 12
+        code0 {main_fl_tabs->value (main_fl_group_oscilloscope_tab);
+          main_fl_tabs->labelcolor(Fl_Color(221));}
       } {
         Fl_Group main_fl_group_oscilloscope_tab {
           label Oscilloscope open
@@ -93,7 +99,7 @@ class LABSoft_GUI {open
           } {}
           Fl_Group oscilloscope_fl_group_vertical_channel_0 {
             label {Channel 1}
-            xywh {741 80 140 255} box ROUNDED_FRAME color 52 labelsize 12
+            xywh {740 80 140 255} box ROUNDED_FRAME color 52 labelsize 12
           } {
             Fl_Light_Button oscilloscope_fl_light_button_channel_0_enable {
               label {Ch. 1 Enable}
@@ -1387,192 +1393,204 @@ class LABSoft_GUI {open
           label {Function Generator} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
-          Fl_Choice function_generator_fl_choice_wave_type {
-            label {Wave Type}
-            user_data 0 user_data_type long
-            callback {m_LABSoft_Presenter->m_Function_Generator.cb_wave_type (o, v);}
-            xywh {190 200 240 60} box NO_BOX down_box BORDER_BOX color 54 labelsize 12 align 1 textsize 48
-            class LABSoft_GUI_Fl_Choice_With_Scroll
+          Fl_Group function_generator_fl_group_1 {
+            xywh {189 199 242 62} box BORDER_FRAME color 55
           } {
-            MenuItem {} {
-              label Sine
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
-            }
-            MenuItem {} {
-              label Triangle
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
-            }
-            MenuItem {} {
-              label Square
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
-            }
-            MenuItem {} {
-              label DC
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
+            Fl_Choice function_generator_fl_choice_wave_type {
+              label {Wave Type}
+              user_data 0 user_data_type long
+              callback {m_LABSoft_Presenter->m_Function_Generator.cb_wave_type (o, v);} open
+              xywh {190 200 240 60} box NO_BOX down_box BORDER_BOX color 54 labelsize 12 align 1 textsize 48
+              class LABSoft_GUI_Fl_Choice_With_Scroll
+            } {
+              MenuItem {} {
+                label Sine
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
+              }
+              MenuItem {} {
+                label Triangle
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
+              }
+              MenuItem {} {
+                label Square
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
+              }
+              MenuItem {} {
+                label DC
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 36
+              }
             }
           }
-          Fl_Input_Choice function_generator_fl_input_choice_frequency {
-            label Frequency
-            user_data 0 user_data_type long
-            callback {m_LABSoft_Presenter->m_Function_Generator.cb_frequency (o, v);}
-            xywh {490 200 240 60} box NO_BOX color 54 selection_color 53 labelsize 12 align 1 textsize 36
-            code0 {function_generator_fl_input_choice_frequency->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
-            code1 {function_generator_fl_input_choice_frequency->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
-            code2 {function_generator_fl_input_choice_frequency->menubutton ()->box (FL_GTK_UP_BOX);}
-            code3 {function_generator_fl_input_choice_frequency->menubutton ()->color (54);}
-            class LABSoft_GUI_Fl_Input_Choice_With_Scroll
+          Fl_Group function_generator_fl_group_2 {
+            xywh {490 200 240 60} box BORDER_FRAME color 55
           } {
-            MenuItem {} {
-              label {1 MHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {500 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {200 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {100 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {50 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {20 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {10 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {5 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {2 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {1 kHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {500 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {200 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {100 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {50 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {20 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {10 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {5 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {2 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {1 Hz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {500 mHz}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+            Fl_Input_Choice function_generator_fl_input_choice_frequency {
+              label Frequency
+              user_data 0 user_data_type long
+              callback {m_LABSoft_Presenter->m_Function_Generator.cb_frequency (o, v);} open
+              xywh {490 200 240 60} box NO_BOX color 54 selection_color 53 labelsize 12 align 1 textsize 36
+              code0 {function_generator_fl_input_choice_frequency->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
+              code1 {function_generator_fl_input_choice_frequency->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
+              code2 {function_generator_fl_input_choice_frequency->menubutton ()->box (FL_GTK_UP_BOX);}
+              code3 {function_generator_fl_input_choice_frequency->menubutton ()->color (54);}
+              class LABSoft_GUI_Fl_Input_Choice_With_Scroll
+            } {
+              MenuItem {} {
+                label {1 MHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {500 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {200 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {100 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {50 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {20 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {10 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {5 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {2 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {1 kHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {500 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {200 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {100 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {50 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {20 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {10 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {5 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {2 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {1 Hz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {500 mHz}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
             }
           }
-          Fl_Input_Choice function_generator_fl_input_choice_period {
-            label Period
-            user_data 0 user_data_type long
-            callback {m_LABSoft_Presenter->m_Function_Generator.cb_period (o, v);}
-            xywh {790 200 240 60} box NO_BOX color 54 selection_color 53 labelsize 12 align 1 textsize 36
-            code0 {function_generator_fl_input_choice_period->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
-            code1 {function_generator_fl_input_choice_period->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
-            code2 {function_generator_fl_input_choice_period->menubutton ()->box (FL_GTK_UP_BOX);}
-            code3 {function_generator_fl_input_choice_period->menubutton ()->color (54);}
-            class LABSoft_GUI_Fl_Input_Choice_With_Scroll
+          Fl_Group function_generator_fl_group_3 {
+            xywh {790 200 240 60} box BORDER_FRAME color 55
           } {
-            MenuItem {} {
-              label {5 s}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {2 s}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {1 s}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {500 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {200 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {100 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {50 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {20 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {10 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {5 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {2 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {1 ms}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {500 us}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {200 us}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
-            }
-            MenuItem {} {
-              label {100 us}
-              xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+            Fl_Input_Choice function_generator_fl_input_choice_period {
+              label Period
+              user_data 0 user_data_type long
+              callback {m_LABSoft_Presenter->m_Function_Generator.cb_period (o, v);} open
+              xywh {790 200 240 60} box NO_BOX color 54 selection_color 53 labelsize 12 align 1 textsize 36
+              code0 {function_generator_fl_input_choice_period->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
+              code1 {function_generator_fl_input_choice_period->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
+              code2 {function_generator_fl_input_choice_period->menubutton ()->box (FL_GTK_UP_BOX);}
+              code3 {function_generator_fl_input_choice_period->menubutton ()->color (54);}
+              class LABSoft_GUI_Fl_Input_Choice_With_Scroll
+            } {
+              MenuItem {} {
+                label {5 s}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {2 s}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {1 s}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {500 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {200 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {100 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {50 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {20 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {10 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {5 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {2 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {1 ms}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {500 us}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {200 us}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
+              MenuItem {} {
+                label {100 us}
+                xywh {490 200 240 21} box NO_BOX color 54 labelsize 12
+              }
             }
           }
           Fl_Box {} {
@@ -1596,10 +1614,10 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_logic_analyzer_tab {
-          label {Logic Analyzer}
+          label {Logic Analyzer} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
-          Fl_Group logic_analyzer_fl_group_display {open
+          Fl_Group logic_analyzer_fl_group_display {
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
           } {
             Fl_Button logic_analyzer_fl_button_record_config {
@@ -2026,10 +2044,10 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_digital_circuit_checker_tab {
-          label {Digital Circuit Checker}
+          label {Digital Circuit Checker} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
-          Fl_Group {} {
+          Fl_Group digital_circuit_checker_fl_group_1 {
             xywh {20 70 220 320} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Button digital_circuit_checker_fl_button_load_file {
@@ -2052,7 +2070,7 @@ class LABSoft_GUI {open
               xywh {40 310 180 60} box GTK_UP_BOX color 54 labelsize 12 align 128
             }
           }
-          Fl_Group {} {
+          Fl_Group digital_circuit_checker_fl_group_2 {
             xywh {20 410 220 165} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Output digital_circuit_checker_fl_output_results {
@@ -2072,10 +2090,10 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_labchecker_digital {
-          label {LABChecker - Digital}
+          label {LABChecker - Digital} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
-          Fl_Group {} {
+          Fl_Group labchecker_digital_fl_group_1 {
             xywh {20 70 220 230} box ROUNDED_FRAME
           } {
             Fl_Choice digital_fl_choice_input_bits {
@@ -2162,7 +2180,7 @@ class LABSoft_GUI {open
               code0 {digital_fl_input_output_count->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
             }
           }
-          Fl_Group {} {
+          Fl_Group labchecker_digital_fl_group_2 {
             xywh {20 474 220 100} box ROUNDED_FRAME
           } {
             Fl_Button digital_fl_button_create_file {
@@ -2246,6 +2264,7 @@ class LABSoft_GUI {open
             }
             Fl_Button analog_fl_button_capture_signal {
               label {Plot Captured Signal}
+              callback {m_LABSoft_Presenter->m_LABChecker_Analog.cb_capture_signal(o, v)} selected
               xywh {40 195 180 60} box GTK_UP_BOX color 54 labelsize 12
             }
           }
@@ -2266,13 +2285,13 @@ class LABSoft_GUI {open
     }
     Fl_Window oscilloscope_fl_window_record_config {
       label {Record Configuration}
-      xywh {1534 187 360 300} type Double hide
+      xywh {1398 224 360 300} type Double hide
     } {
       Fl_Group oscilloscope_fl_group_record_config {
         xywh {0 0 360 300} box UP_BOX color 54
       } {
         Fl_Choice {} {
-          label {Samples:                  }
+          label {Samples:                  } open
           xywh {190 20 120 30} down_box BORDER_BOX
         } {
           MenuItem {} {
@@ -2341,7 +2360,7 @@ class LABSoft_GUI {open
           }
         }
         Fl_Choice {} {
-          label {Sampling Rate:       } open
+          label {Sampling Rate:       }
           xywh {190 65 120 30} down_box BORDER_BOX
         } {}
         Fl_Choice {} {
@@ -2420,7 +2439,7 @@ class LABSoft_GUI {open
     }
     Fl_Window main_fl_window_about {
       label LABSoft
-      xywh {1066 253 420 300} type Double color 54 hide
+      xywh {1074 284 420 300} type Double color 54 hide
     } {
       Fl_Box {} {
         label LABSoft
@@ -2452,7 +2471,7 @@ class LABSoft_GUI {open
     } {}
     Fl_Window main_fl_window_exporter {
       label Export
-      xywh {1001 91 800 500} type Double color 54 hide
+      xywh {503 100 800 500} type Double color 54 hide
     } {
       Fl_Tabs exporter_fl_tabs {
         xywh {180 20 600 410} box BORDER_BOX color 54 selection_color 54 labelsize 12
@@ -2504,7 +2523,7 @@ class LABSoft_GUI {open
     }
     Fl_Window main_fl_window_calibration {
       label {Device Calibration}
-      xywh {107 359 980 500} type Double color 54 hide
+      xywh {29 300 980 500} type Double color 54 hide
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 800 20} box FLAT_BOX color 54
@@ -2546,7 +2565,7 @@ class LABSoft_GUI {open
         }
       }
       Fl_Group {} {
-        label Oscilloscope open
+        label Oscilloscope
         xywh {20 40 440 440} box ROUNDED_FRAME labelsize 12
       } {
         Fl_Table calibration_labsoft_gui_sheet_oscilloscope_calibration_table {
@@ -2560,7 +2579,7 @@ class LABSoft_GUI {open
         }
       }
       Fl_Group {} {
-        label Ohmmeter open
+        label Ohmmeter
         xywh {480 40 140 190} box ROUNDED_FRAME labelsize 12
       } {
         Fl_Light_Button calibration_fl_light_button_ohmmeter_enable_calibration {
@@ -2603,6 +2622,141 @@ class LABSoft_GUI {open
         label Close
         callback {m_LABSoft_Presenter->m_Calibration.cb_close ();}
         xywh {870 450 90 30} box GTK_UP_BOX color 54 labelsize 12
+      }
+    }
+    Fl_Window main_fl_window_shortcuts {
+      label Shortcuts open
+      xywh {1036 111 500 200} type Double color 54 visible
+    } {
+      Fl_Group main_fl_shortcuts_window_group_1 {
+        xywh {43 35 427 35}
+      } {
+        Fl_Box {} {
+          label {Key 1:}
+          xywh {43 52 35 0}
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action {
+          user_data 0 user_data_type long
+          xywh {100 35 160 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label {Go to}
+            xywh {770 50 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Run
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value {
+          user_data 0 user_data_type long open
+          xywh {280 35 190 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label Oscilloscope
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Voltmeter
+            xywh {790 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Ohmmeter
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Function Generator}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Power Supply}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Logic Analyzer}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Digital Circuit Checker}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {LABChecker - Digital}
+            xywh {780 70 36 25} selection_color 229 labelsize 12
+          }
+        }
+      }
+      Fl_Group main_fl_shortcuts_window_group_2 {open selected
+        xywh {43 95 427 35}
+      } {
+        Fl_Box {} {
+          label {Key 2:}
+          xywh {43 112 35 0}
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action {
+          user_data 0 user_data_type long
+          xywh {100 95 160 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label {Go to}
+            xywh {770 50 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Run
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+        }
+        Fl_Choice shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value {
+          user_data 0 user_data_type long
+          xywh {280 95 190 35} box NO_BOX down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 11
+          class LABSoft_GUI_Fl_Choice_With_Scroll
+        } {
+          MenuItem {} {
+            label Oscilloscope
+            xywh {770 50 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Voltmeter
+            xywh {780 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label Ohmmeter
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Function Generator}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Power Supply}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Logic Analyzer}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {Digital Circuit Checker}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+          MenuItem {} {
+            label {LABChecker - Digital}
+            xywh {770 60 36 25} selection_color 229 labelsize 12
+          }
+        }
+      }
+      Fl_Button shortcuts_fl_button_apply {
+        label Apply
+        callback {m_LABSoft_Presenter->m_Shortcuts.cb_apply ();}
+        xywh {280 155 90 30} box GTK_UP_BOX color 54 labelsize 12
+      }
+      Fl_Button shortcuts_fl_button_close {
+        label Close
+        callback {m_LABSoft_Presenter->m_Shortcuts.cb_close ();}
+        xywh {380 155 90 30} box GTK_UP_BOX color 54 labelsize 12
       }
     }
   }
