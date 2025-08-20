@@ -1137,29 +1137,29 @@ LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp.s
 .PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.cpp.s
 
-LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.o: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o
-.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.o
+LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.o: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.o
 
 # target to build an object file
-LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o
-.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o
+LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o
 
-LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.i: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i
-.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.i
+LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.i: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.i
 
 # target to preprocess a source file
-LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i
-.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i
+LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i
 
-LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.s: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s
-.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.s
+LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.s: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.s
 
 # target to generate assembly for a file
-LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s
-.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s
+LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LABSoft.dir/build.make CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s
+.PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s
 
 LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.o: LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp.o
 .PHONY : LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.o
@@ -1656,9 +1656,9 @@ help:
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.o"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.i"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_Exporter.s"
-	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.o"
-	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.i"
-	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.s"
+	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.o"
+	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.i"
+	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.s"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.o"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.i"
 	@echo "... LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.s"

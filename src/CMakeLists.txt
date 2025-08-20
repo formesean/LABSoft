@@ -48,7 +48,7 @@ add_executable(LABSoft
   LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp
-  LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp
+  LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp
 
 
   LABSoft_GUI/LABSoft_GUI.cpp

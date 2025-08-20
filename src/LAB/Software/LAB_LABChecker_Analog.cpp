@@ -11,57 +11,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* LAB_LABChecker_Analog::
 LAB_LABChecker_Analog (
     int X, int Y, int W, int H, const char* label)
@@ -450,6 +399,5 @@ mark_samples () const
 {
   return (m_mark_samples);
 }
-
 
 

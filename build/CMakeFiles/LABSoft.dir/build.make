@@ -489,19 +489,19 @@ CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circu
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp -o CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.s
 
-CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o: CMakeFiles/LABSoft.dir/flags.make
-CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o: /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp
-CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o: CMakeFiles/LABSoft.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/juztisleague/LABSoft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o -MF CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o.d -o CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o -c /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp
+CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o: CMakeFiles/LABSoft.dir/flags.make
+CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o: /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp
+CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o: CMakeFiles/LABSoft.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/juztisleague/LABSoft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o -MF CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o.d -o CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o -c /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp
 
-CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp > CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.i
+CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp > CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.i
 
-CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp -o CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.s
+CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/juztisleague/LABSoft/src/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp -o CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.s
 
 CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI.cpp.o: CMakeFiles/LABSoft.dir/flags.make
 CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI.cpp.o: /home/juztisleague/LABSoft/src/LABSoft_GUI/LABSoft_GUI.cpp
@@ -913,7 +913,7 @@ LABSoft_OBJECTS = \
 "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp.o" \
 "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp.o" \
 "CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o" \
-"CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o" \
+"CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o" \
 "CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI.cpp.o" \
 "CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Fl_Input.cpp.o" \
 "CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Fl_Slider.cpp.o" \
@@ -975,7 +975,7 @@ LABSoft: CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Mai
 LABSoft: CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp.o
 LABSoft: CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp.o
 LABSoft: CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp.o
-LABSoft: CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog_Display.cpp.o
+LABSoft: CMakeFiles/LABSoft.dir/LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp.o
 LABSoft: CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI.cpp.o
 LABSoft: CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Fl_Input.cpp.o
 LABSoft: CMakeFiles/LABSoft.dir/LABSoft_GUI/LABSoft_GUI_Fl_Slider.cpp.o
