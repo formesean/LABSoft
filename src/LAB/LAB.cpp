@@ -14,7 +14,8 @@ LAB::LAB ()
   m_Oscilloscope_Display    (*this, m_Oscilloscope),
   m_Calibration             (*this),
   m_Software_Navigation     (*this),
-  m_Shortcuts               (*this)
+  m_Shortcuts               (*this),
+  m_LABChecker_Analog       (*this, m_Oscilloscope)
 {
 
 }

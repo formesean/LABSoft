@@ -324,7 +324,9 @@ cb_add_channel_signal (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, 
       }
 
       // add channel
-      disp.add_channel (reinterpret_cast<unsigned>(b.data (line)), label);
+       disp.add_channel(
+        static_cast<unsigned>(reinterpret_cast<uintptr_t>(b.data(line))),
+        label);
 
       // increment
       added_count++;

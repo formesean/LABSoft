@@ -33,6 +33,7 @@ add_executable(LABSoft
   LAB/Software/LAB_LABChecker_Digital.cpp
   LAB/Software/LAB_Oscilloscope_Display.cpp
   LAB/Software/LAB_Shortcuts.cpp
+  LAB/Software/LAB_LABChecker_Analog.cpp
 
   LABSoft_Presenter/LABSoft_Presenter_Unit.cpp
   LABSoft_Presenter/LABSoft_Presenter.cpp
@@ -50,6 +51,8 @@ add_executable(LABSoft
   LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Digital.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Oscilloscope_Display.cpp
   LABSoft_Presenter/Software/LABSoft_Presenter_Shortcuts.cpp
+  LABSoft_Presenter/Software/LABSoft_Presenter_Analog_Circuit_Checker.cpp
+  LABSoft_Presenter/Software/LABSoft_Presenter_LABChecker_Analog.cpp
 
 
   LABSoft_GUI/LABSoft_GUI.cpp
@@ -66,6 +69,8 @@ add_executable(LABSoft
   LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Input_Table.cpp
   LABSoft_GUI/LABSoft_GUI_LABChecker_Digital_Output_Table.cpp
   LABSoft_GUI/LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.cpp
+  LABSoft_GUI/LABSoft_GUI_LABChecker_Analog_Checker_Display.cpp
+  LABSoft_GUI/LABSoft_GUI_Analog_Circuit_Checker_Display.cpp
 
 
   LAB_Libraries/LAB_AD9833.cpp

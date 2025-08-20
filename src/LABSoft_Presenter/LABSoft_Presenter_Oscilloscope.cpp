@@ -507,7 +507,7 @@ void LABSoft_Presenter_Oscilloscope::
 cb_vertical_offset_slider (LABSoft_GUI_Fl_Slider* w,
                            void*                  data)
 {
-  unsigned channel = reinterpret_cast<unsigned>(data);
+ unsigned channel = static_cast<unsigned>(reinterpret_cast<uintptr_t>(data));
 }
 
 // horizontal
