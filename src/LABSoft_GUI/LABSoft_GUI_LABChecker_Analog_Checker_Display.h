@@ -19,8 +19,7 @@ class LABSoft_GUI_Oscilloscope_Internal_Display;
 
 class LABSoft_GUI_LABChecker_Analog_Checker_Display : public Fl_Group {
 
-      using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
-                      LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
+      
 
 private:
    
@@ -34,6 +33,10 @@ private:
 
 
 public:
+
+      using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
+                      LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
+
     // Constructor
     LABSoft_GUI_LABChecker_Analog_Checker_Display(int X, int Y, int W, int H, const char* label = 0);
 
