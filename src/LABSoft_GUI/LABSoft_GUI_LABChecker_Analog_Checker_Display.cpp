@@ -36,27 +36,52 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
     end(); // Important: Close Fl_Group after adding children
 }
 
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::voltage_per_division(unsigned channel, double value) 
 
-void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
-load_presenter (const LABSoft_Presenter& presenter)
 {
-  m_presenter = &presenter;
+    if (oscilloscope_display) oscilloscope_display->voltage_per_division(channel, value);
+}
 
-   oscilloscope_display->load_presenter(presenter);
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::time_per_division(double value) 
+
+{
+    if (oscilloscope_display) oscilloscope_display->time_per_division(value);
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::samples(unsigned value) 
+
+{
+    if (oscilloscope_display) oscilloscope_display->samples(value);
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::sampling_rate(double value) 
+
+{
+    if (oscilloscope_display) oscilloscope_display->sampling_rate(value);
+}
+
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::update_display() 
+
+{
+    if (oscilloscope_display) oscilloscope_display->update_display();
 }
 
 
-void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
-load_pixel_points (const LABSoft_GUI_LABChecker_Analog_Checker_Display::PixelPoints& pixel_points)
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::load_presenter(const LABSoft_Presenter& presenter) 
+
 {
-  oscilloscope_display->load_pixel_points (pixel_points);
+    m_presenter = &presenter;
+    if (oscilloscope_display) {
+        oscilloscope_display->load_presenter(presenter);
+    }
 }
 
-void LABSoft_GUI_LABChecker_Analog_Checker_Display:: 
-update_display ()
-{
-  oscilloscope_display->update_display ();
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::load_pixel_points(const PixelPoints& pixel_points) {
+    if (oscilloscope_display) {
+        oscilloscope_display->load_pixel_points(pixel_points);
+    }
 }
+
 
 /*
  m_internal_display = new LABSoft_GUI_Oscilloscope_Internal_Display(260, 80, 940, 495, " ");

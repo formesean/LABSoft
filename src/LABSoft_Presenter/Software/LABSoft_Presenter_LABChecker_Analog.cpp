@@ -26,6 +26,7 @@ void LABSoft_Presenter_LABChecker_Analog::load_gui()
 
    analog_checker_disp_gui.load_presenter         (m_presenter);
    analog_checker_disp_gui.load_pixel_points              (osc_disp.pixel_points ());
+   analog_checker_disp_gui.update_display       ();
 
 }
 
@@ -60,7 +61,7 @@ cb_capture_signal(Fl_Button* w,
     acc->capture_oscilloscope_and_function_generator_data();
 
     // Update the GUI with the captured data
-    //acc->update_gui_with_captured_data();
+    acc->update_gui_with_captured_data();
   }
   else
   {
@@ -151,14 +152,15 @@ capture_oscilloscope_and_function_generator_data()
   LOG("====================\n");
 }
 
-/*void LABSoft_Presenter_LABChecker_Analog::
+void LABSoft_Presenter_LABChecker_Analog::
 update_gui_with_captured_data()
 {
   LAB_Oscilloscope& osc = lab().m_Oscilloscope;
+  LAB_Oscilloscope_Display& osc_disp = lab().m_Oscilloscope_Display;
   osc.update_data_samples();
 
-  LABSoft_GUI_Analog_Circuit_Checker_Display& analog_checker_disp_gui =
-    *(gui().analog_circuit_checker_labsoft_gui_analog_circuit_checker_display);
+  LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_checker_disp_gui =
+    *(gui ().analog_labsoft_gui_analog_checker_display);
 
   analog_checker_disp_gui.voltage_per_division(0, osc.voltage_per_division(0));
   analog_checker_disp_gui.voltage_per_division(1, osc.voltage_per_division(1));
@@ -166,11 +168,15 @@ update_gui_with_captured_data()
   analog_checker_disp_gui.samples(osc.samples());
   analog_checker_disp_gui.sampling_rate(osc.sampling_rate());
 
+  osc_disp.update_pixel_points(); // refresh waveform
+  analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
+
   analog_checker_disp_gui.update_display();
 
   std::cout << "GUI updated with captured oscilloscope data" << std::endl;
 }
 
+/*
 void LABSoft_Presenter_LABChecker_Analog::create_file()
 {
 
