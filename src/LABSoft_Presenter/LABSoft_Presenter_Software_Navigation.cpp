@@ -21,6 +21,8 @@ LABSoft_Presenter_Software_Navigation(LABSoft_Presenter& _LABSoft_Presenter)
   tab_groups[5] = gui().main_fl_group_logic_analyzer_tab;
   tab_groups[6] = gui().main_fl_group_digital_circuit_checker_tab;
   tab_groups[7] = gui().main_fl_group_labchecker_digital;
+  tab_groups[8] = gui().main_fl_group_analog_circuit_checker;
+  tab_groups[9] = gui().main_fl_group_labchecker_analog_tab;
 
   sync_current_tab_index();
   initialize_run_key_actions();
@@ -884,7 +886,13 @@ get_focusable_groups_map() const
         gui().digital_circuit_checker_fl_group_2 }},
     { TAB::LABCHECKER_DIGITAL, {
         gui().labchecker_digital_fl_group_1,
-        gui().labchecker_digital_fl_group_2 }}
+        gui().labchecker_digital_fl_group_2 }},
+    { TAB::ANALOG_CIRCUIT_CHECKER, {
+        gui().analog_circuit_checker_fl_group_1,
+        gui().analog_circuit_checker_fl_group_2 }},
+    { TAB::LABCHECKER_ANALOG, {
+        gui().labchecker_analog_fl_group_1,
+        gui().labchecker_analog_fl_group_2, }}
   };
 }
 

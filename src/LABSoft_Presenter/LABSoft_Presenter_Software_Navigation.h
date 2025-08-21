@@ -17,7 +17,7 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
 {
   private:
     std::chrono::steady_clock::time_point last_nav_time;
-    const std::chrono::milliseconds nav_debounce_delay{500};
+    const std::chrono::milliseconds nav_debounce_delay{300};
 
     LABE::SNM::FOCUS_LEVEL current_focus_level = LABE::SNM::FOCUS_LEVEL::TAB;
 
@@ -27,7 +27,7 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     int  widget_index              = 0;
     int  current_tab_index         = 0;
 
-    static constexpr int tab_count = 8;
+    static constexpr int tab_count = 10;
 
     std::vector<Fl_Group*>  current_groups_in_tab;
     std::vector<Fl_Widget*> current_widgets_in_group;

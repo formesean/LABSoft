@@ -7,6 +7,9 @@
 #include "LABSoft_GUI_Fl_Input.h"
 #include "LABSoft_GUI_Fl_Choice_With_Scroll.h"
 #include "LABSoft_GUI_Fl_Input_Choice_With_Scroll.h"
+#include "LABSoft_GUI_Oscilloscope_Display.h"
+#include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
+#include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
 class LABSoft_Presenter;
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
@@ -27,8 +30,6 @@ class LABSoft_Presenter;
 #include <FL/Fl_Text_Display.H>
 #include "LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window.h"
 #include "LABSoft_GUI_Exporter_Data_Table.h"
-#include "LABSoft_GUI_LABChecker_Analog_Checker_Display.h"
-#include "LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 
 class LABSoft_GUI {
 public:
@@ -368,20 +369,28 @@ public:
   LABSoft_GUI_LABChecker_Digital_Input_Table *labchecker_digital_labsoft_gui_labchecker_digital_input_table;
   Fl_Group *main_fl_group_analog_circuit_checker;
   LABSoft_GUI_Analog_Circuit_Checker_Display *analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
+  Fl_Group *analog_circuit_checker_fl_group_1;
+  Fl_Button *analog_circuit_checker_fl_button_load_file;
+  Fl_Output *analog_circuit_checker_fl_output_selected_file;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_time_domain;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_frequency_domain;
   Fl_Button *analog_circuit_checker_fl_button_run_checker;
-  Fl_Button *analog_circuit_checker_fl_button_load_file;
-  Fl_Output *analog_circuit_checker_fl_output_selected_file;
-  Fl_Button *analog_circuit_checker_fl_button_export_results;
+  Fl_Group *analog_circuit_checker_fl_group_2;
   Fl_Output *analog_circuit_checker_fl_output_results;
+  Fl_Button *analog_circuit_checker_fl_button_export_results;
   Fl_Group *main_fl_group_labchecker_analog_tab;
   LABSoft_GUI_LABChecker_Analog_Checker_Display *analog_labsoft_gui_analog_checker_display;
+  Fl_Group *labchecker_analog_fl_group_1;
   Fl_Check_Button *analog_fl_checkbutton_time_domain;
   Fl_Check_Button *analog_fl_checkbutton_frequency_domain;
   Fl_Button *analog_fl_button_capture_signal;
-  Fl_Button *analog_fl_button_create_file;
+private:
+  inline void cb_analog_fl_button_capture_signal_i(Fl_Button*, void*);
+  static void cb_analog_fl_button_capture_signal(Fl_Button*, void*);
+public:
+  Fl_Group *labchecker_analog_fl_group_2;
   Fl_Input *analog_fl_input_similarity_threshold;
+  Fl_Button *analog_fl_button_create_file;
   Fl_Double_Window *oscilloscope_fl_window_record_config;
   Fl_Group *oscilloscope_fl_group_record_config;
   static Fl_Menu_Item menu_Samples[];

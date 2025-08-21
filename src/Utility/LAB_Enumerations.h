@@ -179,7 +179,9 @@ namespace LABE
       POWER_SUPPLY,
       LOGIC_ANALYZER,
       DIGITAL_CIRCUIT_CHECKER,
-      LABCHECKER_DIGITAL
+      LABCHECKER_DIGITAL,
+      ANALOG_CIRCUIT_CHECKER,
+      LABCHECKER_ANALOG
     };
 
     enum class ACTION_TYPE
@@ -198,7 +200,9 @@ namespace LABE
       { "Power Supply",            LABE::SNM::TAB_ID::POWER_SUPPLY },
       { "Logic Analyzer",          LABE::SNM::TAB_ID::LOGIC_ANALYZER },
       { "Digital Circuit Checker", LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER },
-      { "LABChecker - Digital",    LABE::SNM::TAB_ID::LABCHECKER_DIGITAL }
+      { "LABChecker - Digital",    LABE::SNM::TAB_ID::LABCHECKER_DIGITAL },
+      { "Analog Circuit Checker",  LABE::SNM::TAB_ID::ANALOG_CIRCUIT_CHECKER },
+      { "LABChecker - Analog",     LABE::SNM::TAB_ID::LABCHECKER_ANALOG }
     };
 
     inline const std::unordered_map<LABE::SNM::TAB_ID, std::string_view> tab_id_to_label =
@@ -210,7 +214,9 @@ namespace LABE
       { LABE::SNM::TAB_ID::POWER_SUPPLY,            "Power Supply" },
       { LABE::SNM::TAB_ID::LOGIC_ANALYZER,          "Logic Analyzer" },
       { LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER, "Digital Circuit Checker" },
-      { LABE::SNM::TAB_ID::LABCHECKER_DIGITAL,      "LABChecker - Digital" }
+      { LABE::SNM::TAB_ID::LABCHECKER_DIGITAL,      "LABChecker - Digital" },
+      { LABE::SNM::TAB_ID::ANALOG_CIRCUIT_CHECKER,  "Analog Circuit Checker" },
+      { LABE::SNM::TAB_ID::LABCHECKER_ANALOG,       "LABChecker - Analog" }
     };
 
     struct MACRO_KEY_CONFIG

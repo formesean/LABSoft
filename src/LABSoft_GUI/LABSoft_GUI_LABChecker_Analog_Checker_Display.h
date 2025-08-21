@@ -16,13 +16,14 @@
 
 class LABSoft_Presenter;
 class LABSoft_GUI_Oscilloscope_Internal_Display;
+class LABSoft_GUI_Oscilloscope_Display;
 
 class LABSoft_GUI_LABChecker_Analog_Checker_Display : public Fl_Group {
 
-      
+
 
 private:
-   
+
     void init_child_widgets();
     void init_child_widgets_internal_display();
 
@@ -34,7 +35,7 @@ private:
 
 public:
 
-      using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
+      using PixelPoints = std::array<std::vector<std::array<int, 2>>,
                       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
 
     // Constructor
@@ -47,15 +48,15 @@ public:
 
     // Optional methods
     void update_display();  // A method to update or interact with the oscilloscope
-    void load_presenter       (const LABSoft_Presenter& presenter);  
+    void load_presenter       (const LABSoft_Presenter& presenter);
     void load_pixel_points    (const PixelPoints& pixel_points);
 
     void voltage_per_division             (unsigned channel, double value);
     void time_per_division                (double value);
-    void samples                          (unsigned value); 
+    void samples                          (unsigned value);
     void sampling_rate                    (double value);
 
-    
+
 };
 
 #endif
