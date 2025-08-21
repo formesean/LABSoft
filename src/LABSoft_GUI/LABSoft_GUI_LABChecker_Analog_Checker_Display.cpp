@@ -62,8 +62,10 @@ void LABSoft_GUI_LABChecker_Analog_Checker_Display::sampling_rate(double value)
 
 void LABSoft_GUI_LABChecker_Analog_Checker_Display::update_display() 
 {
-    if (!m_presenter) return;
-    Fl_Widget::redraw(); 
+    if (oscilloscope_display)
+    {
+    oscilloscope_display->redraw();
+    }
 }
 
 
