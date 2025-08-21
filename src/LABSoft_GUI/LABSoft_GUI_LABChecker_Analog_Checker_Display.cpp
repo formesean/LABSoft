@@ -27,9 +27,6 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
 
     oscilloscope_display->time_per_division(0.005);
 
-    oscilloscope_display->samples(1024);
-    oscilloscope_display->sampling_rate(2000.0);
-
     oscilloscope_display->update_display();
    
 
