@@ -291,7 +291,6 @@ update_data_cycle()
       LOG("Run Key Pressed");
       auto tab_id = get_current_tab_id();
 
-      // Override: LABChecker Digital -> toggle selected cell between 0 and 1
       if (tab_id == LABE::SNM::TAB_ID::LABCHECKER_DIGITAL)
       {
         auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
@@ -574,13 +573,22 @@ highlight_widget(Fl_Widget* widget)
     previous_focused_widget->redraw();
   }
 
-  if (widget)
+  if (!widget)
+    return;
+
+  if (widget == gui().digital_circuit_checker_fl_output_selected_file ||
+      widget == gui().digital_circuit_checker_fl_output_results ||
+      widget == gui().analog_circuit_checker_fl_output_selected_file ||
+      widget == gui().analog_circuit_checker_fl_output_results)
   {
-    // widget->color(Fl_Color(221));
-    widget->labelcolor(Fl_Color(221));
-    widget->redraw();
     previous_focused_widget = widget;
+    return;
   }
+
+  // widget->color(Fl_Color(221));
+  widget->labelcolor(Fl_Color(221));
+  widget->redraw();
+  previous_focused_widget = widget;
 }
 
 void
@@ -609,7 +617,6 @@ clear_widget_focus()
 {
   if (previous_focused_widget)
   {
-    // If leaving the LABChecker Digital input table, hide its cell highlighting
     if (auto* t = dynamic_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(previous_focused_widget))
     {
       t->set_show_selection(false);
@@ -800,7 +807,6 @@ handle_customizable_macro_key(int key_id)
         auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
         if (!table) return;
 
-        // Ensure focus/highlight is on the table's group and widget only if not already focused on the table
         bool already_on_table = (previous_focused_widget == table && current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET);
         if (!already_on_table)
         {
@@ -813,7 +819,6 @@ handle_customizable_macro_key(int key_id)
         {
           if (!already_on_table)
           {
-            // Do not highlight the group; ensure it's not highlighted
             group->color(FL_BACKGROUND_COLOR);
             group->redraw();
             previous_focused_group = group;
@@ -831,7 +836,6 @@ handle_customizable_macro_key(int key_id)
               }
             }
 
-            // Remove highlighting from other widgets in this group
             for (int i = 0; i < group->children(); ++i)
             {
               Fl_Widget* w = group->child(i);
@@ -842,7 +846,6 @@ handle_customizable_macro_key(int key_id)
               }
             }
 
-            // Remove highlighting from widgets in other groups and clear other group highlight
             Fl_Group* groups_to_clear[] = {
               gui().labchecker_digital_fl_group_1,
               gui().labchecker_digital_fl_group_2
@@ -871,14 +874,12 @@ handle_customizable_macro_key(int key_id)
             previous_focused_widget = table;
             table->take_focus();
             highlight_widget(table);
-            // Start at first cell (0,0) and hide selection color until user moves
             table->set_selection(0, 0, 0, 0);
             table->set_show_selection(false);
             table->redraw();
           }
         }
 
-        // Ensure selection starts at (0,0) when focusing table first time
         int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
         table->get_selection(r1, c1, r2, c2);
         bool invalid_selection = (r1 < 0 || c1 < 0);
@@ -893,7 +894,6 @@ handle_customizable_macro_key(int key_id)
         if (rows <= 0 || cols <= 0) return;
 
         int r = r1, c = c1;
-        // If selection is not yet shown, first prev/next press should select (0,0), highlight it, and not move
         if (!table->show_selection())
         {
           table->set_selection(0, 0, 0, 0);
@@ -901,7 +901,6 @@ handle_customizable_macro_key(int key_id)
           table->redraw();
           return;
         }
-        // Proceed to move selection based on the key pressed
         if (key_id == 1)
         {
           if (c > 0) { c -= 1; }
@@ -977,11 +976,18 @@ get_widgets_in_group(Fl_Group* group) const
 {
   std::vector<Fl_Widget*> widgets;
 
+  Fl_Widget* ex1 = gui().digital_circuit_checker_fl_output_selected_file;
+  Fl_Widget* ex2 = gui().digital_circuit_checker_fl_output_results;
+  Fl_Widget* ex3 = gui().analog_circuit_checker_fl_output_selected_file;
+  Fl_Widget* ex4 = gui().analog_circuit_checker_fl_output_results;
+
   for (int i = 0; i < group->children(); ++i)
   {
     Fl_Widget* w = group->child(i);
 
     if (!w->takesevents() || !w->visible() || !w->active()) continue;
+
+    if (w == ex1 || w == ex2 || w == ex3 || w == ex4) continue;
 
     if (dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(w))
     {
