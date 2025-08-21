@@ -609,6 +609,12 @@ clear_widget_focus()
 {
   if (previous_focused_widget)
   {
+    // If leaving the LABChecker Digital input table, hide its cell highlighting
+    if (auto* t = dynamic_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(previous_focused_widget))
+    {
+      t->set_show_selection(false);
+      t->redraw();
+    }
     // previous_focused_widget->color(Fl_Color(54));
     previous_focused_widget->labelcolor(Fl_Color(0));
     previous_focused_widget->redraw();
@@ -887,13 +893,13 @@ handle_customizable_macro_key(int key_id)
         if (rows <= 0 || cols <= 0) return;
 
         int r = r1, c = c1;
-        // If selection is not yet shown, first prev/next press should select (0,0) and then move
+        // If selection is not yet shown, first prev/next press should select (0,0), highlight it, and not move
         if (!table->show_selection())
         {
-          r = 0; c = 0;
           table->set_selection(0, 0, 0, 0);
           table->set_show_selection(true);
-          // do not return; proceed to movement below
+          table->redraw();
+          return;
         }
         // Proceed to move selection based on the key pressed
         if (key_id == 1)
