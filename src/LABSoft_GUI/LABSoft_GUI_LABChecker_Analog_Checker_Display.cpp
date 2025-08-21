@@ -32,7 +32,7 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
 
 
 
-    end(); // Important: Close Fl_Group after adding children
+    end(); 
 }
 
 void LABSoft_GUI_LABChecker_Analog_Checker_Display::voltage_per_division(unsigned channel, double value) 
@@ -63,7 +63,7 @@ void LABSoft_GUI_LABChecker_Analog_Checker_Display::sampling_rate(double value)
 void LABSoft_GUI_LABChecker_Analog_Checker_Display::update_display() 
 {
     if (!m_presenter) return;
-    Fl_Widget::redraw(); // refresh the whole container widget
+    Fl_Widget::redraw(); 
 }
 
 
