@@ -27,8 +27,10 @@ LABSoft_GUI_LABChecker_Analog_Checker_Display::LABSoft_GUI_LABChecker_Analog_Che
 
     oscilloscope_display->time_per_division(0.005);
 
-    oscilloscope_display->update_display();
-   
+
+    //oscilloscope_display->update_display();
+
+
 
     end(); // Important: Close Fl_Group after adding children
 }
@@ -60,7 +62,26 @@ void LABSoft_GUI_LABChecker_Analog_Checker_Display::sampling_rate(double value)
 void LABSoft_GUI_LABChecker_Analog_Checker_Display::update_display() 
 
 {
-    if (oscilloscope_display) oscilloscope_display->update_display();
+  if (!m_presenter) return;
+
+    const auto& raw_buf = m_presenter->parent_data().raw_data_buffer;
+
+    if (!raw_buf.empty()) {
+        // Convert raw samples to pixel points
+        PixelPoints pixel_points;
+        pixel_points.reserve(raw_buf.size());
+
+        for (size_t i = 0; i < raw_buf.size(); i++) {
+            double x = i;                  // sample index → time axis
+            double y = raw_buf[i];         // amplitude
+            pixel_points.push_back({x, y});
+        }
+
+        // Load into oscilloscope
+        load_pixel_points(pixel_points);
+    }
+
+    Fl_Widget::redraw(); // trigger FLTK redraw
 }
 
 
@@ -70,6 +91,9 @@ void LABSoft_GUI_LABChecker_Analog_Checker_Display::load_presenter(const LABSoft
     m_presenter = &presenter;
     if (oscilloscope_display) {
         oscilloscope_display->load_presenter(presenter);
+
+         oscilloscope_display->update_display();
+        oscilloscope_display->redraw();
     }
 }
 
