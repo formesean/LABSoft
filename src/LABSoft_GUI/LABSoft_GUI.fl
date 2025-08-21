@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {292 67 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {308 129 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -2099,8 +2099,8 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_labchecker_digital {
-          label {LABChecker - Digital}
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
+          label {LABChecker - Digital} open
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
           Fl_Group labchecker_digital_fl_group_1 {
             xywh {20 70 220 230} box ROUNDED_FRAME
@@ -2199,7 +2199,7 @@ class LABSoft_GUI {open
             }
           }
           Fl_Table labchecker_digital_labsoft_gui_labchecker_digital_input_table {
-            label Outputs
+            label Outputs selected
             xywh {260 80 940 495} color 51 selection_color 53
             code0 {\#include "LABSoft_GUI_LABChecker_Digital_Input_Table.h"}
             class LABSoft_GUI_LABChecker_Digital_Input_Table
@@ -2252,8 +2252,8 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_labchecker_analog_tab {
-          label {LABChecker - Analog} selected
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
+          label {LABChecker - Analog}
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Group analog_labsoft_gui_analog_checker_display {open
             xywh {260 100 920 450} box FLAT_BOX color 32

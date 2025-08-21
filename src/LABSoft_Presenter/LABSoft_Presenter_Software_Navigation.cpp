@@ -289,6 +289,23 @@ update_data_cycle()
     if (data[1] == 5 && data[2] == 0)
     {
       LOG("Run Key Pressed");
+      auto tab_id = get_current_tab_id();
+
+      // Override: LABChecker Digital -> toggle selected cell between 0 and 1
+      if (tab_id == LABE::SNM::TAB_ID::LABCHECKER_DIGITAL)
+      {
+        auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+        if (table && previous_focused_widget == table && current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET)
+        {
+          char curr = table->get_selected_cell_value();
+          char next = (curr == '1') ? '0' : '1';
+          table->set_selected_cell_value(next);
+          table->set_show_selection(true);
+          table->redraw();
+          return;
+        }
+      }
+
       std::string_view label = gui().main_fl_tabs->value()->label();
       if (auto it = run_key_actions.find(label); it != run_key_actions.end())
         it->second();
@@ -761,6 +778,144 @@ handle_customizable_macro_key(int key_id)
             }
           }
         }
+        return;
+      }
+    }
+  }
+
+  // --- LABChecker Digital tab override ---
+  if (tab_id == TAB_ID::LABCHECKER_DIGITAL)
+  {
+    switch (key_id)
+    {
+      case 1: // previous cell
+      case 2: // next cell
+      {
+        auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+        if (!table) return;
+
+        // Ensure focus/highlight is on the table's group and widget only if not already focused on the table
+        bool already_on_table = (previous_focused_widget == table && current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET);
+        if (!already_on_table)
+        {
+          clear_widget_focus();
+          clear_group_focus();
+          clear_tab_focus();
+        }
+
+        if (auto* group = gui().labchecker_digital_fl_group_2)
+        {
+          if (!already_on_table)
+          {
+            // Do not highlight the group; ensure it's not highlighted
+            group->color(FL_BACKGROUND_COLOR);
+            group->redraw();
+            previous_focused_group = group;
+            current_groups_in_tab = { group };
+            group_index = 0;
+
+            current_widgets_in_group = get_widgets_in_group(group);
+            widget_index = -1;
+            for (int i = 0; i < group->children(); ++i)
+            {
+              if (group->child(i) == table)
+              {
+                widget_index = i;
+                break;
+              }
+            }
+
+            // Remove highlighting from other widgets in this group
+            for (int i = 0; i < group->children(); ++i)
+            {
+              Fl_Widget* w = group->child(i);
+              if (w && w != table)
+              {
+                w->labelcolor(Fl_Color(0));
+                w->redraw();
+              }
+            }
+
+            // Remove highlighting from widgets in other groups and clear other group highlight
+            Fl_Group* groups_to_clear[] = {
+              gui().labchecker_digital_fl_group_1,
+              gui().labchecker_digital_fl_group_2
+            };
+
+            for (Fl_Group* g : groups_to_clear)
+            {
+              if (!g || g == group) continue;
+
+              g->color(FL_BACKGROUND_COLOR);
+              g->redraw();
+
+              for (int i = 0; i < g->children(); ++i)
+              {
+                Fl_Widget* w = g->child(i);
+                if (w)
+                {
+                  w->labelcolor(Fl_Color(0));
+                  w->redraw();
+                }
+              }
+            }
+
+            bool fresh_focus = true;
+            current_focus_level = LABE::SNM::FOCUS_LEVEL::WIDGET;
+            previous_focused_widget = table;
+            table->take_focus();
+            highlight_widget(table);
+            // Start at first cell (0,0) and hide selection color until user moves
+            table->set_selection(0, 0, 0, 0);
+            table->set_show_selection(false);
+            table->redraw();
+          }
+        }
+
+        // Ensure selection starts at (0,0) when focusing table first time
+        int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+        table->get_selection(r1, c1, r2, c2);
+        bool invalid_selection = (r1 < 0 || c1 < 0);
+        if (invalid_selection)
+        {
+          r1 = c1 = r2 = c2 = 0;
+          table->set_selection(0, 0, 0, 0);
+        }
+
+        int rows = table->rows();
+        int cols = table->cols();
+        if (rows <= 0 || cols <= 0) return;
+
+        int r = r1, c = c1;
+        // If selection is not yet shown, first prev/next press should select (0,0) and then move
+        if (!table->show_selection())
+        {
+          r = 0; c = 0;
+          table->set_selection(0, 0, 0, 0);
+          table->set_show_selection(true);
+          // do not return; proceed to movement below
+        }
+        // Proceed to move selection based on the key pressed
+        if (key_id == 1)
+        {
+          if (c > 0) { c -= 1; }
+          else {
+            if (r > 0) { r -= 1; c = cols - 1; }
+            else { r = rows - 1; c = cols - 1; }
+          }
+        }
+        else // key_id == 2
+        {
+          if (c < cols - 1) { c += 1; }
+          else {
+            if (r < rows - 1) { r += 1; c = 0; }
+            else { r = 0; c = 0; }
+          }
+        }
+
+        table->set_selection(r, c, r, c);
+        table->set_show_selection(true);
+        table->redraw();
         return;
       }
     }
