@@ -446,6 +446,7 @@ update_data_cycle()
     if (data[1] == 1 && data[2] == 1) // Pressed
     {
       LOG("Encoder Switch Pressed");
+      if (is_encoder_switch_pressed) return;
       is_encoder_switch_pressed = true;
 
       Fl_Widget* widget = previous_focused_widget;
@@ -469,13 +470,6 @@ update_data_cycle()
         btn->do_callback();
         btn->redraw();
         Fl::flush();
-
-        Fl::add_timeout(0.05, [](void* v) {
-          auto* b = static_cast<Fl_Button*>(v);
-          b->set_changed();
-          b->do_callback();
-          b->redraw();
-        }, btn);
       }
       else if (auto* input = dynamic_cast<Fl_Input*>(widget))
       {
