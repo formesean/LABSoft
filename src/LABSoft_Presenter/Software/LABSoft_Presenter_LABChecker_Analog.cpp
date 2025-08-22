@@ -126,7 +126,9 @@ capture_oscilloscope_and_function_generator_data()
               << ", trms="<< ch_data.measurements.trms
               << '\n';
 
-  for (int ch = 0; ch < 2; ++ch) {
+    auto& raw_buf = osc_disp.pixel_points();
+    
+    for (int ch = 0; ch < 2; ++ch) {
     std::cout << "[DEBUG] Pixel points (channel " << ch << ", first 10): ";
     for (size_t i = 0; i < std::min<size_t>(10, raw_buf[ch].size()); i++) {
         std::cout << "(" << raw_buf[ch][i][0] << "," << raw_buf[ch][i][1] << ") ";
