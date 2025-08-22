@@ -104,10 +104,16 @@ capture_oscilloscope_and_function_generator_data()
   LAB_Oscilloscope_Display&osc_disp                 = lab ().m_Oscilloscope_Display;
   auto& osc_data = lab().m_Oscilloscope.parent_data();
 
+
+  osc_disp.update_pixel_points(); 
+
+
   LOG("====================");
   std::cout << "SUCCESS: Signal captured successfully" << std::endl;
 
   LOG("Oscilloscope Data:");
+    auto& raw_buf = osc_disp.pixel_points();
+
   for (int ch = 0; ch < 2; ++ch)
   {
     const auto& ch_data = osc_data.channel_data[ch];
@@ -127,14 +133,73 @@ capture_oscilloscope_and_function_generator_data()
               << ", trms="<< ch_data.measurements.trms
               << '\n';
 
-    auto& raw_buf = osc_disp.pixel_points();
+  
     
-    for (int ch = 0; ch < 2; ++ch) {
-    std::cout << "[DEBUG] Pixel points (channel " << ch << ", first 10): ";
+      std::cout << "[DEBUG] Pixel points (channel " << ch << ", first 10): ";
     for (size_t i = 0; i < std::min<size_t>(10, raw_buf[ch].size()); i++) {
-        std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
+        std::cout << "(" << raw_buf[ch][i][0] << "," << raw_buf[ch][i][1] << ") ";
     }
     std::cout << std::endl;
+  }
+
+  std::cout << "Oscilloscope mode: " << (int)osc.mode()              << '\n'
+            << "Horizontal offset: " << osc.horizontal_offset()      << '\n'
+            << "Time per division: " << osc.time_per_division()      << '\n'
+            << "Samples: "           << osc.samples()                << '\n'
+            << "Sampling rate: "     << osc.sampling_rate()          << '\n'
+            << "Trigger mode: "      << (int)osc.trigger_mode()      << '\n'
+            << "Trigger source: "    << osc.trigger_source()         << '\n'
+            << "Trigger type: "      << (int)osc.trigger_type()      << '\n'
+            << "Trigger condition: " << (int)osc.trigger_condition() << '\n'
+            << "Trigger level: "     << osc.trigger_level()          << '\n';
+
+  LOG("Function Generator Data:");
+  LOG("Channel 1:");
+  std::cout << "Wave type: "                          << (int)fg.wave_type(0)          << '\n'
+            << "Frequency: "                          << fg.frequency(0)      << " Hz" << '\n'
+            << "Period: "                             << fg.period(0)         << " s"  << '\n';
+
+  LOG("====================\n");
+}
+
+  
+
+void LABSoft_Presenter_LABChecker_Analog::
+update_gui_with_captured_data()
+{
+  LAB_Oscilloscope& osc = lab().m_Oscilloscope;
+  LAB_Oscilloscope_Display& osc_disp = lab().m_Oscilloscope_Display;
+  osc.update_data_samples();
+
+  LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_checker_disp_gui =
+    *(gui ().analog_labsoft_gui_analog_checker_display);
+
+  analog_checker_disp_gui.voltage_per_division(0, osc.voltage_per_division(0));
+  analog_checker_disp_gui.voltage_per_division(1, osc.voltage_per_division(1));
+  analog_checker_disp_gui.time_per_division(osc.time_per_division());
+  analog_checker_disp_gui.samples(osc.samples());
+  analog_checker_disp_gui.sampling_rate(osc.sampling_rate());
+
+
+  //osc_disp.update_pixel_points(); 
+
+  auto& raw_buf = osc_disp.pixel_points();
+
+  std::cout << "[DEBUG] Pixel points (channel 0, first 10): ";
+  for (size_t i = 0; i < std::min<size_t>(10, raw_buf[0].size()); i++) {
+    std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
+  }
+  std::cout << std::endl;
+  
+
+  analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
+
+  analog_checker_disp_gui.update_display();
+
+  std::cout << "GUI updated with captured oscilloscope data" << std::endl;
+}
+
+/*
     }
     
   }
@@ -175,8 +240,6 @@ update_gui_with_captured_data()
   analog_checker_disp_gui.samples(osc.samples());
   analog_checker_disp_gui.sampling_rate(osc.sampling_rate());
 
-  osc_disp.update_pixel_points(); // refresh waveform
-
   auto& raw_buf = osc_disp.pixel_points();
 
   std::cout << "[DEBUG] Pixel points (channel 0, first 10): ";
@@ -185,6 +248,9 @@ update_gui_with_captured_data()
   }
   std::cout << std::endl;
   
+
+  osc_disp.update_pixel_points(); 
+
   analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
 
   analog_checker_disp_gui.update_display();
