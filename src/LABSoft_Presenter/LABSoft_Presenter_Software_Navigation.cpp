@@ -1,4 +1,5 @@
 #include "LABSoft_Presenter_Software_Navigation.h"
+#include <string>
 
 #include "../LAB/LAB.h"
 #include "LABSoft_Presenter.h"
@@ -387,6 +388,34 @@ update_data_cycle()
           }
           LOG(dir > 0 ? "Choice Rotated CW" : "Choice Rotated CCW");
           return;
+        }
+        else if (auto* input = dynamic_cast<Fl_Input*>(widget))
+        {
+          if (input == gui().digital_fl_input_output_count)
+          {
+            auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+            if (table)
+            {
+              int current = static_cast<int>(table->output_count());
+              int maximum = static_cast<int>(table->max_output_count());
+              if (maximum < 1) maximum = 1;
+
+              int next = current + dir;
+              if (next < 1) next = 1;
+              if (next > maximum) next = maximum;
+
+              if (next != current)
+              {
+                std::string value_string = std::to_string(next);
+                input->value(value_string.c_str());
+                input->do_callback();
+                input->redraw();
+              }
+            }
+
+            LOG(dir > 0 ? "Output count increased" : "Output count decreased");
+            return;
+          }
         }
       }
 
