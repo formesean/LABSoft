@@ -166,14 +166,6 @@ update_gui_with_captured_data()
   LAB_Oscilloscope_Display& osc_disp = lab().m_Oscilloscope_Display;
   osc.update_data_samples();
 
-  auto& raw_buf = osc_disp.pixel_points();
-
-  std::cout << "[DEBUG] Pixel points (channel 0, first 10): ";
-  for (size_t i = 0; i < std::min<size_t>(10, raw_buf[0].size()); i++) {
-    std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
-}
-std::cout << std::endl;
-
   LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_checker_disp_gui =
     *(gui ().analog_labsoft_gui_analog_checker_display);
 
@@ -186,6 +178,12 @@ std::cout << std::endl;
   osc_disp.update_pixel_points(); // refresh waveform
 
   auto& raw_buf = osc_disp.pixel_points();
+
+  std::cout << "[DEBUG] Pixel points (channel 0, first 10): ";
+  for (size_t i = 0; i < std::min<size_t>(10, raw_buf[0].size()); i++) {
+    std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
+  }
+  std::cout << std::endl;
   
   analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
 
