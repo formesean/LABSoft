@@ -159,7 +159,7 @@ update_gui_with_captured_data()
   LAB_Oscilloscope_Display& osc_disp = lab().m_Oscilloscope_Display;
   osc.update_data_samples();
 
-   auto& raw_buf = osc.parent_data().raw_data_buffer;
+   auto& raw_buf = osc_disp.pixel_points();
     std::cout << "[DEBUG] Raw buffer first 10: ";
     for (size_t i = 0; i < std::min<size_t>(10, raw_buf.size()); i++)
         std::cout << raw_buf[i] << " ";
