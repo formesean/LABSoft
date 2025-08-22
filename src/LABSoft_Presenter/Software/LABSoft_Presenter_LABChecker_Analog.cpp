@@ -99,8 +99,9 @@ can_capture_signal() const
 void LABSoft_Presenter_LABChecker_Analog::
 capture_oscilloscope_and_function_generator_data()
 {
-  LAB_Oscilloscope& osc = lab().m_Oscilloscope;
-  LAB_Function_Generator& fg = lab().m_Function_Generator;
+  LAB_Oscilloscope& osc                             = lab().m_Oscilloscope;
+  LAB_Function_Generator& fg                        = lab().m_Function_Generator;
+  LAB_Oscilloscope_Display&osc_disp                 = lab ().m_Oscilloscope_Display;
   auto& osc_data = lab().m_Oscilloscope.parent_data();
 
   LOG("====================");
@@ -131,7 +132,7 @@ capture_oscilloscope_and_function_generator_data()
     for (int ch = 0; ch < 2; ++ch) {
     std::cout << "[DEBUG] Pixel points (channel " << ch << ", first 10): ";
     for (size_t i = 0; i < std::min<size_t>(10, raw_buf[ch].size()); i++) {
-        std::cout << "(" << raw_buf[ch][i][0] << "," << raw_buf[ch][i][1] << ") ";
+        std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
     }
     std::cout << std::endl;
     }
