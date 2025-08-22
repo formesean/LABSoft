@@ -126,10 +126,14 @@ capture_oscilloscope_and_function_generator_data()
               << ", trms="<< ch_data.measurements.trms
               << '\n';
 
-    std::cout << "  First 10 samples: ";
-    for (size_t i = 0; i < std::min<size_t>(10, ch_data.samples.size()); ++i)
-        std::cout << ch_data.samples[i] << ' ';
-    std::cout << '\n';
+  for (int ch = 0; ch < 2; ++ch) {
+    std::cout << "[DEBUG] Pixel points (channel " << ch << ", first 10): ";
+    for (size_t i = 0; i < std::min<size_t>(10, raw_buf[ch].size()); i++) {
+        std::cout << "(" << raw_buf[ch][i][0] << "," << raw_buf[ch][i][1] << ") ";
+    }
+    std::cout << std::endl;
+    }
+    
   }
 
   std::cout << "Oscilloscope mode: " << (int)osc.mode()              << '\n'
@@ -160,9 +164,10 @@ update_gui_with_captured_data()
   osc.update_data_samples();
 
   auto& raw_buf = osc_disp.pixel_points();
-    std::cout << "[DEBUG] Pixel points (first 10): ";
-    for (size_t i = 0; i < std::min<size_t>(10, raw_buf.size()); i++) {
-    std::cout << "(" << raw_buf[i][0] << "," << raw_buf[i][1] << ") ";
+
+  std::cout << "[DEBUG] Pixel points (channel 0, first 10): ";
+  for (size_t i = 0; i < std::min<size_t>(10, raw_buf[0].size()); i++) {
+    std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
 }
 std::cout << std::endl;
 
@@ -176,6 +181,9 @@ std::cout << std::endl;
   analog_checker_disp_gui.sampling_rate(osc.sampling_rate());
 
   osc_disp.update_pixel_points(); // refresh waveform
+
+  auto& raw_buf = osc_disp.pixel_points();
+  
   analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
 
   analog_checker_disp_gui.update_display();
