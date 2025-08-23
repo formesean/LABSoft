@@ -12,7 +12,7 @@
 struct CircuitCheckerData;
 
 class LAB_LABChecker_Analog : public Fl_Widget{
-  private: 
+  private:
 
   OsciData m_Osci_Data;
   bool m_osci_data_available;
@@ -20,7 +20,7 @@ class LAB_LABChecker_Analog : public Fl_Widget{
   //std::vector<??> m_circuit_element;
   DisplayMode m_current_mode;
 
-public: 
+public:
 
   LAB_LABChecker_Analog(int X, int Y, int W, int H, const char* label = 0)
   virtual ~LAB_LABChecker_Analog();
@@ -36,7 +36,7 @@ public:
   void draw()override;
   int handle(int event) override;
 
-  private: 
+  private:
 
     void draw_circuit_elements();
     void draw_grid();
@@ -50,7 +50,7 @@ class LAB_Oscilloscope;
 class LAB_LABChecker_Analog : public LAB_Module
 {
   private:
-    using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
+    using PixelPoints = std::array<std::vector<std::array<int, 2>>,
                       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
 
     using ChanDoubles = std::array<double, LABC::OSC::NUMBER_OF_CHANNELS>;
@@ -67,11 +67,11 @@ class LAB_LABChecker_Analog : public LAB_Module
 
     // cached display values
     unsigned    m_height                          = 0;
-    unsigned    m_width                           = 0; 
+    unsigned    m_width                           = 0;
     unsigned    m_rows                            = 0;
     unsigned    m_columns                         = 0;
     double      m_column_width                    = 0.0;
-    double      m_display_height_midline          = 0.0;  
+    double      m_display_height_midline          = 0.0;
 
     //
     double      m_time_per_division_delta_scaler  = 0.0;
@@ -80,7 +80,7 @@ class LAB_LABChecker_Analog : public LAB_Module
     unsigned    m_graphing_area_width             = 0.0;
     bool        m_mark_samples                    = false;
 
-    // 
+    //
     double      m_x_coord_scaling                 = 0;
     int         m_x_coord_start_offset            = 0;
     int         m_horizontal_offset_start_offset  = 0;
@@ -88,11 +88,11 @@ class LAB_LABChecker_Analog : public LAB_Module
 
     ChanDoubles m_sample_y_scaler = {0.0};
     ChanDoubles m_vertical_offset = {0.0};
-    
+
     // data
     PixelPoints m_pixel_points;
-  
-  private: 
+
+  private:
     double      calc_time_per_division_delta_scaler ()                                                          const;
     DRAW_MODE   calc_draw_mode                      (double tpd_ds)                                             const;
     unsigned    calc_samples_to_display             ()                                                          const;
@@ -114,8 +114,8 @@ class LAB_LABChecker_Analog : public LAB_Module
     LAB_LABChecker_Analog (LAB& _LAB, LAB_Oscilloscope& _LAB_Oscilloscope);
 
           void          display_parameters    (unsigned width, unsigned height, unsigned rows, unsigned columns);
-          void          update_cached_values  ();    
-          void          update_pixel_points   (); 
+          void          update_cached_values  ();
+          void          update_pixel_points   ();
     const PixelPoints&  pixel_points          () const;
           bool          mark_samples          () const;
 };

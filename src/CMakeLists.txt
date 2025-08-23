@@ -34,6 +34,7 @@ add_executable(LABSoft
   LAB/Software/LAB_Oscilloscope_Display.cpp
   LAB/Software/LAB_Shortcuts.cpp
   LAB/Software/LAB_LABChecker_Analog.cpp
+  LAB/Software/LAB_Analog_Circuit_Checker.cpp
 
   LABSoft_Presenter/LABSoft_Presenter_Unit.cpp
   LABSoft_Presenter/LABSoft_Presenter.cpp

@@ -6,7 +6,7 @@
 #include "../../LAB/LAB.h"
 #include "../LABSoft_Presenter.h"
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
-#include "../Utility/LAB_Utility_Functions.h"
+#include "../../Utility/LAB_Utility_Functions.h"
 
 LABSoft_Presenter_Analog_Circuit_Checker::LABSoft_Presenter_Analog_Circuit_Checker(LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit(_LABSoft_Presenter)
@@ -19,25 +19,25 @@ void LABSoft_Presenter_Analog_Circuit_Checker::load_gui()
   LABSoft_GUI_LABChecker_Analog_Checker_Display& analog_disp_gui = *(gui ().analog_labsoft_gui_analog_checker_display);
 
    analog_disp_gui.load_presenter         (m_presenter);
-  
+
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
 display_signals ()
 {
-  
+
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
-update_gui_display () 
+update_gui_display ()
 {
   LABSoft_GUI& gui = m_presenter.gui ();
 
-  gui.analog_labsoft_gui_analog_checker_display; // to be edited. 
+  gui.analog_labsoft_gui_analog_checker_display; // to be edited.
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
-cb_load_file_analog (Fl_Button*  w, 
+cb_load_file_analog (Fl_Button*  w,
                      void*       data)
 {
   Fl_Native_File_Chooser chooser;
@@ -70,8 +70,7 @@ cb_load_file_analog (Fl_Button*  w,
   }
   catch(const std::exception& e)
   {
-    
+
   }
-  
+
 }
-  
