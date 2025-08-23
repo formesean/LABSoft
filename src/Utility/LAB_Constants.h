@@ -34,6 +34,7 @@ namespace LABC
     };
 
     constexpr const char* DIGITAL_CIRCUIT_CHECKER_FILENAME_EXTENSION  = ".labdcc";
+    constexpr const char* ANALOG_CIRCUIT_CHECKER_FILENAME_EXTENSION   = ".labacc";
     constexpr const char* CALIBRATION_FILENAME_EXTENSION              = ".labcalibration";
     constexpr const char* DEFAULT_CALIBRATION_FILE_PATH               = "../data/default.labcalibration";
     constexpr const char* FACTORY_CALIBRATION_FILE_PATH               = "../data/FACTORY.labcalibration";

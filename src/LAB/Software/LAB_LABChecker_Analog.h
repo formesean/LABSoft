@@ -7,6 +7,7 @@
 #include "../LAB_Module.h"
 #include "../../Utility/LAB_Constants.h"
 
+//bea: try to delete this.
 /*struct OsciDAta;
 struct CircuitCheckerData;
 
