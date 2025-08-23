@@ -692,7 +692,12 @@ initialize_run_key_actions()
         auto* btn = gui().digital_circuit_checker_fl_button_run_checker;
         btn->value(!btn->value());
         presenter().m_Digital_Circuit_Checker.cb_run_checker(btn, nullptr);
-      }}
+      }},
+    // { "LABChecker - Analog", [this]() {
+    //     auto* btn = gui().analog_fl_button_capture_signal;
+    //     btn->value(!btn->value());
+    //     presenter().m_LABChecker_Analog.cb_capture_signal(btn, nullptr);
+    //   }},
   };
 }
 
@@ -1005,10 +1010,6 @@ get_widgets_in_group(Fl_Group* group) const
 {
   std::vector<Fl_Widget*> widgets;
 
-  Fl_Widget* ex1 = gui().digital_circuit_checker_fl_output_selected_file;
-  Fl_Widget* ex2 = gui().digital_circuit_checker_fl_output_results;
-  Fl_Widget* ex3 = gui().analog_circuit_checker_fl_output_selected_file;
-  Fl_Widget* ex4 = gui().analog_circuit_checker_fl_output_results;
 
   for (int i = 0; i < group->children(); ++i)
   {
@@ -1016,7 +1017,14 @@ get_widgets_in_group(Fl_Group* group) const
 
     if (!w->takesevents() || !w->visible() || !w->active()) continue;
 
-    if (w == ex1 || w == ex2 || w == ex3 || w == ex4) continue;
+    if (w == gui().digital_circuit_checker_fl_output_selected_file ||
+        w == gui().digital_circuit_checker_fl_output_results ||
+        w == gui().analog_circuit_checker_fl_output_selected_file ||
+        w == gui().analog_circuit_checker_fl_output_results ||
+        w == gui().analog_circuit_checker_fl_checkbutton_time_domain ||
+        w == gui().analog_circuit_checker_fl_checkbutton_frequency_domain ||
+        w == gui().logic_analyzer_fl_button_record_config ||
+        w == gui().logic_analyzer_fl_button_record) continue;
 
     if (dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(w))
     {
