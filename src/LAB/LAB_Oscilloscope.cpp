@@ -619,7 +619,8 @@ fill_raw_osc_samp_buff_from_dma_buff ()
           // std::cout << "OVERFLOW!" << "\n";
           m_parent_data.buffer_overflow_count++;
 
-          dma_data.status[0] = dma_data.status[1] = 0;
+          dma_data.status[0] = 0;
+          dma_data.status[1] = 0;
 
           break;
         }
@@ -869,7 +870,8 @@ reset_dma_process ()
   rpi ().dma.abort (LABC::DMA::CHAN::OSC_RX);
 
   // 4. reset the DMA status flags
-  dma_data.status[0] = dma_data.status[1] = 0;
+  dma_data.status[0] = 0;
+  dma_data.status[1] = 0;
 
   // 5. reset the 2D DMA OSC RX buffer array
   reset_uncached_rx_buffer ();
@@ -1768,7 +1770,8 @@ dma_buffer_count (LABE::OSC::BUFFER_COUNT buffer_count)
   rpi ().dma.abort (LABC::DMA::CHAN::OSC_RX);
 
   // 4. Clean buffer status
-  dma_data.status[0] = dma_data.status[1] = 0;
+  dma_data.status[0] = 0;
+  dma_data.status[1] = 0;
 
   // 5. Run DMA channel if it was running
   if (is_running)
