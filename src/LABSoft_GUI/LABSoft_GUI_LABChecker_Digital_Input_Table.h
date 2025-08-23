@@ -21,6 +21,7 @@ class LABSoft_GUI_LABChecker_Digital_Input_Table : public Fl_Table
     unsigned  m_number_of_cols    = 2;
     unsigned  m_row_edit          = 0;
     unsigned  m_col_edit          = 0;
+    bool      m_show_selection    = false;
     unsigned  m_input_bits        = 1;
     unsigned  m_output_bits       = 1;
     unsigned  m_output_count      = 2;
@@ -30,12 +31,12 @@ class LABSoft_GUI_LABChecker_Digital_Input_Table : public Fl_Table
     std::vector<std::vector<char>> m_outputs;
 
   private:
-    void  draw_cell                 (TableContext context, 
-                                      int R = 0, 
-                                      int C = 0, 
-                                      int X = 0, 
-                                      int Y = 0, 
-                                      int W = 0, 
+    void  draw_cell                 (TableContext context,
+                                      int R = 0,
+                                      int C = 0,
+                                      int X = 0,
+                                      int Y = 0,
+                                      int W = 0,
                                       int H = 0);
 
     void  init_table_dimensions     ();
@@ -70,6 +71,12 @@ class LABSoft_GUI_LABChecker_Digital_Input_Table : public Fl_Table
     unsigned                        max_output_count  () const;
     std::vector<std::vector<char>>& inputs            ();
     std::vector<std::vector<char>>& outputs           ();
+
+    // Selection helpers
+    void set_selected_cell_value (char value);
+    char get_selected_cell_value () const;
+    void set_show_selection      (bool value);
+    bool show_selection          () const { return m_show_selection; }
 };
 
 #endif

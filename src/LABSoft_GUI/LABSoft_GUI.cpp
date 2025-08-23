@@ -2044,7 +2044,6 @@ ly board.");
         main_fl_group_analog_circuit_checker->color(FL_LIGHT3);
         main_fl_group_analog_circuit_checker->selection_color(FL_LIGHT2);
         main_fl_group_analog_circuit_checker->labelsize(12);
-        main_fl_group_analog_circuit_checker->hide();
         { analog_circuit_checker_labsoft_gui_analog_circuit_checker_display = new LABSoft_GUI_Analog_Circuit_Checker_Display(260, 100, 920, 450);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->box(FL_FLAT_BOX);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->color(FL_GRAY0);
@@ -2070,13 +2069,15 @@ ly board.");
             analog_circuit_checker_fl_output_selected_file->textsize(12);
             analog_circuit_checker_fl_output_selected_file->align(Fl_Align(FL_ALIGN_TOP));
           } // Fl_Output* analog_circuit_checker_fl_output_selected_file
-          { analog_circuit_checker_fl_checkbutton_time_domain = new Fl_Check_Button(56, 235, 69, 20, "Time Domain");
+          { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_time_domain = new Fl_Check_Button(56, 235, 69, 20, "Time Domain");
             analog_circuit_checker_fl_checkbutton_time_domain->down_box(FL_DOWN_BOX);
             analog_circuit_checker_fl_checkbutton_time_domain->labelsize(12);
+            o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_time_domain
-          { analog_circuit_checker_fl_checkbutton_frequency_domain = new Fl_Check_Button(56, 260, 69, 25, "Frequency Domain");
+          { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_frequency_domain = new Fl_Check_Button(56, 260, 69, 25, "Frequency Domain");
             analog_circuit_checker_fl_checkbutton_frequency_domain->down_box(FL_DOWN_BOX);
             analog_circuit_checker_fl_checkbutton_frequency_domain->labelsize(12);
+            o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_frequency_domain
           { analog_circuit_checker_fl_button_run_checker = new Fl_Button(41, 295, 180, 50, "Run Checker");
             analog_circuit_checker_fl_button_run_checker->box(FL_GTK_UP_BOX);
@@ -2106,6 +2107,7 @@ ly board.");
         main_fl_group_labchecker_analog_tab->color(FL_LIGHT3);
         main_fl_group_labchecker_analog_tab->selection_color(FL_LIGHT2);
         main_fl_group_labchecker_analog_tab->labelsize(12);
+        main_fl_group_labchecker_analog_tab->hide();
         { analog_labsoft_gui_analog_checker_display = new LABSoft_GUI_LABChecker_Analog_Checker_Display(260, 100, 920, 450);
           analog_labsoft_gui_analog_checker_display->box(FL_FLAT_BOX);
           analog_labsoft_gui_analog_checker_display->color(FL_GRAY0);

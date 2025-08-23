@@ -8,7 +8,7 @@
 #include <FL/Enumerations.H>
 #include <FL/fl_draw.H>
 
-LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+LABSoft_GUI_LABChecker_Digital_Input_Table::
 LABSoft_GUI_LABChecker_Digital_Input_Table (int         X,
                                             int         Y,
                                             int         W,
@@ -19,7 +19,7 @@ LABSoft_GUI_LABChecker_Digital_Input_Table (int         X,
     m_outputs (m_output_count, std::vector<char>(m_output_bits, '0'))
 {
   when                      (FL_WHEN_NOT_CHANGED | when ());
-  callback                  (&event_callback, static_cast<void*>(this));  
+  callback                  (&event_callback, static_cast<void*>(this));
   create_input_widget       (W, H);
 
   end ();
@@ -29,13 +29,13 @@ LABSoft_GUI_LABChecker_Digital_Input_Table (int         X,
   resize                    (m_number_of_rows, m_number_of_cols);
 }
 
-LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+LABSoft_GUI_LABChecker_Digital_Input_Table::
 ~LABSoft_GUI_LABChecker_Digital_Input_Table ()
 {
 
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 init_table_dimensions ()
 {
   row_header        (1);
@@ -50,12 +50,12 @@ init_table_dimensions ()
 
   set_selection     (0, 0, 0, 0);
   // tab_cell_nav      (1);
-  
+
 
   tooltip ("Use keyboard to navigate cells:\nArrow keys or Tab/Shift-Tab");
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 create_input_widget (unsigned W,
                      unsigned H)
 {
@@ -68,10 +68,10 @@ create_input_widget (unsigned W,
   m_input->color        (COLOR_SELECTED_CELL);
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 event_callback2 ()
 {
-  int R = callback_row (); 
+  int R = callback_row ();
   int C = callback_col ();
 
   LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context = callback_context ();
@@ -132,7 +132,7 @@ event_callback2 ()
     case (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext::CONTEXT_COL_HEADER):
     {
       done_editing ();
-      
+
       break;
     }
 
@@ -143,7 +143,7 @@ event_callback2 ()
   }
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 input_cb2 ()
 {
   set_value_hide ();
@@ -154,7 +154,7 @@ input_cb2 ()
     {
       start_editing (m_row_edit, m_col_edit + 1);
     }
-    else 
+    else
     {
       if (m_row_edit < (rows () - 1))
       {
@@ -164,51 +164,51 @@ input_cb2 ()
   }
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 recalculate_rows_and_cols ()
 {
   m_number_of_rows = m_output_count;
   m_number_of_cols = m_input_bits + m_output_bits;
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 recalculate_and_resize ()
 {
   recalculate_rows_and_cols ();
   do_resize                 ();
 }
 
-char LABSoft_GUI_LABChecker_Digital_Input_Table:: 
-get_vector_value (unsigned R, 
+char LABSoft_GUI_LABChecker_Digital_Input_Table::
+get_vector_value (unsigned R,
                   unsigned C) const
 {
   if (C < m_input_bits)
   {
     return (m_inputs[R][(m_input_bits - 1) - C]);
   }
-  else 
+  else
   {
     return (m_outputs[R][(m_number_of_cols - C) - 1]);
-  } 
+  }
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
-set_vector_value (char      c, 
-                  unsigned  R, 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
+set_vector_value (char      c,
+                  unsigned  R,
                   unsigned  C)
 {
   if (C < m_input_bits)
   {
     m_inputs[R][(m_input_bits - 1) - C] = c;
   }
-  else 
+  else
   {
     m_outputs[R][(m_number_of_cols - C) - 1] = c;
-  } 
+  }
 }
 
 void LABSoft_GUI_LABChecker_Digital_Input_Table::
-event_callback (Fl_Widget*  w, 
+event_callback (Fl_Widget*  w,
                 void*       v)
 {
   (static_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(v))->event_callback2 ();
@@ -216,12 +216,12 @@ event_callback (Fl_Widget*  w,
 
 void LABSoft_GUI_LABChecker_Digital_Input_Table::
 input_cb (Fl_Widget*  w,
-          void*       v) 
-{	
+          void*       v)
+{
   (static_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(v))->input_cb2 ();
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 do_resize ()
 {
   // 1. resize 2D vector
@@ -241,16 +241,16 @@ do_resize ()
     row.resize (m_output_bits, '0');
   }
 
-  // 2. resize table 
+  // 2. resize table
   cols (m_number_of_cols);
   rows (m_number_of_rows);
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 set_value_hide ()
 {
   std::string str (m_input->value ());
- 
+
   if (str == "0" || str == "1" || str == "X" || str == "x" || str == "`" || str == "3")
   {
     if (str == "`")
@@ -279,7 +279,7 @@ set_value_hide ()
 // Start editing a new cell: move the Fl_Int_Input widget to specified row/column
 // Preload the widget with the cell's current value,
 // and make the widget 'appear' at the cell's location.
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 start_editing (int R, int C)
 {
   m_row_edit = R;
@@ -304,7 +304,7 @@ start_editing (int R, int C)
 }
 
 // Tell the input widget it's done editing, and to hide
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 done_editing ()
 {
   if (m_input->visible ())  // input widget visible, i.e. edit in progress?
@@ -313,7 +313,7 @@ done_editing ()
   }
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
 draw_cell (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context,
            int R,
            int C,
@@ -352,7 +352,7 @@ draw_cell (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context,
         fl_draw       (s, X, Y, W, H, FL_ALIGN_CENTER);
       }
       fl_pop_clip   ();
-      
+
 
       break;
     }
@@ -367,7 +367,7 @@ draw_cell (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context,
           fl_draw_box   (FL_FLAT_BOX, X, Y, W, H, COLOR_HEADER_ROW_INPUT);
           std::sprintf  (s, "S%d", (m_input_bits - 1) - C);
         }
-        else 
+        else
         {
           fl_draw_box   (FL_FLAT_BOX, X, Y, W, H, COLOR_HEADER_ROW_OUTPUT);
           fl_color      (FL_BLACK);
@@ -396,8 +396,9 @@ draw_cell (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context,
       fl_push_clip  (X, Y, W, H);
       {
         fl_font     (FL_HELVETICA, fl_size ());
-        fl_draw_box (FL_THIN_DOWN_BOX, X, Y, W, H, is_selected (R, C) ? COLOR_SELECTED_CELL : FL_WHITE);
-        fl_color    (FL_BLACK);   
+        Fl_Color bg = (m_show_selection && is_selected (R, C)) ? COLOR_SELECTED_CELL : FL_WHITE;
+        fl_draw_box (FL_THIN_DOWN_BOX, X, Y, W, H, bg);
+        fl_color    (FL_BLACK);
         fl_draw     (s, X, Y, W, H, FL_ALIGN_INSIDE | FL_ALIGN_CENTER);
       }
       fl_pop_clip   ();
@@ -413,7 +414,7 @@ draw_cell (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context,
       {
         find_cell       (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext::CONTEXT_TABLE,
                           m_row_edit, m_col_edit, X, Y, W, H);
-                       
+
         m_input->resize (X, Y, W, H);
         init_sizes      ();
       }
@@ -428,8 +429,8 @@ draw_cell (LABSoft_GUI_LABChecker_Digital_Input_Table::TableContext context,
   }
 }
 
-void LABSoft_GUI_LABChecker_Digital_Input_Table:: 
-resize (unsigned new_number_of_rows, 
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
+resize (unsigned new_number_of_rows,
         unsigned new_number_of_cols)
 {
   m_number_of_rows = new_number_of_rows;
@@ -448,10 +449,45 @@ input_bits (unsigned value)
   {
     output_count (m_max_output_count);
   }
-  else 
+  else
   {
     recalculate_and_resize ();
   }
+}
+
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
+set_selected_cell_value (char value)
+{
+  int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+  get_selection(r1, c1, r2, c2);
+  if (r1 < 0 || c1 < 0 || r1 >= rows() || c1 >= cols()) return;
+
+  // normalize value
+  if (value != '0' && value != '1' && value != 'X') return;
+
+  set_vector_value(value, r1, c1);
+  redraw();
+}
+
+char LABSoft_GUI_LABChecker_Digital_Input_Table::
+get_selected_cell_value () const
+{
+  int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+  const_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(this)->get_selection(r1, c1, r2, c2);
+  if (r1 < 0 || c1 < 0 || r1 >= static_cast<int>(m_number_of_rows) || c1 >= static_cast<int>(m_number_of_cols)) return '0';
+  return get_vector_value(static_cast<unsigned>(r1), static_cast<unsigned>(c1));
+}
+
+void LABSoft_GUI_LABChecker_Digital_Input_Table::
+set_show_selection (bool value)
+{
+  m_show_selection = value;
+  if (!m_show_selection)
+  {
+    // Clear selection
+    set_selection(0, 0, 0, 0);
+  }
+  redraw();
 }
 
 void LABSoft_GUI_LABChecker_Digital_Input_Table::
@@ -473,34 +509,34 @@ output_count (unsigned value)
   }
 }
 
-unsigned LABSoft_GUI_LABChecker_Digital_Input_Table:: 
-input_bits () const 
+unsigned LABSoft_GUI_LABChecker_Digital_Input_Table::
+input_bits () const
 {
   return (m_input_bits);
 }
 
-unsigned LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+unsigned LABSoft_GUI_LABChecker_Digital_Input_Table::
 output_count () const
 {
   return (m_output_count);
 }
 
-unsigned LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+unsigned LABSoft_GUI_LABChecker_Digital_Input_Table::
 max_output_count () const
 {
   return (m_max_output_count);
 }
 
-std::vector<std::vector<char>>& LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+std::vector<std::vector<char>>& LABSoft_GUI_LABChecker_Digital_Input_Table::
 inputs ()
 {
   return (m_inputs);
 }
 
-std::vector<std::vector<char>>& LABSoft_GUI_LABChecker_Digital_Input_Table:: 
+std::vector<std::vector<char>>& LABSoft_GUI_LABChecker_Digital_Input_Table::
 outputs ()
 {
   return (m_outputs);
 }
 
-// EOF 
+// EOF

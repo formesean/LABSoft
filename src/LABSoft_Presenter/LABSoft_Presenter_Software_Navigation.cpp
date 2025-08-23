@@ -1,4 +1,5 @@
 #include "LABSoft_Presenter_Software_Navigation.h"
+#include <string>
 
 #include "../LAB/LAB.h"
 #include "LABSoft_Presenter.h"
@@ -289,6 +290,22 @@ update_data_cycle()
     if (data[1] == 5 && data[2] == 0)
     {
       LOG("Run Key Pressed");
+      auto tab_id = get_current_tab_id();
+
+      if (tab_id == LABE::SNM::TAB_ID::LABCHECKER_DIGITAL)
+      {
+        auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+        if (table && previous_focused_widget == table && current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET)
+        {
+          char curr = table->get_selected_cell_value();
+          char next = (curr == '1') ? '0' : '1';
+          table->set_selected_cell_value(next);
+          table->set_show_selection(true);
+          table->redraw();
+          return;
+        }
+      }
+
       std::string_view label = gui().main_fl_tabs->value()->label();
       if (auto it = run_key_actions.find(label); it != run_key_actions.end())
         it->second();
@@ -372,6 +389,34 @@ update_data_cycle()
           LOG(dir > 0 ? "Choice Rotated CW" : "Choice Rotated CCW");
           return;
         }
+        else if (auto* input = dynamic_cast<Fl_Input*>(widget))
+        {
+          if (input == gui().digital_fl_input_output_count)
+          {
+            auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+            if (table)
+            {
+              int current = static_cast<int>(table->output_count());
+              int maximum = static_cast<int>(table->max_output_count());
+              if (maximum < 1) maximum = 1;
+
+              int next = current + dir;
+              if (next < 1) next = 1;
+              if (next > maximum) next = maximum;
+
+              if (next != current)
+              {
+                std::string value_string = std::to_string(next);
+                input->value(value_string.c_str());
+                input->do_callback();
+                input->redraw();
+              }
+            }
+
+            LOG(dir > 0 ? "Output count increased" : "Output count decreased");
+            return;
+          }
+        }
       }
 
       if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
@@ -446,6 +491,7 @@ update_data_cycle()
     if (data[1] == 1 && data[2] == 1) // Pressed
     {
       LOG("Encoder Switch Pressed");
+      if (is_encoder_switch_pressed) return;
       is_encoder_switch_pressed = true;
 
       Fl_Widget* widget = previous_focused_widget;
@@ -469,13 +515,6 @@ update_data_cycle()
         btn->do_callback();
         btn->redraw();
         Fl::flush();
-
-        Fl::add_timeout(0.05, [](void* v) {
-          auto* b = static_cast<Fl_Button*>(v);
-          b->set_changed();
-          b->do_callback();
-          b->redraw();
-        }, btn);
       }
       else if (auto* input = dynamic_cast<Fl_Input*>(widget))
       {
@@ -563,13 +602,22 @@ highlight_widget(Fl_Widget* widget)
     previous_focused_widget->redraw();
   }
 
-  if (widget)
+  if (!widget)
+    return;
+
+  if (widget == gui().digital_circuit_checker_fl_output_selected_file ||
+      widget == gui().digital_circuit_checker_fl_output_results ||
+      widget == gui().analog_circuit_checker_fl_output_selected_file ||
+      widget == gui().analog_circuit_checker_fl_output_results)
   {
-    // widget->color(Fl_Color(221));
-    widget->labelcolor(Fl_Color(221));
-    widget->redraw();
     previous_focused_widget = widget;
+    return;
   }
+
+  // widget->color(Fl_Color(221));
+  widget->labelcolor(Fl_Color(221));
+  widget->redraw();
+  previous_focused_widget = widget;
 }
 
 void
@@ -598,6 +646,11 @@ clear_widget_focus()
 {
   if (previous_focused_widget)
   {
+    if (auto* t = dynamic_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(previous_focused_widget))
+    {
+      t->set_show_selection(false);
+      t->redraw();
+    }
     // previous_focused_widget->color(Fl_Color(54));
     previous_focused_widget->labelcolor(Fl_Color(0));
     previous_focused_widget->redraw();
@@ -639,7 +692,12 @@ initialize_run_key_actions()
         auto* btn = gui().digital_circuit_checker_fl_button_run_checker;
         btn->value(!btn->value());
         presenter().m_Digital_Circuit_Checker.cb_run_checker(btn, nullptr);
-      }}
+      }},
+    // { "LABChecker - Analog", [this]() {
+    //     auto* btn = gui().analog_fl_button_capture_signal;
+    //     btn->value(!btn->value());
+    //     presenter().m_LABChecker_Analog.cb_capture_signal(btn, nullptr);
+    //   }},
   };
 }
 
@@ -772,6 +830,136 @@ handle_customizable_macro_key(int key_id)
     }
   }
 
+  // --- LABChecker Digital tab override ---
+  if (tab_id == TAB_ID::LABCHECKER_DIGITAL)
+  {
+    switch (key_id)
+    {
+      case 1: // previous cell
+      case 2: // next cell
+      {
+        auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
+        if (!table) return;
+
+        bool already_on_table = (previous_focused_widget == table && current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET);
+        if (!already_on_table)
+        {
+          clear_widget_focus();
+          clear_group_focus();
+          clear_tab_focus();
+        }
+
+        if (auto* group = gui().labchecker_digital_fl_group_2)
+        {
+          if (!already_on_table)
+          {
+            group->color(FL_BACKGROUND_COLOR);
+            group->redraw();
+            previous_focused_group = group;
+            current_groups_in_tab = { group };
+            group_index = 0;
+
+            current_widgets_in_group = get_widgets_in_group(group);
+            widget_index = -1;
+            for (int i = 0; i < group->children(); ++i)
+            {
+              if (group->child(i) == table)
+              {
+                widget_index = i;
+                break;
+              }
+            }
+
+            for (int i = 0; i < group->children(); ++i)
+            {
+              Fl_Widget* w = group->child(i);
+              if (w && w != table)
+              {
+                w->labelcolor(Fl_Color(0));
+                w->redraw();
+              }
+            }
+
+            Fl_Group* groups_to_clear[] = {
+              gui().labchecker_digital_fl_group_1,
+              gui().labchecker_digital_fl_group_2
+            };
+
+            for (Fl_Group* g : groups_to_clear)
+            {
+              if (!g || g == group) continue;
+
+              g->color(FL_BACKGROUND_COLOR);
+              g->redraw();
+
+              for (int i = 0; i < g->children(); ++i)
+              {
+                Fl_Widget* w = g->child(i);
+                if (w)
+                {
+                  w->labelcolor(Fl_Color(0));
+                  w->redraw();
+                }
+              }
+            }
+
+            bool fresh_focus = true;
+            current_focus_level = LABE::SNM::FOCUS_LEVEL::WIDGET;
+            previous_focused_widget = table;
+            table->take_focus();
+            highlight_widget(table);
+            table->set_selection(0, 0, 0, 0);
+            table->set_show_selection(false);
+            table->redraw();
+          }
+        }
+
+        int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+        table->get_selection(r1, c1, r2, c2);
+        bool invalid_selection = (r1 < 0 || c1 < 0);
+        if (invalid_selection)
+        {
+          r1 = c1 = r2 = c2 = 0;
+          table->set_selection(0, 0, 0, 0);
+        }
+
+        int rows = table->rows();
+        int cols = table->cols();
+        if (rows <= 0 || cols <= 0) return;
+
+        int r = r1, c = c1;
+        if (!table->show_selection())
+        {
+          table->set_selection(0, 0, 0, 0);
+          table->set_show_selection(true);
+          table->redraw();
+          return;
+        }
+        if (key_id == 1)
+        {
+          if (c > 0) { c -= 1; }
+          else {
+            if (r > 0) { r -= 1; c = cols - 1; }
+            else { r = rows - 1; c = cols - 1; }
+          }
+        }
+        else // key_id == 2
+        {
+          if (c < cols - 1) { c += 1; }
+          else {
+            if (r < rows - 1) { r += 1; c = 0; }
+            else { r = 0; c = 0; }
+          }
+        }
+
+        table->set_selection(r, c, r, c);
+        table->set_show_selection(true);
+        table->redraw();
+        return;
+      }
+    }
+  }
+
   // --- Configuration File ---
   if (config.action == ACTION_TYPE::GOTO)
   {
@@ -822,11 +1010,21 @@ get_widgets_in_group(Fl_Group* group) const
 {
   std::vector<Fl_Widget*> widgets;
 
+
   for (int i = 0; i < group->children(); ++i)
   {
     Fl_Widget* w = group->child(i);
 
     if (!w->takesevents() || !w->visible() || !w->active()) continue;
+
+    if (w == gui().digital_circuit_checker_fl_output_selected_file ||
+        w == gui().digital_circuit_checker_fl_output_results ||
+        w == gui().analog_circuit_checker_fl_output_selected_file ||
+        w == gui().analog_circuit_checker_fl_output_results ||
+        w == gui().analog_circuit_checker_fl_checkbutton_time_domain ||
+        w == gui().analog_circuit_checker_fl_checkbutton_frequency_domain ||
+        w == gui().logic_analyzer_fl_button_record_config ||
+        w == gui().logic_analyzer_fl_button_record) continue;
 
     if (dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(w))
     {
