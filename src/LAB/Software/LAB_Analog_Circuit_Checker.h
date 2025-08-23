@@ -3,9 +3,11 @@
 
 #include <cmath>
 #include <iostream>
+#include <array>
 
 #include "../LAB_Module.h"
 #include "../../Utility/LAB_Constants.h"
+#include "../../Utility/LAB_Definitions.h"
 
 class LAB_Analog_Circuit_Checker : public LAB_Module
 {
@@ -13,8 +15,11 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
   LAB_Analog_Circuit_Checker(LAB& _lab);
 
   void      load_file    (const std::string& path);
+  void      create_dummy_data();
 
   private:
+    std::array<double, LABC::OSC::NUMBER_OF_SAMPLES> dummy_student_data;
+    std::array<double, LABC::OSC::NUMBER_OF_SAMPLES> dummy_instructor_data;
 };
 
 #endif
