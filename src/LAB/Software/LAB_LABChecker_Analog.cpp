@@ -11,6 +11,8 @@
 
 
 
+// bea: try to delete this
+
 /* LAB_LABChecker_Analog::
 LAB_LABChecker_Analog (
     int X, int Y, int W, int H, const char* label)

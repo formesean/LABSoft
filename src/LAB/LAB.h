@@ -15,6 +15,7 @@
 #include "Software/LAB_Oscilloscope_Display.h"
 #include "Software/LAB_Shortcuts.h"
 #include "Software/LAB_LABChecker_Analog.h"
+#include "Software/LAB_Analog_Circuit_Checker.h"
 
 class AikaPi;
 
@@ -36,12 +37,14 @@ class LAB
     LAB_Software_Navigation     m_Software_Navigation;
 
 
+    LAB_Analog_Circuit_Checker  m_Analog_Circuit_Checker;
+    LAB_LABChecker_Analog       m_LABChecker_Analog;
 
     LAB_Exporter                m_Exporter;
     LAB_Oscilloscope_Display    m_Oscilloscope_Display;
     LAB_Calibration             m_Calibration;
     LAB_Shortcuts               m_Shortcuts;
-    LAB_LABChecker_Analog       m_LABChecker_Analog;
+    
 
 
     AikaPi& rpi () const;
