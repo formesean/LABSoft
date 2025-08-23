@@ -6,14 +6,14 @@ class AikaPi;
 
 class LAB_Module
 {
-  protected:
-    LAB& m_LAB;
+protected:
+  LAB &m_LAB;
 
-  public:
-    LAB_Module (LAB& _LAB);
+public:
+  LAB_Module (LAB &_LAB);
 
-    AikaPi& rpi () const;
-    LAB&    lab () const;
+  AikaPi &rpi () const;
+  LAB &lab () const;
 };
 
 #endif

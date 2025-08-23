@@ -2,21 +2,30 @@
 
 #include "LABSoft_GUI_Logic_Analyzer_Add_Channel_Window.h"
 
-LABSoft_GUI_Logic_Analyzer_Add_Channel_Window::LABSoft_GUI_Logic_Analyzer_Add_Channel_Window() {
+LABSoft_GUI_Logic_Analyzer_Add_Channel_Window::
+  LABSoft_GUI_Logic_Analyzer_Add_Channel_Window()
+{
   Fl_Double_Window* w;
-  { Fl_Double_Window* o = new Fl_Double_Window(240, 360, "Add signal");
-    w = o; if (w) {/* empty */}
+  {
+    Fl_Double_Window* o = new Fl_Double_Window(240, 360, "Add signal");
+    w = o;
+    if (w) { /* empty */
+    }
     o->color(FL_LIGHT3);
     o->user_data((void*)(this));
-    { new Fl_Input(70, 20, 120, 25, "Name: ");
+    {
+      new Fl_Input(70, 20, 120, 25, "Name: ");
     } // Fl_Input* o
-    { new Fl_Browser(15, 60, 210, 240);
+    {
+      new Fl_Browser(15, 60, 210, 240);
     } // Fl_Browser* o
-    { Fl_Button* o = new Fl_Button(90, 315, 60, 30, "Add");
+    {
+      Fl_Button* o = new Fl_Button(90, 315, 60, 30, "Add");
       o->box(FL_GTK_UP_BOX);
       o->color((Fl_Color)53);
     } // Fl_Button* o
-    { Fl_Button* o = new Fl_Button(165, 315, 60, 30, "Cancel");
+    {
+      Fl_Button* o = new Fl_Button(165, 315, 60, 30, "Cancel");
       o->box(FL_GTK_UP_BOX);
       o->color((Fl_Color)53);
     } // Fl_Button* o
