@@ -1,5 +1,6 @@
 #include "LABSoft_Presenter_Software_Navigation.h"
 #include <string>
+#include <cstring>
 
 #include "../LAB/LAB.h"
 #include "LABSoft_Presenter.h"
@@ -315,13 +316,60 @@ update_data_cycle()
   // Encoder Rotation
   if (data[0] == 2)
   {
+    int dir = (data[1] == 1) ? +1 : -1;
+    Fl_Widget* widget = previous_focused_widget;
+
+    if (is_encoder_switch_pressed && widget)
+    {
+      if (auto* input = dynamic_cast<Fl_Input*>(widget))
+      {
+        if (input == gui().analog_fl_input_similarity_threshold)
+        {
+
+          const char* current_str = input->value();
+          int current = 0;
+          if (current_str && strlen(current_str) > 0)
+          {
+            try {
+              std::string str(current_str);
+              if (str.back() == '%') {
+                str.pop_back();
+              }
+              current = std::stoi(str);
+            } catch (...) {
+              current = 0;
+            }
+          }
+
+          if (current == 0 && (current_str == nullptr || strlen(current_str) == 0))
+          {
+            current = 100;
+            input->value("100%");
+            input->redraw();
+          }
+
+          int next = current + dir;
+          if (next < 0) next = 0;
+          if (next > 100) next = 100;
+
+          if (next != current)
+          {
+            std::string value_string = std::to_string(next) + "%";
+            input->value(value_string.c_str());
+            input->do_callback();
+            input->redraw();
+          }
+
+          LOG(dir > 0 ? "Similarity threshold increased" : "Similarity threshold decreased");
+          return;
+        }
+      }
+    }
+
     auto now = std::chrono::steady_clock::now();
     if (now - last_nav_time >= nav_debounce_delay)
     {
       last_nav_time = now;
-      int dir = (data[1] == 1) ? +1 : -1;
-
-      Fl_Widget* widget = previous_focused_widget;
 
       if (is_encoder_switch_pressed && widget)
       {
@@ -548,6 +596,12 @@ switch_tab_by_direction(int direction)
   current_tab_index = new_index;
   gui().main_fl_tabs->value(tab_groups[current_tab_index]);
   gui().main_fl_tabs->redraw();
+
+  if (current_tab_index == 8)
+  {
+    gui().analog_fl_input_similarity_threshold->value("100%");
+    gui().analog_fl_input_similarity_threshold->redraw();
+  }
 }
 
 void
