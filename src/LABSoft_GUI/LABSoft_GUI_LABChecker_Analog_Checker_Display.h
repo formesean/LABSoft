@@ -56,6 +56,9 @@ public:
     void samples                          (unsigned value);
     void sampling_rate                    (double value);
 
+    unsigned display_width                () const;
+    unsigned display_height               () const;
+
 
 };
 

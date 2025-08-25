@@ -887,6 +887,20 @@ void LABSoft_GUI::cb_digital_fl_button_create_file(Fl_Button* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_digital_fl_button_create_file_i(o,v);
 }
 
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_load_file_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_load_file_acc (o, v);
+}
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_load_file(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_circuit_checker_fl_button_load_file_i(o,v);
+}
+
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_run_checker_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_run_checker_acc (o, v);
+}
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_run_checker(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_circuit_checker_fl_button_run_checker_i(o,v);
+}
+
 void LABSoft_GUI::cb_analog_fl_button_capture_signal_i(Fl_Button* o, void* v) {
   m_LABSoft_Presenter->m_LABChecker_Analog.cb_capture_signal(o, v);
 }
@@ -2063,6 +2077,7 @@ ly board.");
             analog_circuit_checker_fl_button_load_file->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_load_file->color(FL_LIGHT3);
             analog_circuit_checker_fl_button_load_file->labelsize(12);
+            analog_circuit_checker_fl_button_load_file->callback((Fl_Callback*)cb_analog_circuit_checker_fl_button_load_file);
           } // Fl_Button* analog_circuit_checker_fl_button_load_file
           { analog_circuit_checker_fl_output_selected_file = new Fl_Output(40, 186, 180, 39, "Selected File");
             analog_circuit_checker_fl_output_selected_file->labelsize(12);
@@ -2083,6 +2098,7 @@ ly board.");
             analog_circuit_checker_fl_button_run_checker->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_run_checker->color(FL_LIGHT3);
             analog_circuit_checker_fl_button_run_checker->labelsize(12);
+            analog_circuit_checker_fl_button_run_checker->callback((Fl_Callback*)cb_analog_circuit_checker_fl_button_run_checker);
           } // Fl_Button* analog_circuit_checker_fl_button_run_checker
           analog_circuit_checker_fl_group_1->end();
         } // Fl_Group* analog_circuit_checker_fl_group_1

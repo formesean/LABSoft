@@ -2,6 +2,9 @@
 #ifndef LABSoft_Presenter_Analog_Circuit_Checker_H
 #define LABSoft_Presenter_Analog_Circuit_Checker_H
 
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Native_File_Chooser.H>
+
 #include "../LABSoft_Presenter_Unit.h"
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
 #include "../../Utility/LAB_Enumerations.h"
@@ -18,8 +21,8 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
     LABSoft_Presenter_Analog_Circuit_Checker (LABSoft_Presenter& _LABSoft_Presenter);
 
     void update_display         ();
-    void cb_load_file_analog    (Fl_Button* w, void* data);
-    void cb_run_checker_analog  (Fl_Button* w, void* data);
+    void cb_load_file_acc    (Fl_Button* w, void* data);
+    void cb_run_checker_acc  (Fl_Button* w, void* data);
 
 };
 

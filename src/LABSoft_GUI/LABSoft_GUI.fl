@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {249 256 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {244 209 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -2053,10 +2053,10 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_digital_circuit_checker_tab {
-          label {Digital Circuit Checker}
+          label {Digital Circuit Checker} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
-          Fl_Group digital_circuit_checker_fl_group_1 {
+          Fl_Group digital_circuit_checker_fl_group_1 {open
             xywh {20 70 220 320} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Button digital_circuit_checker_fl_button_load_file {
@@ -2219,6 +2219,7 @@ class LABSoft_GUI {open
           } {
             Fl_Button analog_circuit_checker_fl_button_load_file {
               label {Load File}
+              callback {m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_load_file_acc (o, v);} selected
               xywh {41 95 180 60} box GTK_UP_BOX color 54 labelsize 12
             }
             Fl_Output analog_circuit_checker_fl_output_selected_file {
@@ -2231,12 +2232,13 @@ class LABSoft_GUI {open
               code0 {o->set_output();}
             }
             Fl_Check_Button analog_circuit_checker_fl_checkbutton_frequency_domain {
-              label {Frequency Domain} selected
+              label {Frequency Domain}
               xywh {56 260 69 25} down_box DOWN_BOX labelsize 12
               code0 {o->set_output();}
             }
             Fl_Button analog_circuit_checker_fl_button_run_checker {
               label {Run Checker}
+              callback {m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_run_checker_acc (o, v);}
               xywh {41 295 180 50} box GTK_UP_BOX color 54 labelsize 12
             }
           }

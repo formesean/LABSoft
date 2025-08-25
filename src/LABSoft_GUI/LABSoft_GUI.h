@@ -371,10 +371,18 @@ public:
   LABSoft_GUI_Analog_Circuit_Checker_Display *analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
   Fl_Group *analog_circuit_checker_fl_group_1;
   Fl_Button *analog_circuit_checker_fl_button_load_file;
+private:
+  inline void cb_analog_circuit_checker_fl_button_load_file_i(Fl_Button*, void*);
+  static void cb_analog_circuit_checker_fl_button_load_file(Fl_Button*, void*);
+public:
   Fl_Output *analog_circuit_checker_fl_output_selected_file;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_time_domain;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_frequency_domain;
   Fl_Button *analog_circuit_checker_fl_button_run_checker;
+private:
+  inline void cb_analog_circuit_checker_fl_button_run_checker_i(Fl_Button*, void*);
+  static void cb_analog_circuit_checker_fl_button_run_checker(Fl_Button*, void*);
+public:
   Fl_Group *analog_circuit_checker_fl_group_2;
   Fl_Output *analog_circuit_checker_fl_output_results;
   Fl_Button *analog_circuit_checker_fl_button_export_results;
