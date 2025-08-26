@@ -199,6 +199,41 @@ update_gui_with_captured_data()
   std::cout << "GUI updated with captured oscilloscope data" << std::endl;
 }
 
+void LABSoft_Presenter_LABChecker_Analog::
+    cb_analog_create_file(Fl_Button *w,
+                          void *data)
+{
+  std::string file_name("checker.labca"); // analog extension (labca)
+
+  Fl_Native_File_Chooser chooser;
+
+  chooser.title("Save Analog Circuit Checker File...");
+  chooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+  chooser.directory("/");
+  chooser.preset_file(file_name.c_str());
+  chooser.options(Fl_Native_File_Chooser::NEW_FOLDER |
+                  Fl_Native_File_Chooser::SAVEAS_CONFIRM);
+
+  switch (chooser.show())
+  {
+  case (1): // cancel
+    break;
+
+  default:
+  {
+    LABSoft_GUI_LABChecker_Analog_Checker_Display &analog_checker_disp_gui =
+        *(gui().analog_labsoft_gui_analog_checker_display);
+
+    // Call the new Analog file creator
+    m_presenter.lab().m_LABChecker_Analog.create_circuit_checker_file(
+        chooser.filename());
+
+    break;
+  }
+  }
+}
+
+
 /*
     }
     
