@@ -3,9 +3,11 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <iomanip>
 
 #include "../../Utility/pugixml.hpp"
 #include "../../Utility/LAB_Constants.h"
+#include "../../Utility/LAB_Definitions.h"
 
 // #include "../../Utility/LAB_Encryptor.h"
 
@@ -13,109 +15,79 @@ LAB_LABChecker_Analog::LAB_LABChecker_Analog()
 {
 }
 
-std::stringstream LAB_LABChecker_Analog::
-create_circuit_checker_xml_stringstream()
+std::stringstream LAB_LABChecker_Analog ::create_circuit_checker_xml_string_with_data(
+    const LAB_Channel_Data_Oscilloscope &osc,
+    const LAB_Parent_Data_Oscilloscope &osc_data,
+    const LAB_Channel_Data_Function_Generator &func_gen)
 {
-  pugi::xml_document doc;
-  pugi::xml_node root = doc.append_child("root");
+  std::stringstream ss;
+  ss << std::fixed << std::setprecision(6);
 
-  // --- metadata ---
-  pugi::xml_node metadata = root.append_child("metadata");
+  ss << "<?xml version=\"1.0\"?>\n";
+  ss << "<root>\n";
 
-  metadata.append_child("channels").append_child(pugi::node_pcdata).set_value("2");
-  metadata.append_child("samples").append_child(pugi::node_pcdata).set_value("2000");
-  metadata.append_child("sampling_rate").append_child(pugi::node_pcdata).set_value("40000");
-  metadata.append_child("time_per_division").append_child(pugi::node_pcdata).set_value("0.005");
-  metadata.append_child("horizontal_offset").append_child(pugi::node_pcdata).set_value("0");
-  metadata.append_child("trigger_mode").append_child(pugi::node_pcdata).set_value("0");
-  metadata.append_child("trigger_source").append_child(pugi::node_pcdata).set_value("0");
-  metadata.append_child("trigger_type").append_child(pugi::node_pcdata).set_value("1");
-  metadata.append_child("trigger_condition").append_child(pugi::node_pcdata).set_value("0");
-  metadata.append_child("trigger_level").append_child(pugi::node_pcdata).set_value("0");
+  // Oscilloscope metadata
+  ss << "  <oscilloscope>\n";
+  ss << "    <is_enabled>" << osc.is_enabled << "</is_enabled>\n";
+  ss << "    <voltage_per_division>" << osc.voltage_per_division << "</voltage_per_division>\n";
+  ss << "    <vertical_offset>" << osc.vertical_offset << "</vertical_offset>\n";
+  ss << "    <scaling>" << static_cast<int>(osc.scaling) << "</scaling>\n";
+  ss << "    <coupling>" << static_cast<int>(osc.coupling) << "</coupling>\n";
 
-  // --- data ---
-  pugi::xml_node data = root.append_child("data");
+  ss << "    <osc_mode>" << static_cast<int>(osc_data.mode) << "</osc_mode>\n";
+  ss << "    <horizontal_offset>" << osc_data.horizontal_offset << "</horizontal_offset>\n";
+  ss << "    <time_per_division>" << osc_data.time_per_division << "</time_per_division>\n";
+  ss << "    <samples>" << osc_data.samples << "</samples>\n";
+  ss << "    <sampling_rate>" << osc_data.sampling_rate << "</sampling_rate>\n";
+  ss << "    <trigger_mode>" << static_cast<int>(osc_data.trigger_mode) << "</trigger_mode>\n";
+  ss << "    <trigger_source>" << static_cast<int>(osc_data.trigger_source) << "</trigger_source>\n";
+  ss << "    <trigger_type>" << static_cast<int>(osc_data.trig_type) << "</trigger_type>\n";
+  ss << "    <trigger_condition>" << static_cast<int>(osc_data.trig_condition) << "</trigger_condition>\n";
+  ss << "    <trigger_level>" << osc_data.trigger_level << "</trigger_level>\n";
 
-  // Channel 1
-  {
-    pugi::xml_node data_pair = data.append_child("data_pair");
-    data_pair.append_child("input").append_child(pugi::node_pcdata).set_value("Channel 1");
+  // Measurements
+  ss << "    <measurements>\n";
+  ss << "      <min>" << osc.measurements.min << "</min>\n";
+  ss << "      <max>" << osc.measurements.max << "</max>\n";
+  ss << "      <avg>" << osc.measurements.avg << "</avg>\n";
+  ss << "      <trms>" << osc.measurements.trms << "</trms>\n";
+  ss << "    </measurements>\n";
 
-    pugi::xml_node output = data_pair.append_child("output");
-    output.append_child("samples").append_child(pugi::node_pcdata).set_value("2000");
-    output.append_child("coupling").append_child(pugi::node_pcdata).set_value("0");
-    output.append_child("scaling").append_child(pugi::node_pcdata).set_value("2");
-    output.append_child("voltage_per_division").append_child(pugi::node_pcdata).set_value("1");
-    output.append_child("vertical_offset").append_child(pugi::node_pcdata).set_value("0");
-    output.append_child("is_enabled").append_child(pugi::node_pcdata).set_value("1");
-    output.append_child("scaling_corrector").append_child(pugi::node_pcdata).set_value("1");
+  // Samples
+  ss << "    <samples>\n";
+  for (const auto &s : osc.samples)
+    ss << "      <sample>" << s << "</sample>\n";
+  ss << "    </samples>\n";
 
-    pugi::xml_node meas = output.append_child("measurements");
-    meas.append_child("min").append_child(pugi::node_pcdata).set_value("0");
-    meas.append_child("max").append_child(pugi::node_pcdata).set_value("0");
-    meas.append_child("avg").append_child(pugi::node_pcdata).set_value("0");
-    meas.append_child("trms").append_child(pugi::node_pcdata).set_value("0");
-
-    pugi::xml_node samples = output.append_child("first_10_samples");
-    for (int i = 0; i < 10; i++)
-    {
-      samples.append_child("sample").append_child(pugi::node_pcdata).set_value("1.88324");
-    }
-  }
-
-  // Channel 2
-  {
-    pugi::xml_node data_pair = data.append_child("data_pair");
-    data_pair.append_child("input").append_child(pugi::node_pcdata).set_value("Channel 2");
-
-    pugi::xml_node output = data_pair.append_child("output");
-    output.append_child("samples").append_child(pugi::node_pcdata).set_value("2000");
-    output.append_child("coupling").append_child(pugi::node_pcdata).set_value("0");
-    output.append_child("scaling").append_child(pugi::node_pcdata).set_value("2");
-    output.append_child("voltage_per_division").append_child(pugi::node_pcdata).set_value("1");
-    output.append_child("vertical_offset").append_child(pugi::node_pcdata).set_value("0");
-    output.append_child("is_enabled").append_child(pugi::node_pcdata).set_value("0");
-    output.append_child("scaling_corrector").append_child(pugi::node_pcdata).set_value("1");
-
-    pugi::xml_node meas = output.append_child("measurements");
-    meas.append_child("min").append_child(pugi::node_pcdata).set_value("0");
-    meas.append_child("max").append_child(pugi::node_pcdata).set_value("0");
-    meas.append_child("avg").append_child(pugi::node_pcdata).set_value("0");
-    meas.append_child("trms").append_child(pugi::node_pcdata).set_value("0");
-
-    pugi::xml_node samples = output.append_child("first_10_samples");
-    for (int i = 0; i < 10; i++)
-    {
-      samples.append_child("sample").append_child(pugi::node_pcdata).set_value("0");
-    }
-  }
+  ss << "  </oscilloscope>\n";
 
   // Function Generator
-  {
-    pugi::xml_node data_pair = data.append_child("data_pair");
-    data_pair.append_child("input").append_child(pugi::node_pcdata).set_value("Function Generator Ch1");
+  ss << "  <function_generator>\n";
+  ss << "    <is_enabled>" << func_gen.is_enabled << "</is_enabled>\n";
+  ss << "    <wave_type>" << static_cast<int>(func_gen.wave_type) << "</wave_type>\n";
+  ss << "    <frequency>" << func_gen.frequency << "</frequency>\n";
+  ss << "    <period>" << func_gen.period << "</period>\n";
+  ss << "    <amplitude>" << func_gen.amplitude << "</amplitude>\n";
+  ss << "    <vertical_offset>" << func_gen.vertical_offset << "</vertical_offset>\n";
+  ss << "    <phase>" << func_gen.phase << "</phase>\n";
+  ss << "    <Rf>" << func_gen.Rf << "</Rf>\n";
+  ss << "  </function_generator>\n";
 
-    pugi::xml_node output = data_pair.append_child("output");
-    output.append_child("wave_type").append_child(pugi::node_pcdata).set_value("0");
-    output.append_child("frequency").append_child(pugi::node_pcdata).set_value("1000");
-    output.append_child("period").append_child(pugi::node_pcdata).set_value("0.001");
-  }
+  ss << "</root>\n";
 
-  std::stringstream ss;
-  doc.save(ss);
   return ss;
 }
 
 void LAB_LABChecker_Analog::
-encrypt_stringstream(std::stringstream &ss,
-                     const std::string &password)
+    encrypt_stringstream(std::stringstream &ss,
+                         const std::string &password)
 {
   // ss.str(LAB_Encryptor::encrypt_string(ss.str(), password));
 }
 
 void LAB_LABChecker_Analog::
-save_stringstream_to_file(const std::stringstream &ss,
-                          const std::string &file_path)
+    save_stringstream_to_file(const std::stringstream &ss,
+                              const std::string &file_path)
 {
   std::ofstream file(file_path);
   if (file.is_open())
@@ -129,16 +101,17 @@ save_stringstream_to_file(const std::stringstream &ss,
   }
 }
 
-void LAB_LABChecker_Analog::
-create_circuit_checker_file(const std::string &file_path,
-                            const char *password)
+void LAB_LABChecker_Analog::create_circuit_checker_file(
+    const std::string &file_path,
+    const LAB_Channel_Data_Oscilloscope &osc,
+    const LAB_Parent_Data_Oscilloscope &osc_data,
+    const LAB_Channel_Data_Function_Generator &func_gen,
+    const char *password)
 {
-  std::stringstream ss = create_circuit_checker_xml_stringstream();
+  std::stringstream ss = create_circuit_checker_xml_string_with_data(osc, osc_data, func_gen);
 
   // if (password)
-  // {
-  //   encrypt_stringstream(ss, std::string(password));
-  // }
+  //     encrypt_stringstream(ss, std::string(password));
 
   save_stringstream_to_file(ss, file_path);
 }

@@ -894,6 +894,13 @@ void LABSoft_GUI::cb_analog_fl_button_capture_signal(Fl_Button* o, void* v) {
   ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_fl_button_capture_signal_i(o,v);
 }
 
+void LABSoft_GUI::cb_analog_fl_button_create_file_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_LABChecker_Analog.cb_analog_create_file (o, v);
+}
+void LABSoft_GUI::cb_analog_fl_button_create_file(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_fl_button_create_file_i(o,v);
+}
+
 Fl_Menu_Item LABSoft_GUI::menu_Samples[] = {
  {"1 Mi", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"512 Ki", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -2149,6 +2156,7 @@ ly board.");
             analog_fl_button_create_file->box(FL_GTK_UP_BOX);
             analog_fl_button_create_file->color(FL_LIGHT3);
             analog_fl_button_create_file->labelsize(12);
+            analog_fl_button_create_file->callback((Fl_Callback*)cb_analog_fl_button_create_file);
           } // Fl_Button* analog_fl_button_create_file
           labchecker_analog_fl_group_2->end();
         } // Fl_Group* labchecker_analog_fl_group_2
