@@ -20,28 +20,47 @@ LABSoft_Presenter_LABChecker_Analog::LABSoft_Presenter_LABChecker_Analog(LABSoft
   init_gui_callbacks();
 }
 
-void LABSoft_Presenter_LABChecker_Analog::load_gui()
+void LABSoft_Presenter_LABChecker_Analog::
+load_gui()
 {
   LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display &analog_checker_disp_gui = *(gui().analog_labsoft_gui_analog_checker_display);
 
   analog_checker_disp_gui.load_presenter(m_presenter);
-  analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
+
+  osc_disp.update_pixel_points();
+  auto &raw_buf = osc_disp.pixel_points();
+
+  if (raw_buf.size() < 2 || raw_buf[1].empty()) return;
+
+  std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
+  channel2_only_pixel_points[0] = raw_buf[1]; // Channel 2 data to display channel 0
+  channel2_only_pixel_points[1] = raw_buf[1]; // Channel 2 data to display channel 1
+
+  analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
   analog_checker_disp_gui.update_display();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
-    update_display()
+update_display()
 {
   LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display &analog_checker_disp_gui = *(gui().analog_labsoft_gui_analog_checker_display);
 
+  // Update with channel 2 data only
   osc_disp.update_pixel_points();
+  auto &raw_buf = osc_disp.pixel_points();
+  std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
+  channel2_only_pixel_points[0] = raw_buf[1]; // Channel 2 data to display channel 0
+  channel2_only_pixel_points[1] = raw_buf[1]; // Channel 2 data to display channel 1
+
+  analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
+  analog_checker_disp_gui.enable_channels(true);
   analog_checker_disp_gui.update_display();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
-    init_gui_callbacks()
+init_gui_callbacks()
 {
   if (gui().analog_fl_button_capture_signal)
   {
@@ -50,54 +69,33 @@ void LABSoft_Presenter_LABChecker_Analog::
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
-    cb_capture_signal(Fl_Button *w,
-                      void *data)
+cb_capture_signal(Fl_Button *w,
+                  void *data)
 {
   LABSoft_Presenter_LABChecker_Analog *acc = static_cast<LABSoft_Presenter_LABChecker_Analog *>(data);
 
   if (acc->can_capture_signal())
   {
-    std::cout << "Capture Success" << std::endl;
     acc->capture_oscilloscope_and_function_generator_data();
-
-    // Update the GUI with the captured data
     acc->update_gui_with_captured_data();
-  }
-  else
-  {
-    std::cout << "Cannot capture signal - requirements not met" << std::endl;
   }
 }
 
 bool LABSoft_Presenter_LABChecker_Analog::
-    can_capture_signal() const
+can_capture_signal() const
 {
   LAB_Oscilloscope &osc = lab().m_Oscilloscope;
   LAB_Function_Generator &fg = lab().m_Function_Generator;
 
-  // if (osc.mode() != LABE::OSC::MODE::RECORD)
-  // {
-  //   std::cout << "ERROR: Oscilloscope not in RECORD mode" << std::endl;
-  //   return false;
-  // }
+  if (!osc.is_frontend_running()) return false;
 
-  if (!osc.is_frontend_running())
-  {
-    std::cout << "ERROR: Oscilloscope is not running" << std::endl;
-    return false;
-  }
-
-  if (!fg.is_running())
-  {
-    std::cout << "ERROR: Function Generator is not running" << std::endl;
-    return false;
-  }
+  if (!fg.is_running()) return false;
 
   return true;
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
-    capture_oscilloscope_and_function_generator_data()
+capture_oscilloscope_and_function_generator_data()
 {
   LAB_Oscilloscope &osc = lab().m_Oscilloscope;
   LAB_Function_Generator &fg = lab().m_Function_Generator;
@@ -108,6 +106,7 @@ void LABSoft_Presenter_LABChecker_Analog::
 
   LOG("====================");
   std::cout << "SUCCESS: Signal captured successfully" << std::endl;
+  std::cout << "NOTE: Only Channel 2 data will be displayed on the LABChecker Analog tab" << std::endl;
 
   LOG("Oscilloscope Data:");
   auto &raw_buf = osc_disp.pixel_points();
@@ -139,6 +138,16 @@ void LABSoft_Presenter_LABChecker_Analog::
     std::cout << std::endl;
   }
 
+  // Highlight channel 2 data specifically
+  std::cout << "\n[INFO] Channel 2 data (index 1) will be displayed on LABChecker Analog tab:" << std::endl;
+  const auto &ch2_data = osc_data.channel_data[1];
+  std::cout << "  Channel 2 samples: " << ch2_data.samples.size() << std::endl;
+  std::cout << "  Channel 2 voltage/div: " << ch2_data.voltage_per_division << std::endl;
+  std::cout << "  Channel 2 measurements - min: " << ch2_data.measurements.min
+            << ", max: " << ch2_data.measurements.max
+            << ", avg: " << ch2_data.measurements.avg
+            << ", trms: " << ch2_data.measurements.trms << std::endl;
+
   std::cout << "Oscilloscope mode: " << (int)osc.mode() << '\n'
             << "Horizontal offset: " << osc.horizontal_offset() << '\n'
             << "Time per division: " << osc.time_per_division() << '\n'
@@ -160,7 +169,7 @@ void LABSoft_Presenter_LABChecker_Analog::
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
-    update_gui_with_captured_data()
+update_gui_with_captured_data()
 {
   LAB_Oscilloscope &osc = lab().m_Oscilloscope;
   LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
@@ -169,54 +178,84 @@ void LABSoft_Presenter_LABChecker_Analog::
   LABSoft_GUI_LABChecker_Analog_Checker_Display &analog_checker_disp_gui =
       *(gui().analog_labsoft_gui_analog_checker_display);
 
-  analog_checker_disp_gui.voltage_per_division(0, osc.voltage_per_division(0));
+  if (!gui().analog_labsoft_gui_analog_checker_display) return;
+
+  analog_checker_disp_gui.voltage_per_division(0, osc.voltage_per_division(1));
   analog_checker_disp_gui.voltage_per_division(1, osc.voltage_per_division(1));
+  analog_checker_disp_gui.vertical_offset(0, osc.vertical_offset(1));
+  analog_checker_disp_gui.vertical_offset(1, osc.vertical_offset(1));
   analog_checker_disp_gui.time_per_division(osc.time_per_division());
+  analog_checker_disp_gui.horizontal_offset(osc.horizontal_offset());
   analog_checker_disp_gui.samples(osc.samples());
   analog_checker_disp_gui.sampling_rate(osc.sampling_rate());
 
-  // osc_disp.update_pixel_points();
+  unsigned analog_w = analog_checker_disp_gui.display_width();
+  unsigned analog_h = analog_checker_disp_gui.display_height();
 
+  LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui().oscilloscope_labsoft_gui_oscilloscope_display);
+  unsigned osc_tab_w = osc_gui_disp.display_width();
+  unsigned osc_tab_h = osc_gui_disp.display_height();
+
+  osc_disp.display_parameters(
+    analog_w,
+    analog_h,
+    LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+    LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+  );
+
+  osc_disp.update_pixel_points();
   auto &raw_buf = osc_disp.pixel_points();
 
-  std::cout << "[DEBUG] Pixel points (channel 0, first 10): ";
-  for (size_t i = 0; i < std::min<size_t>(10, raw_buf[0].size()); i++)
+  if (raw_buf.size() < 2 || raw_buf[1].empty())
   {
-    std::cout << "(" << raw_buf[0][i][0] << "," << raw_buf[0][i][1] << ") ";
-  }
-  std::cout << std::endl;
-
-  analog_checker_disp_gui.load_pixel_points(osc_disp.pixel_points());
-
-  analog_checker_disp_gui.update_display();
-
-  std::cout << "GUI updated with captured oscilloscope data" << std::endl;
-}
-
-void LABSoft_Presenter_LABChecker_Analog::cb_analog_create_file(Fl_Button *w, void *data)
-{
-  auto *acc = this;
-  if (!acc)
-  {
-    std::cerr << "[ERROR] Presenter pointer is null!" << std::endl;
+    osc_disp.display_parameters(
+      osc_tab_w,
+      osc_tab_h,
+      LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+      LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+    );
+    osc_disp.update_pixel_points();
     return;
   }
+
+  std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
+  channel2_only_pixel_points[0] = raw_buf[1];
+  channel2_only_pixel_points[1] = raw_buf[1];
+
+  for (auto& ch_pts : channel2_only_pixel_points)
+  {
+    for (auto& p : ch_pts)
+    {
+      p[0] = static_cast<int>(analog_w) - 1 - p[0];
+    }
+  }
+
+  analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
+  analog_checker_disp_gui.enable_channels(true);
+  analog_checker_disp_gui.update_display();
+
+  osc_disp.display_parameters(
+    osc_tab_w,
+    osc_tab_h,
+    LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+    LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+  );
+  osc_disp.update_pixel_points();
+}
+
+void LABSoft_Presenter_LABChecker_Analog::
+cb_analog_create_file(Fl_Button *w, void *data)
+{
+  auto *acc = this;
+  if (!acc) return;
 
   // Step 1: Check GUI
   auto gui_ptr = acc->gui().analog_labsoft_gui_analog_checker_display;
-  if (!gui_ptr)
-  {
-    std::cerr << "[ERROR] GUI pointer is null!" << std::endl;
-    return;
-  }
+  if (!gui_ptr) return;
 
   // Step 2: Check oscilloscope parent data
   auto &parent_data = acc->lab().m_Oscilloscope.parent_data();
-  if (parent_data.channel_data.empty())
-  {
-    std::cerr << "[ERROR] Oscilloscope channel data is empty!" << std::endl;
-    return;
-  }
+  if (parent_data.channel_data.empty()) return;
 
   // Grab only the first channel for now
   const auto &src = parent_data.channel_data.front();
@@ -260,22 +299,16 @@ void LABSoft_Presenter_LABChecker_Analog::cb_analog_create_file(Fl_Button *w, vo
   chooser.title("Save Oscilloscope Data...");
   chooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
   chooser.preset_file("osc_data.labacc");
-  if (chooser.show() != 0)
-  {
-    std::cerr << "[INFO] Save canceled." << std::endl;
-    return;
-  }
+  if (chooser.show() != 0) return;
   std::string file_path = chooser.filename();
 
   std::ofstream ofs(file_path);
-  if (!ofs)
-  {
-    std::cerr << "[ERROR] Failed to open file for writing: " << file_path << std::endl;
-    return;
-  }
+  if (!ofs) return;
 
   ofs << ss.str();
   ofs.close();
 
   std::cout << "[SUCCESS] File saved to: " << file_path << std::endl;
 }
+
+// EOF

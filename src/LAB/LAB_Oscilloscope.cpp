@@ -648,7 +648,7 @@ fill_raw_osc_samp_buff_from_dma_buff ()
   double   amplitude   = 1500;
 
   double   offset      = 2048;
-  double   freq_hz     = 1000;
+  double   freq_hz     = 100;
   double   sample_rate = m_parent_data.sampling_rate;
 
   for (unsigned i = 0; i < sz; ++i)
