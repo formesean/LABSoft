@@ -5,15 +5,19 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <array>
+#include <iomanip>
+#include <algorithm>
 
 #include "../LAB_Module.h"
 #include "../../Utility/LAB_Constants.h"
 #include "../../Utility/pugixml.hpp"
+#include "../../Utility/LAB_Definitions.h"
 
 class LAB_Analog_Circuit_Checker : public LAB_Module
 {
   private:
-  
+
   void                  load_data_from_file_acc   ();
   void                  load_metadata_acc         ();
   void                  load_channel_data_acc     ();
@@ -37,7 +41,7 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
   double                m_trigger_level;
 
   // Data per channel
-  struct ChannelData 
+  struct ChannelData
   {
     std::string   name;
     unsigned      samples;
@@ -65,22 +69,30 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
   }m_func_gen_data;
 
   public:
-  LAB_Analog_Circuit_Checker(LAB& _lab);
+    LAB_Analog_Circuit_Checker(LAB& _lab);
 
-  void      load_file       (const std::string& path);
+    void      load_file                    (const std::string& path);
   void      unload_file     ();
+    double   compute_cross_correlation  ();
+    double   compute_similarity         ();
+
   void      load_data_acc   ();  // Main function to load data into oscilloscope
-  
+
   // Getters
   bool      is_file_loaded  () const { return m_is_file_loaded; }
   const std::vector<ChannelData>& get_channel_data() const { return m_channel_data; }
   const FunctionGenData& get_function_generator_data() const { return m_func_gen_data; }
-  
+
   // Metadata getters
   double    get_time_per_division() const { return m_time_per_division; }
   unsigned  get_samples() const { return m_samples; }
   double    get_sampling_rate() const { return m_sampling_rate; }
   double    get_horizontal_offset() const { return m_horizontal_offset; }
+    std::array<double, LABC::OSC::NUMBER_OF_SAMPLES> dummy_student_data;
+    std::array<double, LABC::OSC::NUMBER_OF_SAMPLES> dummy_instructor_data;
+
+    void     print_samples (const std::array<double, LABC::OSC::NUMBER_OF_SAMPLES>& instructor,
+                            const std::array<double, LABC::OSC::NUMBER_OF_SAMPLES>& student);
 };
 
 #endif
