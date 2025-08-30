@@ -6,17 +6,14 @@
 #include <iomanip>
 
 #include "../../Utility/pugixml.hpp"
-#include "../../Utility/LAB_Constants.h"
 #include "../../Utility/LAB_Definitions.h"
-
-// #include "../../Utility/LAB_Encryptor.h"
 
 LAB_LABChecker_Analog::LAB_LABChecker_Analog()
 {
 }
 
-std::stringstream LAB_LABChecker_Analog ::create_circuit_checker_xml_string_with_data(
-    const LAB_Channel_Data_Oscilloscope &osc,
+static std::stringstream create_circuit_checker_xml_string_with_data_impl(
+    const std::vector<LAB_Channel_Data_Oscilloscope> &osc_channels,
     const LAB_Parent_Data_Oscilloscope &osc_data,
     const LAB_Channel_Data_Function_Generator &func_gen)
 {
@@ -26,14 +23,9 @@ std::stringstream LAB_LABChecker_Analog ::create_circuit_checker_xml_string_with
   ss << "<?xml version=\"1.0\"?>\n";
   ss << "<root>\n";
 
-  // Oscilloscope metadata
+  // Oscilloscope metadata and channels
   ss << "  <oscilloscope>\n";
-  ss << "    <is_enabled>" << osc.is_enabled << "</is_enabled>\n";
-  ss << "    <voltage_per_division>" << osc.voltage_per_division << "</voltage_per_division>\n";
-  ss << "    <vertical_offset>" << osc.vertical_offset << "</vertical_offset>\n";
-  ss << "    <scaling>" << static_cast<int>(osc.scaling) << "</scaling>\n";
-  ss << "    <coupling>" << static_cast<int>(osc.coupling) << "</coupling>\n";
-
+  // Save horizontal and trigger state
   ss << "    <osc_mode>" << static_cast<int>(osc_data.mode) << "</osc_mode>\n";
   ss << "    <horizontal_offset>" << osc_data.horizontal_offset << "</horizontal_offset>\n";
   ss << "    <time_per_division>" << osc_data.time_per_division << "</time_per_division>\n";
@@ -45,19 +37,37 @@ std::stringstream LAB_LABChecker_Analog ::create_circuit_checker_xml_string_with
   ss << "    <trigger_condition>" << static_cast<int>(osc_data.trig_condition) << "</trigger_condition>\n";
   ss << "    <trigger_level>" << osc_data.trigger_level << "</trigger_level>\n";
 
-  // Measurements
-  ss << "    <measurements>\n";
-  ss << "      <min>" << osc.measurements.min << "</min>\n";
-  ss << "      <max>" << osc.measurements.max << "</max>\n";
-  ss << "      <avg>" << osc.measurements.avg << "</avg>\n";
-  ss << "      <trms>" << osc.measurements.trms << "</trms>\n";
-  ss << "    </measurements>\n";
+  // Channels block (persist per-channel settings and samples)
+  ss << "    <channels>\n";
+  for (size_t i = 0; i < osc_channels.size(); ++i)
+  {
+    const auto &osc = osc_channels[i];
+    ss << "      <channel index=\"" << i << "\">\n";
+    ss << "        <is_enabled>" << osc.is_enabled << "</is_enabled>\n";
+    ss << "        <voltage_per_division>" << osc.voltage_per_division << "</voltage_per_division>\n";
+    ss << "        <vertical_offset>" << osc.vertical_offset << "</vertical_offset>\n";
+    ss << "        <scaling>" << static_cast<int>(osc.scaling) << "</scaling>\n";
+    ss << "        <coupling>" << static_cast<int>(osc.coupling) << "</coupling>\n";
 
-  // Samples
-  ss << "    <samples>\n";
-  for (const auto &s : osc.samples)
-    ss << "      <sample>" << s << "</sample>\n";
-  ss << "    </samples>\n";
+    // Measurements
+    ss << "        <measurements>\n";
+    ss << "          <min>" << osc.measurements.min << "</min>\n";
+    ss << "          <max>" << osc.measurements.max << "</max>\n";
+    ss << "          <avg>" << osc.measurements.avg << "</avg>\n";
+    ss << "          <trms>" << osc.measurements.trms << "</trms>\n";
+    ss << "        </measurements>\n";
+
+    // Samples
+    if (i == 1)
+    {
+      ss << "        <samples>\n";
+      for (const auto &s : osc.samples)
+        ss << "          <sample>" << s << "</sample>\n";
+      ss << "        </samples>\n";
+    }
+    ss << "      </channel>\n";
+  }
+  ss << "    </channels>\n";
 
   ss << "  </oscilloscope>\n";
 
@@ -103,12 +113,17 @@ void LAB_LABChecker_Analog::
 
 void LAB_LABChecker_Analog::create_circuit_checker_file(
     const std::string &file_path,
-    const LAB_Channel_Data_Oscilloscope &osc,
     const LAB_Parent_Data_Oscilloscope &osc_data,
     const LAB_Channel_Data_Function_Generator &func_gen,
     const char *password)
 {
-  std::stringstream ss = create_circuit_checker_xml_string_with_data(osc, osc_data, func_gen);
+  // Build channels array from current oscilloscope parent data
+  std::vector<LAB_Channel_Data_Oscilloscope> osc_channels;
+  osc_channels.reserve(osc_data.channel_data.size());
+  for (const auto &src : osc_data.channel_data)
+    osc_channels.push_back(src);
+
+  std::stringstream ss = create_circuit_checker_xml_string_with_data_impl(osc_channels, osc_data, func_gen);
 
   // if (password)
   //     encrypt_stringstream(ss, std::string(password));

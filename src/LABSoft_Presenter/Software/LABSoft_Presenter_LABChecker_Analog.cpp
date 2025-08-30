@@ -179,33 +179,9 @@ cb_analog_create_file(Fl_Button *w, void *data)
   auto gui_ptr = acc->gui().analog_labsoft_gui_analog_checker_display;
   if (!gui_ptr) return;
 
-  // Step 2: Check oscilloscope parent data
+  // Step 2: Gather oscilloscope state (from parent_data)
   auto &parent_data = acc->lab().m_Oscilloscope.parent_data();
   if (parent_data.channel_data.empty()) return;
-
-  // Grab only the first channel for now
-  const auto &src = parent_data.channel_data.front();
-
-  LAB_Channel_Data_Oscilloscope osc_data;
-  osc_data.is_enabled = src.is_enabled;
-  osc_data.scaling_corrector = src.scaling_corrector;
-  osc_data.voltage_per_division = src.voltage_per_division;
-  osc_data.vertical_offset = src.vertical_offset;
-  osc_data.scaling = src.scaling;
-  osc_data.coupling = src.coupling;
-
-  std::copy(src.samples.begin(), src.samples.end(), osc_data.samples.begin());
-
-  osc_data.calibration = src.calibration;
-  osc_data.measurements = src.measurements;
-
-  LAB_Parent_Data_Oscilloscope osc_parent;
-  osc_parent.mode = parent_data.mode;
-  osc_parent.samples = parent_data.samples;
-  osc_parent.sampling_rate = parent_data.sampling_rate;
-  osc_parent.time_per_division = parent_data.time_per_division;
-  osc_parent.horizontal_offset = parent_data.horizontal_offset;
-  osc_parent.trigger_mode = parent_data.trigger_mode;
 
   LAB_Channel_Data_Function_Generator fg_data;
   auto &fg = acc->lab().m_Function_Generator;
@@ -217,9 +193,6 @@ cb_analog_create_file(Fl_Button *w, void *data)
   fg_data.vertical_offset = fg.vertical_offset(0);
   fg_data.phase = fg.phase(0);
 
-  // Build XML
-  auto ss = acc->lab().m_LABChecker_Analog.create_circuit_checker_xml_string_with_data(osc_data, osc_parent, fg_data);
-
   // Save dialog
   Fl_Native_File_Chooser chooser;
   chooser.title("Save Oscilloscope Data...");
@@ -228,11 +201,12 @@ cb_analog_create_file(Fl_Button *w, void *data)
   if (chooser.show() != 0) return;
   std::string file_path = chooser.filename();
 
-  std::ofstream ofs(file_path);
-  if (!ofs) return;
-
-  ofs << ss.str();
-  ofs.close();
+  // Create file via LAB_LABChecker_Analog helper
+  acc->lab().m_LABChecker_Analog.create_circuit_checker_file(
+    file_path,
+    parent_data,
+    fg_data
+  );
 
   std::cout << "[SUCCESS] File saved to: " << file_path << std::endl;
 }

@@ -3,7 +3,9 @@
 
 #include <string>
 #include <sstream>
-#include "../../Utility/LAB_Definitions.h"
+
+struct LAB_Parent_Data_Oscilloscope;
+struct LAB_Channel_Data_Function_Generator;
 
 class LAB_LABChecker_Analog
 {
@@ -18,14 +20,8 @@ private:
 public:
   LAB_LABChecker_Analog();
 
-  std::stringstream create_circuit_checker_xml_string_with_data(
-      const LAB_Channel_Data_Oscilloscope &osc,
-      const LAB_Parent_Data_Oscilloscope &osc_data,
-      const LAB_Channel_Data_Function_Generator &func_gen);
-
   void create_circuit_checker_file(
       const std::string &file_path,
-      const LAB_Channel_Data_Oscilloscope &osc,
       const LAB_Parent_Data_Oscilloscope &osc_data,
       const LAB_Channel_Data_Function_Generator &func_gen,
       const char *password = nullptr);
