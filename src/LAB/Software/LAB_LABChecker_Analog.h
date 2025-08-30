@@ -24,6 +24,9 @@ public:
       const std::string &file_path,
       const LAB_Parent_Data_Oscilloscope &osc_data,
       const LAB_Channel_Data_Function_Generator &func_gen,
+      bool cmp_time_domain,
+      bool cmp_frequency_domain,
+      double cmp_similarity_threshold,
       const char *password = nullptr);
 };
 

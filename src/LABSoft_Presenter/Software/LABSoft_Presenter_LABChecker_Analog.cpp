@@ -183,6 +183,17 @@ cb_analog_create_file(Fl_Button *w, void *data)
   auto &parent_data = acc->lab().m_Oscilloscope.parent_data();
   if (parent_data.channel_data.empty()) return;
 
+  // Comparison settings from UI
+  bool cmp_time_domain = acc->gui().analog_fl_checkbutton_time_domain->value();
+  bool cmp_frequency_domain = acc->gui().analog_fl_checkbutton_frequency_domain->value();
+  double cmp_similarity_threshold = 0.0;
+  if (auto *fld = acc->gui().analog_fl_input_similarity_threshold) {
+    try {
+      cmp_similarity_threshold = std::stod(fld->value());
+    } catch (...) { cmp_similarity_threshold = 0.0; }
+  }
+
+  // FG snapshot
   LAB_Channel_Data_Function_Generator fg_data;
   auto &fg = acc->lab().m_Function_Generator;
   fg_data.is_enabled = fg.is_running();
@@ -201,11 +212,14 @@ cb_analog_create_file(Fl_Button *w, void *data)
   if (chooser.show() != 0) return;
   std::string file_path = chooser.filename();
 
-  // Create file via LAB_LABChecker_Analog helper
+  // Write file with comparison section
   acc->lab().m_LABChecker_Analog.create_circuit_checker_file(
     file_path,
     parent_data,
-    fg_data
+    fg_data,
+    cmp_time_domain,
+    cmp_frequency_domain,
+    cmp_similarity_threshold
   );
 
   std::cout << "[SUCCESS] File saved to: " << file_path << std::endl;

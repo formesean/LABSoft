@@ -15,7 +15,10 @@ LAB_LABChecker_Analog::LAB_LABChecker_Analog()
 static std::stringstream create_circuit_checker_xml_string_with_data_impl(
     const std::vector<LAB_Channel_Data_Oscilloscope> &osc_channels,
     const LAB_Parent_Data_Oscilloscope &osc_data,
-    const LAB_Channel_Data_Function_Generator &func_gen)
+    const LAB_Channel_Data_Function_Generator &func_gen,
+    bool cmp_time_domain,
+    bool cmp_frequency_domain,
+    double cmp_similarity_threshold)
 {
   std::stringstream ss;
   ss << std::fixed << std::setprecision(6);
@@ -57,7 +60,7 @@ static std::stringstream create_circuit_checker_xml_string_with_data_impl(
     ss << "          <trms>" << osc.measurements.trms << "</trms>\n";
     ss << "        </measurements>\n";
 
-    // Samples
+    // Samples: only channel 2
     if (i == 1)
     {
       ss << "        <samples>\n";
@@ -82,6 +85,13 @@ static std::stringstream create_circuit_checker_xml_string_with_data_impl(
   ss << "    <phase>" << func_gen.phase << "</phase>\n";
   ss << "    <Rf>" << func_gen.Rf << "</Rf>\n";
   ss << "  </function_generator>\n";
+
+  // Comparison block
+  ss << "  <comparison>\n";
+  ss << "    <time_domain>" << (cmp_time_domain ? 1 : 0) << "</time_domain>\n";
+  ss << "    <frequency_domain>" << (cmp_frequency_domain ? 1 : 0) << "</frequency_domain>\n";
+  ss << "    <similarity_threshold>" << cmp_similarity_threshold << "</similarity_threshold>\n";
+  ss << "  </comparison>\n";
 
   ss << "</root>\n";
 
@@ -115,6 +125,9 @@ void LAB_LABChecker_Analog::create_circuit_checker_file(
     const std::string &file_path,
     const LAB_Parent_Data_Oscilloscope &osc_data,
     const LAB_Channel_Data_Function_Generator &func_gen,
+    bool cmp_time_domain,
+    bool cmp_frequency_domain,
+    double cmp_similarity_threshold,
     const char *password)
 {
   // Build channels array from current oscilloscope parent data
@@ -123,7 +136,8 @@ void LAB_LABChecker_Analog::create_circuit_checker_file(
   for (const auto &src : osc_data.channel_data)
     osc_channels.push_back(src);
 
-  std::stringstream ss = create_circuit_checker_xml_string_with_data_impl(osc_channels, osc_data, func_gen);
+  std::stringstream ss = create_circuit_checker_xml_string_with_data_impl(
+    osc_channels, osc_data, func_gen, cmp_time_domain, cmp_frequency_domain, cmp_similarity_threshold);
 
   // if (password)
   //     encrypt_stringstream(ss, std::string(password));
