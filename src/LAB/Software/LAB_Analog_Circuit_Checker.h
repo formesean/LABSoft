@@ -10,9 +10,7 @@
 #include <algorithm>
 
 #include "../LAB_Module.h"
-#include "../../Utility/LAB_Constants.h"
 #include "../../Utility/pugixml.hpp"
-#include "../../Utility/LAB_Definitions.h"
 
 class LAB_Analog_Circuit_Checker : public LAB_Module
 {
@@ -88,11 +86,9 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
   unsigned  get_samples() const { return m_samples; }
   double    get_sampling_rate() const { return m_sampling_rate; }
   double    get_horizontal_offset() const { return m_horizontal_offset; }
-    std::array<double, LABC::OSC::NUMBER_OF_SAMPLES> dummy_student_data;
-    std::array<double, LABC::OSC::NUMBER_OF_SAMPLES> dummy_instructor_data;
+    std::vector<double> dummy_student_data;
+    std::vector<double> dummy_instructor_data;
 
-    void     print_samples (const std::array<double, LABC::OSC::NUMBER_OF_SAMPLES>& instructor,
-                            const std::array<double, LABC::OSC::NUMBER_OF_SAMPLES>& student);
 };
 
 #endif
