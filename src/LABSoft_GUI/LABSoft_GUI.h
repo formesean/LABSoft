@@ -399,6 +399,10 @@ public:
   Fl_Group *labchecker_analog_fl_group_2;
   Fl_Input *analog_fl_input_similarity_threshold;
   Fl_Button *analog_fl_button_create_file;
+private:
+  inline void cb_analog_fl_button_create_file_i(Fl_Button*, void*);
+  static void cb_analog_fl_button_create_file(Fl_Button*, void*);
+public:
   Fl_Double_Window *oscilloscope_fl_window_record_config;
   Fl_Group *oscilloscope_fl_group_record_config;
   static Fl_Menu_Item menu_Samples[];
