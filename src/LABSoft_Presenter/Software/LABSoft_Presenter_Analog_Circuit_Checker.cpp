@@ -110,11 +110,13 @@ display_signals ()
           const size_t N = channel.sample_data.size();
           pixel_points[1].reserve(N);
 
+          const double voltage_per_division = std::max(1e-9, channel.voltage_per_division);
+          const double voltage_range = voltage_per_division * 8.0; // 8 vertical divisions
+
           for (size_t i = 0; i < N; ++i) {
             int x = static_cast<int>((static_cast<double>(i) * display_width) / std::max<size_t>(1, N));
 
-            double voltage_range = std::max(1e-9, channel.voltage_per_division * 8.0);
-            double normalized_voltage = (channel.sample_data[i] + (voltage_range / 2.0)) / voltage_range;
+            double normalized_voltage = (channel.sample_data[i] + channel.vertical_offset + (voltage_range / 2.0)) / voltage_range;
             if (normalized_voltage < 0.0) normalized_voltage = 0.0;
             if (normalized_voltage > 1.0) normalized_voltage = 1.0;
             int y = static_cast<int>(display_height * (1.0 - normalized_voltage));
@@ -186,15 +188,8 @@ cb_load_file_acc (Fl_Button*  w,
           selected_file.value (LABF::get_filename_from_path(path).c_str());
 
           // Load the .labacc file (but don't load data into oscilloscope yet)
-          std::printf("\n=== LOADING .labacc FILE ===\n");
-          std::printf("File path: %s\n", path.c_str());
-
           m_presenter.lab ().m_Analog_Circuit_Checker.load_file (path);
 
-          std::printf("✓ File loaded successfully into LAB_Analog_Circuit_Checker\n");
-          std::printf("File loaded status: %s\n",
-                     m_presenter.lab().m_Analog_Circuit_Checker.is_file_loaded() ? "TRUE" : "FALSE");
-          std::printf("=== FILE LOADING COMPLETED ===\n\n");
 
           fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
         }

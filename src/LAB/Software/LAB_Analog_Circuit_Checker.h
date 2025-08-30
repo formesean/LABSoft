@@ -38,6 +38,11 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
   unsigned              m_trigger_condition;
   double                m_trigger_level;
 
+  // Comparison settings
+  bool                  m_cmp_time_domain = false;
+  bool                  m_cmp_frequency_domain = false;
+  double                m_cmp_similarity_threshold = 0.0;
+
   // Data per channel
   struct ChannelData
   {
@@ -86,9 +91,17 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
   unsigned  get_samples() const { return m_samples; }
   double    get_sampling_rate() const { return m_sampling_rate; }
   double    get_horizontal_offset() const { return m_horizontal_offset; }
+
+  // Comparison getters
+  bool      get_cmp_time_domain() const { return m_cmp_time_domain; }
+  bool      get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
+  double    get_cmp_similarity_threshold() const { return m_cmp_similarity_threshold; }
+
     std::vector<double> dummy_student_data;
     std::vector<double> dummy_instructor_data;
 
+    void     print_samples (const std::vector<double>& instructor,
+                            const std::vector<double>& student);
 };
 
 #endif
