@@ -29,15 +29,15 @@ load_gui()
   analog_checker_disp_gui.load_presenter(m_presenter);
 
   osc_disp.update_pixel_points();
-  auto &raw_buf = osc_disp.pixel_points();
-
+  const auto &raw_buf = osc_disp.pixel_points();
   if (raw_buf.size() < 2 || raw_buf[1].empty()) return;
 
   std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
-  channel2_only_pixel_points[0] = raw_buf[1]; // Channel 2 data to display channel 0
-  channel2_only_pixel_points[1] = raw_buf[1]; // Channel 2 data to display channel 1
+  channel2_only_pixel_points[1] = raw_buf[1];
 
   analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
+  analog_checker_disp_gui.channel_enable_disable(0, false);
+  analog_checker_disp_gui.channel_enable_disable(1, true);
   analog_checker_disp_gui.update_display();
 }
 
@@ -47,15 +47,16 @@ update_display()
   LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
   LABSoft_GUI_LABChecker_Analog_Checker_Display &analog_checker_disp_gui = *(gui().analog_labsoft_gui_analog_checker_display);
 
-  // Update with channel 2 data only
   osc_disp.update_pixel_points();
-  auto &raw_buf = osc_disp.pixel_points();
+  const auto &raw_buf = osc_disp.pixel_points();
+  if (raw_buf.size() < 2 || raw_buf[1].empty()) return;
+
   std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
-  channel2_only_pixel_points[0] = raw_buf[1]; // Channel 2 data to display channel 0
-  channel2_only_pixel_points[1] = raw_buf[1]; // Channel 2 data to display channel 1
+  channel2_only_pixel_points[1] = raw_buf[1];
 
   analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
-  analog_checker_disp_gui.enable_channels(true);
+  analog_checker_disp_gui.channel_enable_disable(0, false);
+  analog_checker_disp_gui.channel_enable_disable(1, true);
   analog_checker_disp_gui.update_display();
 }
 
@@ -88,7 +89,6 @@ can_capture_signal() const
   LAB_Function_Generator &fg = lab().m_Function_Generator;
 
   if (!osc.is_frontend_running()) return false;
-
   if (!fg.is_running()) return false;
 
   return true;
@@ -103,69 +103,6 @@ capture_oscilloscope_and_function_generator_data()
   auto &osc_data = lab().m_Oscilloscope.parent_data();
 
   osc_disp.update_pixel_points();
-
-  LOG("====================");
-  std::cout << "SUCCESS: Signal captured successfully" << std::endl;
-  std::cout << "NOTE: Only Channel 2 data will be displayed on the LABChecker Analog tab" << std::endl;
-
-  LOG("Oscilloscope Data:");
-  auto &raw_buf = osc_disp.pixel_points();
-
-  for (int ch = 0; ch < 2; ++ch)
-  {
-    const auto &ch_data = osc_data.channel_data[ch];
-
-    std::cout << "Channel " << (ch + 1) << " samples: " << ch_data.samples.size() << '\n'
-              << "Channel " << (ch + 1) << " Coupling: " << (int)ch_data.coupling << '\n'
-              << "Channel " << (ch + 1) << " Scaling: " << (int)ch_data.scaling << '\n'
-              << "Channel " << (ch + 1) << " Voltage/div: " << ch_data.voltage_per_division << '\n'
-              << "Channel " << (ch + 1) << " Vertical offset: " << ch_data.vertical_offset << '\n';
-
-    std::cout << "  is_enabled: " << ch_data.is_enabled << '\n'
-              << "  scaling_corrector: " << ch_data.scaling_corrector << '\n'
-              << "  measurements: "
-              << "min=" << ch_data.measurements.min
-              << ", max=" << ch_data.measurements.max
-              << ", avg=" << ch_data.measurements.avg
-              << ", trms=" << ch_data.measurements.trms
-              << '\n';
-
-    std::cout << "[DEBUG] Pixel points (channel " << ch << ", first 10): ";
-    for (size_t i = 0; i < std::min<size_t>(10, raw_buf[ch].size()); i++)
-    {
-      std::cout << "(" << raw_buf[ch][i][0] << "," << raw_buf[ch][i][1] << ") ";
-    }
-    std::cout << std::endl;
-  }
-
-  // Highlight channel 2 data specifically
-  std::cout << "\n[INFO] Channel 2 data (index 1) will be displayed on LABChecker Analog tab:" << std::endl;
-  const auto &ch2_data = osc_data.channel_data[1];
-  std::cout << "  Channel 2 samples: " << ch2_data.samples.size() << std::endl;
-  std::cout << "  Channel 2 voltage/div: " << ch2_data.voltage_per_division << std::endl;
-  std::cout << "  Channel 2 measurements - min: " << ch2_data.measurements.min
-            << ", max: " << ch2_data.measurements.max
-            << ", avg: " << ch2_data.measurements.avg
-            << ", trms: " << ch2_data.measurements.trms << std::endl;
-
-  std::cout << "Oscilloscope mode: " << (int)osc.mode() << '\n'
-            << "Horizontal offset: " << osc.horizontal_offset() << '\n'
-            << "Time per division: " << osc.time_per_division() << '\n'
-            << "Samples: " << osc.samples() << '\n'
-            << "Sampling rate: " << osc.sampling_rate() << '\n'
-            << "Trigger mode: " << (int)osc.trigger_mode() << '\n'
-            << "Trigger source: " << osc.trigger_source() << '\n'
-            << "Trigger type: " << (int)osc.trigger_type() << '\n'
-            << "Trigger condition: " << (int)osc.trigger_condition() << '\n'
-            << "Trigger level: " << osc.trigger_level() << '\n';
-
-  LOG("Function Generator Data:");
-  LOG("Channel 1:");
-  std::cout << "Wave type: " << (int)fg.wave_type(0) << '\n'
-            << "Frequency: " << fg.frequency(0) << " Hz" << '\n'
-            << "Period: " << fg.period(0) << " s" << '\n';
-
-  LOG("====================\n");
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
@@ -187,29 +124,33 @@ update_gui_with_captured_data()
   analog_checker_disp_gui.samples(osc.samples());
   analog_checker_disp_gui.sampling_rate(osc.sampling_rate());
 
-  unsigned analog_w = analog_checker_disp_gui.display_width();
-  unsigned analog_h = analog_checker_disp_gui.display_height();
+  const unsigned analog_w = analog_checker_disp_gui.display_width();
+  const unsigned analog_h = analog_checker_disp_gui.display_height();
 
   LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui().oscilloscope_labsoft_gui_oscilloscope_display);
-  unsigned osc_tab_w = osc_gui_disp.display_width();
-  unsigned osc_tab_h = osc_gui_disp.display_height();
+  const unsigned osc_tab_w = osc_gui_disp.display_width();
+  const unsigned osc_tab_h = osc_gui_disp.display_height();
 
-  osc_disp.display_parameters(
-    analog_w,
-    analog_h,
-    LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-    LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-  );
-
-  osc_disp.update_pixel_points();
-  auto &raw_buf = osc_disp.pixel_points();
-  if (raw_buf.size() < 2 || raw_buf[1].empty()) {
+  const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
+  if (!same_size)
+  {
     osc_disp.display_parameters(
-      osc_tab_w, osc_tab_h,
+      analog_w,
+      analog_h,
       LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
       LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
     );
-    osc_disp.update_pixel_points();
+  }
+
+  osc_disp.update_pixel_points();
+  const auto &raw_buf = osc_disp.pixel_points();
+  if (raw_buf.size() < 2 || raw_buf[1].empty())
+  {
+    if (!same_size)
+    {
+      osc_disp.display_parameters(osc_tab_w, osc_tab_h, LABC::OSC_DISPLAY::NUMBER_OF_ROWS, LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS);
+      osc_disp.update_pixel_points();
+    }
     return;
   }
 
@@ -221,8 +162,11 @@ update_gui_with_captured_data()
   analog_checker_disp_gui.channel_enable_disable(1, true);
   analog_checker_disp_gui.update_display();
 
-  osc_disp.display_parameters(osc_tab_w, osc_tab_h, LABC::OSC_DISPLAY::NUMBER_OF_ROWS, LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS);
-  osc_disp.update_pixel_points();
+  if (!same_size)
+  {
+    osc_disp.display_parameters(osc_tab_w, osc_tab_h, LABC::OSC_DISPLAY::NUMBER_OF_ROWS, LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS);
+    osc_disp.update_pixel_points();
+  }
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
