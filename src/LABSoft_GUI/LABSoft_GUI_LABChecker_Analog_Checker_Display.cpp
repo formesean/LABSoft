@@ -138,4 +138,10 @@ load_pixel_points(const PixelPoints& pixel_points)
   }
 }
 
+void LABSoft_GUI_LABChecker_Analog_Checker_Display::
+channel_enable_disable(unsigned channel, bool state)
+{
+  if (oscilloscope_display) oscilloscope_display->channel_enable_disable(channel, state);
+}
+
 // EOF

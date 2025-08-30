@@ -180,9 +180,7 @@ update_gui_with_captured_data()
 
   if (!gui().analog_labsoft_gui_analog_checker_display) return;
 
-  analog_checker_disp_gui.voltage_per_division(0, osc.voltage_per_division(1));
   analog_checker_disp_gui.voltage_per_division(1, osc.voltage_per_division(1));
-  analog_checker_disp_gui.vertical_offset(0, osc.vertical_offset(1));
   analog_checker_disp_gui.vertical_offset(1, osc.vertical_offset(1));
   analog_checker_disp_gui.time_per_division(osc.time_per_division());
   analog_checker_disp_gui.horizontal_offset(osc.horizontal_offset());
@@ -205,12 +203,9 @@ update_gui_with_captured_data()
 
   osc_disp.update_pixel_points();
   auto &raw_buf = osc_disp.pixel_points();
-
-  if (raw_buf.size() < 2 || raw_buf[1].empty())
-  {
+  if (raw_buf.size() < 2 || raw_buf[1].empty()) {
     osc_disp.display_parameters(
-      osc_tab_w,
-      osc_tab_h,
+      osc_tab_w, osc_tab_h,
       LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
       LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
     );
@@ -218,28 +213,15 @@ update_gui_with_captured_data()
     return;
   }
 
-  std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
-  channel2_only_pixel_points[0] = raw_buf[1];
-  channel2_only_pixel_points[1] = raw_buf[1];
+  std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> ch2_only{};
+  ch2_only[1] = raw_buf[1];
 
-  for (auto& ch_pts : channel2_only_pixel_points)
-  {
-    for (auto& p : ch_pts)
-    {
-      p[0] = static_cast<int>(analog_w) - 1 - p[0];
-    }
-  }
-
-  analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
-  analog_checker_disp_gui.enable_channels(true);
+  analog_checker_disp_gui.load_pixel_points(ch2_only);
+  analog_checker_disp_gui.channel_enable_disable(0, false);
+  analog_checker_disp_gui.channel_enable_disable(1, true);
   analog_checker_disp_gui.update_display();
 
-  osc_disp.display_parameters(
-    osc_tab_w,
-    osc_tab_h,
-    LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-    LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-  );
+  osc_disp.display_parameters(osc_tab_w, osc_tab_h, LABC::OSC_DISPLAY::NUMBER_OF_ROWS, LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS);
   osc_disp.update_pixel_points();
 }
 

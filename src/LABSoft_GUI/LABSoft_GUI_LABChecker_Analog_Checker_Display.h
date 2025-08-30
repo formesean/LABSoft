@@ -58,6 +58,7 @@ public:
 
     // Method to enable/disable channels in the oscilloscope display
     void enable_channels(bool enable);
+    void channel_enable_disable           (unsigned channel, bool state);
 
     // Forwarders for parameters and sizing
     void horizontal_offset                (double value);
