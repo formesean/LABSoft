@@ -394,20 +394,21 @@ update_gui_function_generator()
 
   if (gui.function_generator_fl_input_choice_frequency)
   {
-    char buf[64]; std::snprintf(buf, sizeof(buf), "%.6f", m_metadata.function_generator.frequency);
-    if (gui.function_generator_fl_input_choice_frequency->input())
-      gui.function_generator_fl_input_choice_frequency->input()->value(buf);
+    set_input_choice_to_value(gui.function_generator_fl_input_choice_frequency,
+                              UnitKind::HERTZ,
+                              m_metadata.function_generator.frequency);
   }
 
   if (gui.function_generator_fl_input_choice_period)
   {
-    char buf[64]; std::snprintf(buf, sizeof(buf), "%.9f", m_metadata.function_generator.period);
-    if (gui.function_generator_fl_input_choice_period->input())
-      gui.function_generator_fl_input_choice_period->input()->value(buf);
+    set_input_choice_to_value(gui.function_generator_fl_input_choice_period,
+                              UnitKind::SECOND,
+                              m_metadata.function_generator.period);
   }
 
   if (gui.function_generator_fl_choice_wave_type)
-    gui.function_generator_fl_choice_wave_type->value(static_cast<int>(m_metadata.function_generator.wave_type));
+    set_choice_index(gui.function_generator_fl_choice_wave_type,
+                     static_cast<int>(m_metadata.function_generator.wave_type));
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
