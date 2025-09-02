@@ -608,7 +608,12 @@ highlight_widget(Fl_Widget* widget)
   if (widget == gui().digital_circuit_checker_fl_output_selected_file ||
       widget == gui().digital_circuit_checker_fl_output_results ||
       widget == gui().analog_circuit_checker_fl_output_selected_file ||
-      widget == gui().analog_circuit_checker_fl_output_results)
+      widget == gui().analog_circuit_checker_fl_checkbutton_time_domain ||
+      widget == gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold ||
+      widget == gui().analog_circuit_checker_fl_checkbutton_frequency_domain ||
+      widget == gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold ||
+      widget == gui().logic_analyzer_fl_button_record_config ||
+      widget == gui().logic_analyzer_fl_button_record)
   {
     previous_focused_widget = widget;
     return;
@@ -693,11 +698,6 @@ initialize_run_key_actions()
         btn->value(!btn->value());
         presenter().m_Digital_Circuit_Checker.cb_run_checker(btn, nullptr);
       }},
-    // { "LABChecker - Analog", [this]() {
-    //     auto* btn = gui().analog_fl_button_capture_signal;
-    //     btn->value(!btn->value());
-    //     presenter().m_LABChecker_Analog.cb_capture_signal(btn, nullptr);
-    //   }},
   };
 }
 
@@ -1020,9 +1020,10 @@ get_widgets_in_group(Fl_Group* group) const
     if (w == gui().digital_circuit_checker_fl_output_selected_file ||
         w == gui().digital_circuit_checker_fl_output_results ||
         w == gui().analog_circuit_checker_fl_output_selected_file ||
-        w == gui().analog_circuit_checker_fl_output_results ||
         w == gui().analog_circuit_checker_fl_checkbutton_time_domain ||
+        w == gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold ||
         w == gui().analog_circuit_checker_fl_checkbutton_frequency_domain ||
+        w == gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold ||
         w == gui().logic_analyzer_fl_button_record_config ||
         w == gui().logic_analyzer_fl_button_record) continue;
 
@@ -1089,8 +1090,7 @@ get_focusable_groups_map() const
         gui().analog_circuit_checker_fl_group_1,
         gui().analog_circuit_checker_fl_group_2 }},
     { TAB::LABCHECKER_ANALOG, {
-        gui().labchecker_analog_fl_group_1,
-        gui().labchecker_analog_fl_group_2, }}
+        gui().labchecker_analog_fl_group }}
   };
 }
 
