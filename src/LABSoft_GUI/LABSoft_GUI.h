@@ -376,28 +376,37 @@ private:
   static void cb_analog_circuit_checker_fl_button_load_file(Fl_Button*, void*);
 public:
   Fl_Output *analog_circuit_checker_fl_output_selected_file;
-  Fl_Check_Button *analog_circuit_checker_fl_checkbutton_time_domain;
-  Fl_Check_Button *analog_circuit_checker_fl_checkbutton_frequency_domain;
   Fl_Button *analog_circuit_checker_fl_button_run_checker;
 private:
   inline void cb_analog_circuit_checker_fl_button_run_checker_i(Fl_Button*, void*);
   static void cb_analog_circuit_checker_fl_button_run_checker(Fl_Button*, void*);
 public:
   Fl_Group *analog_circuit_checker_fl_group_2;
-  Fl_Output *analog_circuit_checker_fl_output_results;
+  Fl_Check_Button *analog_circuit_checker_fl_checkbutton_time_domain;
+  Fl_Input *analog_circuit_checker_fl_input_time_domain_similarity_threshold;
+  Fl_Check_Button *analog_circuit_checker_fl_checkbutton_frequency_domain;
+  Fl_Input *analog_circuit_checker_fl_input_frequency_domain_similarity_threshold;
   Fl_Button *analog_circuit_checker_fl_button_export_results;
   Fl_Group *main_fl_group_labchecker_analog_tab;
   LABSoft_GUI_LABChecker_Analog_Checker_Display *analog_labsoft_gui_analog_checker_display;
-  Fl_Group *labchecker_analog_fl_group_1;
+  Fl_Group *labchecker_analog_fl_group;
   Fl_Check_Button *analog_fl_checkbutton_time_domain;
+private:
+  inline void cb_analog_fl_checkbutton_time_domain_i(Fl_Check_Button*, void*);
+  static void cb_analog_fl_checkbutton_time_domain(Fl_Check_Button*, void*);
+public:
+  Fl_Input *analog_fl_input_time_domain_similarity_threshold;
   Fl_Check_Button *analog_fl_checkbutton_frequency_domain;
+private:
+  inline void cb_analog_fl_checkbutton_frequency_domain_i(Fl_Check_Button*, void*);
+  static void cb_analog_fl_checkbutton_frequency_domain(Fl_Check_Button*, void*);
+public:
+  Fl_Input *analog_fl_input_frequency_domain_similarity_threshold;
   Fl_Button *analog_fl_button_capture_signal;
 private:
   inline void cb_analog_fl_button_capture_signal_i(Fl_Button*, void*);
   static void cb_analog_fl_button_capture_signal(Fl_Button*, void*);
 public:
-  Fl_Group *labchecker_analog_fl_group_2;
-  Fl_Input *analog_fl_input_similarity_threshold;
   Fl_Button *analog_fl_button_create_file;
 private:
   inline void cb_analog_fl_button_create_file_i(Fl_Button*, void*);
