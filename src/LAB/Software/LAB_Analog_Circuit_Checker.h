@@ -91,6 +91,13 @@ public:
   double get_sampling_rate() const { return m_sampling_rate; }
   double get_horizontal_offset() const { return m_horizontal_offset; }
 
+  // Trigger getters
+  unsigned  get_trigger_mode() const { return m_trigger_mode; }
+  unsigned  get_trigger_source() const { return m_trigger_source; }
+  unsigned  get_trigger_type() const { return m_trigger_type; }
+  unsigned  get_trigger_condition() const { return m_trigger_condition; }
+  double    get_trigger_level() const { return m_trigger_level; }
+
   // Comparison getters
   bool get_cmp_time_domain() const { return m_cmp_time_domain; }
   bool get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
