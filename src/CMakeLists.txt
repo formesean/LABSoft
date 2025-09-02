@@ -89,6 +89,8 @@ add_executable(LABSoft
   ../lib/AD9833/AD9833.cpp
   ../lib/MCP4XXX/MCP4XXX.cpp
   ../lib/MCP23S17/MCP23S17.cpp
+  ../lib/KISSFFT/kiss_fft.c
+  ../lib/KISSFFT/kiss_fftr.c
 )
 
 target_link_libraries(LABSoft
