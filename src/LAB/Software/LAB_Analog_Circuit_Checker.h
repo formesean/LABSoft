@@ -40,7 +40,8 @@ private:
   // Comparison settings
   bool m_cmp_time_domain = false;
   bool m_cmp_frequency_domain = false;
-  double m_cmp_similarity_threshold = 0.0;
+  double m_cmp_time_similarity_threshold = 0.0;
+  double m_cmp_frequency_similarity_threshold = 0.0;
 
   // Data per channel
   struct ChannelData
@@ -101,7 +102,8 @@ public:
   // Comparison getters
   bool get_cmp_time_domain() const { return m_cmp_time_domain; }
   bool get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
-  double get_cmp_similarity_threshold() const { return m_cmp_similarity_threshold; }
+  double get_cmp_time_similarity_threshold() const { return m_cmp_time_similarity_threshold; }
+  double get_cmp_frequency_similarity_threshold() const { return m_cmp_frequency_similarity_threshold; }
 
   std::vector<double> dummy_student_data;
   std::vector<double> instructor_data;

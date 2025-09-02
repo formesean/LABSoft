@@ -162,9 +162,10 @@ import_metadata()
   m_metadata.trigger_level      = analog_checker.get_trigger_level();
 
   // Persist comparison settings
-  m_metadata.comparison.time_domain          = analog_checker.get_cmp_time_domain();
-  m_metadata.comparison.frequency_domain     = analog_checker.get_cmp_frequency_domain();
-  m_metadata.comparison.similarity_threshold = analog_checker.get_cmp_similarity_threshold();
+  m_metadata.comparison.time_domain                   = analog_checker.get_cmp_time_domain();
+  m_metadata.comparison.frequency_domain              = analog_checker.get_cmp_frequency_domain();
+  m_metadata.comparison.time_similarity_threshold     = analog_checker.get_cmp_time_similarity_threshold();
+  m_metadata.comparison.frequency_similarity_threshold= analog_checker.get_cmp_frequency_similarity_threshold();
 
   // Channels
   m_metadata.channels.clear();
@@ -262,7 +263,7 @@ update_gui_analog_circuit_checker()
       analog_display.horizontal_offset(m_metadata.horizontal_offset);
 
       analog_display.load_pixel_points(pixel_points);
-      // Reflect CH2 enable state
+
       if (channel_data.size() > 1)
       {
         analog_display.channel_enable_disable(0, false);

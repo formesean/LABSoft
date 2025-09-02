@@ -210,14 +210,25 @@ void LAB_Analog_Circuit_Checker::
   {
     m_cmp_time_domain = cmp.child("time_domain").text().as_bool();
     m_cmp_frequency_domain = cmp.child("frequency_domain").text().as_bool();
-    m_cmp_similarity_threshold = cmp.child("similarity_threshold").text().as_double();
+    // Prefer new per-domain thresholds, fallback to combined
+    if (auto n = cmp.child("time_similarity_threshold"))
+      m_cmp_time_similarity_threshold = n.text().as_double();
+    else
+      m_cmp_time_similarity_threshold = cmp.child("similarity_threshold").text().as_double();
+
+    if (auto n = cmp.child("frequency_similarity_threshold"))
+      m_cmp_frequency_similarity_threshold = n.text().as_double();
+    else
+      m_cmp_frequency_similarity_threshold = cmp.child("similarity_threshold").text().as_double();
   }
   else
   {
     // try osc-level for backward-compat
     m_cmp_time_domain = osc.child("time_domain").text().as_bool(false);
     m_cmp_frequency_domain = osc.child("frequency_domain").text().as_bool(false);
-    m_cmp_similarity_threshold = osc.child("similarity_threshold").text().as_double(0.0);
+    const double combined = osc.child("similarity_threshold").text().as_double(0.0);
+    m_cmp_time_similarity_threshold = combined;
+    m_cmp_frequency_similarity_threshold = combined;
   }
 }
 
