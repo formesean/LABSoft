@@ -205,6 +205,7 @@ cb_toggle_time_domain(Fl_Check_Button *w, void *data)
   auto *self = static_cast<LABSoft_Presenter_LABChecker_Analog*>(data);
   if (!self) return;
   self->sync_comparison_inputs_enabled();
+  self->presenter().m_Software_Navigation.refresh_widget_list();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
@@ -213,6 +214,7 @@ cb_toggle_frequency_domain(Fl_Check_Button *w, void *data)
   auto *self = static_cast<LABSoft_Presenter_LABChecker_Analog*>(data);
   if (!self) return;
   self->sync_comparison_inputs_enabled();
+  self->presenter().m_Software_Navigation.refresh_widget_list();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::

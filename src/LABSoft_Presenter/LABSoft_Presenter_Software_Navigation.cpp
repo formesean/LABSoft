@@ -323,7 +323,8 @@ update_data_cycle()
     {
       if (auto* input = dynamic_cast<Fl_Input*>(widget))
       {
-        if (input == gui().analog_fl_input_similarity_threshold)
+        if (input == gui().analog_fl_input_time_domain_similarity_threshold ||
+            input == gui().analog_fl_input_frequency_domain_similarity_threshold)
         {
 
           const char* current_str = input->value();
@@ -599,8 +600,10 @@ switch_tab_by_direction(int direction)
 
   if (current_tab_index == 8)
   {
-    gui().analog_fl_input_similarity_threshold->value("100%");
-    gui().analog_fl_input_similarity_threshold->redraw();
+    gui().analog_fl_input_time_domain_similarity_threshold->value("100%");
+    gui().analog_fl_input_time_domain_similarity_threshold->redraw();
+    gui().analog_fl_input_frequency_domain_similarity_threshold->value("100%");
+    gui().analog_fl_input_frequency_domain_similarity_threshold->redraw();
   }
 }
 
@@ -651,7 +654,13 @@ highlight_widget(Fl_Widget* widget)
 {
   if (previous_focused_widget && previous_focused_widget != widget)
   {
-    // previous_focused_widget->color(Fl_Color(54));
+    // Revert special highlighting for inputs
+    if (auto* prev_input = dynamic_cast<Fl_Input*>(previous_focused_widget))
+    {
+      prev_input->color(FL_BLACK);
+      prev_input->redraw();
+    }
+
     previous_focused_widget->labelcolor(Fl_Color(0));
     previous_focused_widget->redraw();
   }
@@ -673,9 +682,16 @@ highlight_widget(Fl_Widget* widget)
     return;
   }
 
-  // widget->color(Fl_Color(221));
-  widget->labelcolor(Fl_Color(221));
-  widget->redraw();
+  if (auto* input = dynamic_cast<Fl_Input*>(widget))
+  {
+    input->color(Fl_Color(221));
+    input->redraw();
+  }
+  else
+  {
+    widget->labelcolor(Fl_Color(221));
+    widget->redraw();
+  }
   previous_focused_widget = widget;
 }
 
@@ -710,7 +726,12 @@ clear_widget_focus()
       t->set_show_selection(false);
       t->redraw();
     }
-    // previous_focused_widget->color(Fl_Color(54));
+    // Revert special highlighting for inputs
+    if (auto* prev_input = dynamic_cast<Fl_Input*>(previous_focused_widget))
+    {
+      prev_input->color(FL_BLACK);
+      prev_input->redraw();
+    }
     previous_focused_widget->labelcolor(Fl_Color(0));
     previous_focused_widget->redraw();
     previous_focused_widget = nullptr;
@@ -1146,6 +1167,34 @@ get_focusable_groups_map() const
     { TAB::LABCHECKER_ANALOG, {
         gui().labchecker_analog_fl_group }}
   };
+}
+
+void
+LABSoft_Presenter_Software_Navigation::
+refresh_widget_list()
+{
+  if (current_focus_level == LABE::SNM::FOCUS_LEVEL::GROUP &&
+      !current_groups_in_tab.empty() &&
+      group_index >= 0 &&
+      group_index < static_cast<int>(current_groups_in_tab.size()))
+  {
+    auto* group = current_groups_in_tab[group_index];
+    current_widgets_in_group = get_widgets_in_group(group);
+
+    if (widget_index >= static_cast<int>(current_widgets_in_group.size()))
+      widget_index = 0;
+  }
+  else if (current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET &&
+           !current_groups_in_tab.empty() &&
+           group_index >= 0 &&
+           group_index < static_cast<int>(current_groups_in_tab.size()))
+  {
+    auto* group = current_groups_in_tab[group_index];
+    current_widgets_in_group = get_widgets_in_group(group);
+
+    if (widget_index >= static_cast<int>(current_widgets_in_group.size()))
+      widget_index = 0;
+  }
 }
 
 // EOF

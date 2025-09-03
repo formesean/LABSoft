@@ -47,6 +47,7 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     void highlight_tab           ();
     void highlight_group         (Fl_Group* group);
     void highlight_widget        (Fl_Widget* widget);
+    void refresh_widget_list     ();
 
   private:
     void clear_tab_focus               ();

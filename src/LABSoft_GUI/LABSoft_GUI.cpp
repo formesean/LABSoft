@@ -1624,7 +1624,7 @@ LABSoft_GUI::LABSoft_GUI() {
           voltmeter_fl_output_chan_1_trms->textsize(36);
           voltmeter_fl_output_chan_1_trms->user_data((void*)(0));
         } // Fl_Output* voltmeter_fl_output_chan_1_trms
-        { //
+        { // 					
           voltmeter_fl_light_button_run_stop = new Fl_Light_Button(522, 430, 180, 60, "Run");
           voltmeter_fl_light_button_run_stop->box(FL_GTK_UP_BOX);
           voltmeter_fl_light_button_run_stop->color(FL_LIGHT3);
@@ -1654,7 +1654,7 @@ nput header pin.");
           o->labelsize(12);
           o->align(Fl_Align(FL_ALIGN_WRAP));
         } // Fl_Box* o
-        { //
+        { // 					
           ohmmeter_fl_light_button_run_stop = new Fl_Light_Button(520, 400, 180, 60, "Run");
           ohmmeter_fl_light_button_run_stop->box(FL_GTK_UP_BOX);
           ohmmeter_fl_light_button_run_stop->color(FL_LIGHT3);
@@ -2030,7 +2030,7 @@ ly board.");
             digital_fl_choice_input_bits->align(Fl_Align(FL_ALIGN_TOP));
             digital_fl_choice_input_bits->menu(menu_digital_fl_choice_input_bits);
           } // Fl_Choice* digital_fl_choice_input_bits
-          { //
+          { // 		
             digital_fl_choice_output_bits = new Fl_Choice(40, 170, 180, 40, "Output Bits");
             digital_fl_choice_output_bits->box(FL_NO_BOX);
             digital_fl_choice_output_bits->down_box(FL_BORDER_BOX);
@@ -2123,25 +2123,18 @@ ly board.");
             analog_circuit_checker_fl_checkbutton_time_domain->align(Fl_Align(FL_ALIGN_TOP));
             o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_time_domain
-          { Fl_Input* o = analog_circuit_checker_fl_input_time_domain_similarity_threshold = new Fl_Input(90, 365, 100, 25);
-            analog_circuit_checker_fl_input_time_domain_similarity_threshold->labelsize(12);
-            analog_circuit_checker_fl_input_time_domain_similarity_threshold->textsize(12);
-            analog_circuit_checker_fl_input_time_domain_similarity_threshold->align(Fl_Align(FL_ALIGN_BOTTOM));
+          { analog_circuit_checker_fl_input_time_domain_similarity_threshold = new Fl_Output(90, 365, 100, 25);
             analog_circuit_checker_fl_input_time_domain_similarity_threshold->deactivate();
-            o->set_output();
-          } // Fl_Input* analog_circuit_checker_fl_input_time_domain_similarity_threshold
+          } // Fl_Output* analog_circuit_checker_fl_input_time_domain_similarity_threshold
           { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_frequency_domain = new Fl_Check_Button(65, 430, 135, 50, "Frequency Domain");
             analog_circuit_checker_fl_checkbutton_frequency_domain->down_box(FL_DOWN_BOX);
             analog_circuit_checker_fl_checkbutton_frequency_domain->labelsize(12);
             analog_circuit_checker_fl_checkbutton_frequency_domain->align(Fl_Align(FL_ALIGN_TOP));
             o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_frequency_domain
-          { analog_circuit_checker_fl_input_frequency_domain_similarity_threshold = new Fl_Input(90, 440, 100, 25);
-            analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->labelsize(12);
-            analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->textsize(12);
-            analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->align(Fl_Align(FL_ALIGN_BOTTOM));
+          { analog_circuit_checker_fl_input_frequency_domain_similarity_threshold = new Fl_Output(90, 440, 100, 25);
             analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->deactivate();
-          } // Fl_Input* analog_circuit_checker_fl_input_frequency_domain_similarity_threshold
+          } // Fl_Output* analog_circuit_checker_fl_input_frequency_domain_similarity_threshold
           { analog_circuit_checker_fl_button_export_results = new Fl_Button(41, 485, 180, 65, "Export Results");
             analog_circuit_checker_fl_button_export_results->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_export_results->color(FL_LIGHT3);
@@ -2176,6 +2169,8 @@ ly board.");
             analog_fl_checkbutton_time_domain->align(Fl_Align(FL_ALIGN_TOP));
           } // Fl_Check_Button* analog_fl_checkbutton_time_domain
           { analog_fl_input_time_domain_similarity_threshold = new Fl_Input(100, 185, 100, 25);
+            analog_fl_input_time_domain_similarity_threshold->box(FL_BORDER_FRAME);
+            analog_fl_input_time_domain_similarity_threshold->color(FL_FOREGROUND_COLOR);
             analog_fl_input_time_domain_similarity_threshold->labelsize(12);
             analog_fl_input_time_domain_similarity_threshold->textsize(12);
             analog_fl_input_time_domain_similarity_threshold->align(Fl_Align(FL_ALIGN_BOTTOM));
@@ -2188,6 +2183,8 @@ ly board.");
             analog_fl_checkbutton_frequency_domain->align(Fl_Align(FL_ALIGN_TOP));
           } // Fl_Check_Button* analog_fl_checkbutton_frequency_domain
           { analog_fl_input_frequency_domain_similarity_threshold = new Fl_Input(100, 260, 100, 25);
+            analog_fl_input_frequency_domain_similarity_threshold->box(FL_BORDER_FRAME);
+            analog_fl_input_frequency_domain_similarity_threshold->color(FL_FOREGROUND_COLOR);
             analog_fl_input_frequency_domain_similarity_threshold->labelsize(12);
             analog_fl_input_frequency_domain_similarity_threshold->textsize(12);
             analog_fl_input_frequency_domain_similarity_threshold->align(Fl_Align(FL_ALIGN_BOTTOM));

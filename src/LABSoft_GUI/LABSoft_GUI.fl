@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {323 198 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {323 229 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -2240,17 +2240,16 @@ class LABSoft_GUI {open
               xywh {65 355 135 50} down_box DOWN_BOX labelsize 12 align 1
               code0 {o->set_output();}
             }
-            Fl_Input analog_circuit_checker_fl_input_time_domain_similarity_threshold {
-              xywh {90 365 100 25} labelsize 12 align 2 textsize 12 deactivate
-              code0 {o->set_output();}
+            Fl_Output analog_circuit_checker_fl_input_time_domain_similarity_threshold {
+              xywh {90 365 100 25} deactivate
             }
             Fl_Check_Button analog_circuit_checker_fl_checkbutton_frequency_domain {
               label {Frequency Domain}
               xywh {65 430 135 50} down_box DOWN_BOX labelsize 12 align 1
               code0 {o->set_output();}
             }
-            Fl_Input analog_circuit_checker_fl_input_frequency_domain_similarity_threshold {
-              xywh {90 440 100 25} labelsize 12 align 2 textsize 12 deactivate
+            Fl_Output analog_circuit_checker_fl_input_frequency_domain_similarity_threshold {
+              xywh {90 440 100 25} deactivate
             }
             Fl_Button analog_circuit_checker_fl_button_export_results {
               label {Export Results}
@@ -2259,7 +2258,7 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_labchecker_analog_tab {
-          label {LABChecker - Analog} open
+          label {LABChecker - Analog} open selected
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
           Fl_Group analog_labsoft_gui_analog_checker_display {open
@@ -2276,15 +2275,15 @@ class LABSoft_GUI {open
               xywh {75 175 135 50} down_box DOWN_BOX labelsize 12 align 1
             }
             Fl_Input analog_fl_input_time_domain_similarity_threshold {
-              xywh {100 185 100 25} labelsize 12 align 2 textsize 12 deactivate
+              xywh {100 185 100 25} box BORDER_FRAME color 0 labelsize 12 align 2 textsize 12 deactivate
             }
             Fl_Check_Button analog_fl_checkbutton_frequency_domain {
               label {Frequency Domain}
-              callback {m_LABSoft_Presenter->m_LABChecker_Analog.cb_toggle_frequency_domain(o, v)} selected
+              callback {m_LABSoft_Presenter->m_LABChecker_Analog.cb_toggle_frequency_domain(o, v)}
               xywh {75 250 135 50} down_box DOWN_BOX labelsize 12 align 1
             }
             Fl_Input analog_fl_input_frequency_domain_similarity_threshold {
-              xywh {100 260 100 25} labelsize 12 align 2 textsize 12 deactivate
+              xywh {100 260 100 25} box BORDER_FRAME color 0 labelsize 12 align 2 textsize 12 deactivate
             }
             Fl_Button analog_fl_button_capture_signal {
               label {Plot Captured Signal}

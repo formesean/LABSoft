@@ -383,9 +383,9 @@ private:
 public:
   Fl_Group *analog_circuit_checker_fl_group_2;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_time_domain;
-  Fl_Input *analog_circuit_checker_fl_input_time_domain_similarity_threshold;
+  Fl_Output *analog_circuit_checker_fl_input_time_domain_similarity_threshold;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_frequency_domain;
-  Fl_Input *analog_circuit_checker_fl_input_frequency_domain_similarity_threshold;
+  Fl_Output *analog_circuit_checker_fl_input_frequency_domain_similarity_threshold;
   Fl_Button *analog_circuit_checker_fl_button_export_results;
   Fl_Group *main_fl_group_labchecker_analog_tab;
   LABSoft_GUI_LABChecker_Analog_Checker_Display *analog_labsoft_gui_analog_checker_display;
