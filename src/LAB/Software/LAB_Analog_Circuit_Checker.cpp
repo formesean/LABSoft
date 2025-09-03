@@ -274,6 +274,7 @@ void LAB_Analog_Circuit_Checker::
 
       {
         instructor_data = channel.sample_data;
+        print_samples(instructor_data, dummy_student_data);
         double comparison = compute_similarity();
         std::cout << "\nSimilarity: " << comparison << "%\n";
       }
