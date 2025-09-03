@@ -496,7 +496,9 @@ cb_run_checker_acc (Fl_Button* w, void* data)
       fl_message("Please load a .labacc file first before running the checker.");
       return;
     }
-
+    update_gui_analog_circuit_checker();
+    double comparison = checker->lab().m_Analog__Circuit_Checker.compute.similarity();
+    std::cout << "\nSimilarity: " << sim << "%\n";
     std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
   }
   catch (const std::exception &e)
