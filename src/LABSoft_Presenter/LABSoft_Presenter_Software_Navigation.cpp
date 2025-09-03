@@ -1,6 +1,7 @@
 #include "LABSoft_Presenter_Software_Navigation.h"
 #include <string>
 #include <cstring>
+#include <cmath>
 
 #include "../LAB/LAB.h"
 #include "LABSoft_Presenter.h"
@@ -382,7 +383,39 @@ update_data_cycle()
           if (n > 0)
           {
             const char* current = custom_choice->input()->value();
-            int curr_index = menu->find_index(current);
+            int curr_index = -1;
+
+            // 1) Try exact string match first
+            if (current && *current)
+            {
+              curr_index = menu->find_index(current);
+            }
+
+            // 2) If not found, try numeric match using LABSoft_GUI_Label parsing
+            if (curr_index < 0 && current)
+            {
+              try {
+                LABSoft_GUI_Label current_label(std::string(current), 0, LABSoft_GUI_Label::UNIT::ANY);
+                if (current_label.is_valid())
+                {
+                  double current_value = current_label.actual_value();
+                  for (int i = 0; i < n; ++i)
+                  {
+                    const Fl_Menu_Item* it = menu->menu() + i;
+                    if (!it || !it->text) continue;
+                    LABSoft_GUI_Label item_label(std::string(it->text), 0, LABSoft_GUI_Label::UNIT::ANY);
+                    if (!item_label.is_valid()) continue;
+                    if (std::fabs(item_label.actual_value() - current_value) < 0.5)
+                    {
+                      curr_index = i;
+                      break;
+                    }
+                  }
+                }
+              } catch (...) {
+              }
+            }
+
             if (curr_index < 0) curr_index = -1;
 
             int next_index = (curr_index + dir + n) % n;
