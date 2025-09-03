@@ -10,13 +10,22 @@
 #include <algorithm>
 
 #include "../../Utility/pugixml.hpp"
-// #include "../../../lib/KISSFFT/kiss_fftr.h"
+extern "C"
+{
+  #include "../../../lib/KISSFFT/kiss_fftr.h"
+}
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-// constexpr size_t N        = 2000;
+constexpr size_t N        = 2000;
+constexpr double Fs = 40e3; // Sampling frequency
+constexpr double amplitude = 1500;
+constexpr double f = 100; // 100 Hz square wave
+constexpr double offset = 2048;
+constexpr size_t delay = 2;
 
 static void print_samples(const std::vector<double> &instructor,
                           const std::vector<double> &student);
@@ -53,16 +62,10 @@ LAB_Analog_Circuit_Checker::
     LAB_Analog_Circuit_Checker(LAB &_lab)
     : LAB_Module(_lab)
 {
-  ChannelData channel;
-
   constexpr size_t NUM_SAMPLES = 2000;
   dummy_student_data.resize(NUM_SAMPLES);
 
-  double Fs = 40e3; // Sampling frequency
-  double amplitude = 1500;
-  double f = 100; // 100 Hz square wave
-  double offset = 2048;
-  size_t delay = 2;
+
 
   for (size_t n = 0; n < NUM_SAMPLES; ++n)
   {
@@ -82,78 +85,6 @@ LAB_Analog_Circuit_Checker::
   {
     val = (val - offset) / amplitude;
   }
-
-  // using scalar_t = kiss_fft_scalar;
-  // using cpx_t    = kiss_fft_cpx;
-
-  // kiss_fftr_cfg  cfg = kiss_fftr_alloc(static_cast<int>(N), 0, nullptr, nullptr);
-  // assert(cfg && "kiss_fftr_alloc failed");
-
-  // //dummy student data
-  // std::vector<scalar_t>xB(N);
-  // for (size_t n = 0; n < N; ++n) xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
-  // std::vector<cpx_t> XB(N/2 + 1);
-  // kiss_fftr(cfg, xB.data(), XB.data());
-
-  // //instructor data
-  // std::vector<scalar_t> xA(N);
-  // for (size_t n = 0; n<N; ++n) xA[n] = static_cast<scalar_t>(channel.sample_data[n]);
-  // std::vector<cpx_t> XA(N/2 + 1);
-  // kiss_fftr(cfg, xA.data(), XA.data());
-
-  // std::vector<double> magB(N/2 + 1);
-  // size_t peak_bin = 0;
-  // double peak_val = -1.0;
-
-  // for (size_t k = 0; k <XB.size(); ++k)
-  // {
-  //   const double re = XB[k].r;
-  //   const double im = XB[k].i;
-  //   magB[k] = std::sqrt(re*re + im*im);
-
-  //   if (k > 0 && magB[k] > peak_val)
-  //   {   // ignore DC
-  //     peak_val = magB[k];
-  //     peak_bin = k;
-  //   }
-  // }
-
-  // const double bin_hz  = Fs / N;
-  // const double peak_hz = peak_bin * bin_hz;
-
-  // std::cout << "\nFFT summary (student signal, noisy):\n";
-  //   std::cout << "  Peak bin: " << peak_bin
-  //             << "  (~" << std::fixed << std::setprecision(1) << peak_hz << " Hz)\n";
-
-  //   const double re = XB[peak_bin].r, im = XB[peak_bin].i;
-  //   const double phase_rad = std::atan2(im, re);
-  //   std::cout << "  Phase at peak: " << std::setprecision(6) << phase_rad << " rad\n";
-
-  //   const double expected_phi = std::fmod(2.0 * M_PI * f * (static_cast<double>(delay)/Fs), 2.0*M_PI);
-  //   std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
-
-  //   std::cout << "\nFirst 8 bins (magnitude):\n";
-  //   for (size_t k = 0; k < 8 && k < magB.size(); ++k)
-  //   {
-  //     std::cout << "  k=" << k
-  //               << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
-  //               << " Hz  |X|=" << std::setprecision(6) << magB[k] << "\n";
-  //   }
-
-  //   double dot = 0.0, nA = 0.0, nB = 0.0;
-  //   for (size_t k = 1; k < XA.size() && k < XB.size(); ++k)
-  //   { // skip DC
-  //     const double mA = std::hypot(XA[k].r, XA[k].i);
-  //     const double mB = std::hypot(XB[k].r, XB[k].i);
-  //     dot += mA * mB;
-  //     nA  += mA * mA;
-  //     nB  += mB * mB;
-  //   }
-  //   const double spec_cos = dot / (std::sqrt(nA * nB) + 1e-20);
-  //   std::cout << "\nFFT similarity (magnitude spectrum, noisy): "
-  //             << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
-
-  //   free(cfg);
 }
 
 void LAB_Analog_Circuit_Checker::
@@ -449,4 +380,85 @@ double LAB_Analog_Circuit_Checker::
                        // if corr =  1.0 ->  100% similar
                        // if corr =  0.0 ->  0%   similar
                        // if corr = -1.0 -> -100% (perfectly opposite)
+  double fft_result = compute_fft();
+}
+
+double LAB_Analog_Circuit_Checker::
+  compute_fft()
+{
+  ChannelData channel;
+
+  using scalar_t = kiss_fft_scalar;
+  using cpx_t    = kiss_fft_cpx;
+
+  kiss_fftr_cfg  cfg = kiss_fftr_alloc(static_cast<int>(N), 0, nullptr, nullptr);
+  assert(cfg && "kiss_fftr_alloc failed");
+
+  //dummy student data
+  std::vector<scalar_t>xB(N);
+  for (size_t n = 0; n < N; ++n) xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
+  std::vector<cpx_t> XB(N/2 + 1);
+  kiss_fftr(cfg, xB.data(), XB.data());
+
+  //instructor data
+  std::vector<scalar_t> xA(N);
+  for (size_t n = 0; n<N; ++n) xA[n] = static_cast<scalar_t>(channel.sample_data[n]);
+  std::vector<cpx_t> XA(N/2 + 1);
+  kiss_fftr(cfg, xA.data(), XA.data());
+
+  std::vector<double> magB(N/2 + 1);
+  size_t peak_bin = 0;
+  double peak_val = -1.0;
+
+  for (size_t k = 0; k <XB.size(); ++k)
+  {
+    const double re = XB[k].r;
+    const double im = XB[k].i;
+    magB[k] = std::sqrt(re*re + im*im);
+
+    if (k > 0 && magB[k] > peak_val)
+    {   // ignore DC
+      peak_val = magB[k];
+      peak_bin = k;
+    }
+  }
+
+  const double bin_hz  = Fs / N;
+  const double peak_hz = peak_bin * bin_hz;
+
+  std::cout << "\nFFT summary (student signal, noisy):\n";
+    std::cout << "  Peak bin: " << peak_bin
+              << "  (~" << std::fixed << std::setprecision(1) << peak_hz << " Hz)\n";
+
+    const double re = XB[peak_bin].r, im = XB[peak_bin].i;
+    const double phase_rad = std::atan2(im, re);
+    std::cout << "  Phase at peak: " << std::setprecision(6) << phase_rad << " rad\n";
+
+    const double expected_phi = std::fmod(2.0 * M_PI * f * (static_cast<double>(delay)/Fs), 2.0*M_PI);
+    std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
+
+    std::cout << "\nFirst 8 bins (magnitude):\n";
+    for (size_t k = 0; k < 8 && k < magB.size(); ++k)
+    {
+      std::cout << "  k=" << k
+                << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
+                << " Hz  |X|=" << std::setprecision(6) << magB[k] << "\n";
+    }
+
+    double dot = 0.0, nA = 0.0, nB = 0.0;
+    for (size_t k = 1; k < XA.size() && k < XB.size(); ++k)
+    { // skip DC
+      const double mA = std::hypot(XA[k].r, XA[k].i);
+      const double mB = std::hypot(XB[k].r, XB[k].i);
+      dot += mA * mB;
+      nA  += mA * mA;
+      nB  += mB * mB;
+    }
+    const double spec_cos = dot / (std::sqrt(nA * nB) + 1e-20);
+    std::cout << "\nFFT similarity (magnitude spectrum, noisy): "
+              << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
+
+    free(cfg);
+
+    return spec_cos;
 }

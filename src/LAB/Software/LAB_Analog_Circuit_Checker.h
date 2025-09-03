@@ -73,23 +73,24 @@ private:
 public:
   LAB_Analog_Circuit_Checker(LAB &_lab);
 
-  void load_file(const std::string &path);
-  void unload_file();
-  double compute_cross_correlation();
-  double compute_similarity();
+  void      load_file(const std::string &path);
+  void      unload_file();
+  double    compute_cross_correlation();
+  double    compute_similarity();
+  double    compute_fft();
 
-  void load_data_acc(); // Main function to load data into oscilloscope
+  void      load_data_acc(); // Main function to load data into oscilloscope
 
   // Getters
-  bool is_file_loaded() const { return m_is_file_loaded; }
-  const std::vector<ChannelData> &get_channel_data() const { return m_channel_data; }
-  const FunctionGenData &get_function_generator_data() const { return m_func_gen_data; }
+  bool      is_file_loaded() const { return m_is_file_loaded; }
+  const     std::vector<ChannelData> &get_channel_data() const { return m_channel_data; }
+  const     FunctionGenData &get_function_generator_data() const { return m_func_gen_data; }
 
   // Metadata getters
-  double get_time_per_division() const { return m_time_per_division; }
-  unsigned get_samples() const { return m_samples; }
-  double get_sampling_rate() const { return m_sampling_rate; }
-  double get_horizontal_offset() const { return m_horizontal_offset; }
+  double    get_time_per_division() const { return m_time_per_division; }
+  unsigned  get_samples() const { return m_samples; }
+  double    get_sampling_rate() const { return m_sampling_rate; }
+  double    get_horizontal_offset() const { return m_horizontal_offset; }
 
   // Trigger getters
   unsigned  get_trigger_mode() const { return m_trigger_mode; }
@@ -99,15 +100,15 @@ public:
   double    get_trigger_level() const { return m_trigger_level; }
 
   // Comparison getters
-  bool get_cmp_time_domain() const { return m_cmp_time_domain; }
-  bool get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
-  double get_cmp_similarity_threshold() const { return m_cmp_similarity_threshold; }
+  bool      get_cmp_time_domain() const { return m_cmp_time_domain; }
+  bool      get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
+  double    get_cmp_similarity_threshold() const { return m_cmp_similarity_threshold; }
 
   std::vector<double> dummy_student_data;
   std::vector<double> instructor_data;
 
-  void print_samples(const std::vector<double> &instructor,
-                     const std::vector<double> &student);
+  void      print_samples(const std::vector<double> &instructor,
+                          const std::vector<double> &student);
 };
 
 #endif
