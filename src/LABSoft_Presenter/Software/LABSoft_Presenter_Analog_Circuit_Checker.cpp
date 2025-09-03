@@ -106,7 +106,28 @@ static void set_input_choice_to_value (LABSoft_GUI_Fl_Input_Choice_With_Scroll* 
   if (idx >= 0)
   {
     mb->value(idx);
-    if (w->input()) w->input()->value(menu[idx].label());
+    if (w->input())
+    {
+      if (kind == UnitKind::SAMPLES)
+      {
+        long long integer_value = static_cast<long long>(std::llround(value));
+        if (integer_value >= 1000 && (integer_value % 1000) == 0)
+        {
+          long long thousands = integer_value / 1000;
+          char buf[32];
+          std::snprintf(buf, sizeof(buf), "%lld k", thousands);
+          w->input()->value(buf);
+        }
+        else
+        {
+          w->input()->value(menu[idx].label());
+        }
+      }
+      else
+      {
+        w->input()->value(menu[idx].label());
+      }
+    }
   }
 }
 
