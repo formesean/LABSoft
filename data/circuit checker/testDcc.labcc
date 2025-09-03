@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<root>
+	<metadata>
+		<input_bits>2</input_bits>
+		<output_bits>1</output_bits>
+	</metadata>
+	<data>
+		<data_pair>
+			<input>00</input>
+			<output>0</output>
+		</data_pair>
+		<data_pair>
+			<input>10</input>
+			<output>1</output>
+		</data_pair>
+	</data>
+</root>

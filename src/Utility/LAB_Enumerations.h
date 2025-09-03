@@ -41,8 +41,8 @@ namespace LABE
       enum class MODE
       {
         NONE,
-        AUTO,
-        NORMAL
+        NORMAL,
+        AUTO
       };
 
       enum class TYPE
@@ -120,8 +120,8 @@ namespace LABE
       enum class MODE
       {
         NONE,
-        AUTO,
-        NORMAL
+        NORMAL,
+        AUTO
       };
 
       enum class CND
