@@ -316,29 +316,57 @@ update_gui_oscilloscope()
 {
   LABSoft_GUI& gui = m_presenter.gui();
 
-  if (m_metadata.channels.size() > 1)
+  if (m_metadata.channels.size() >= 1)
   {
-    const auto& ch2 = m_metadata.channels[1];
+    const auto& ch1 = m_metadata.channels[0];
 
     if (gui.oscilloscope_fl_light_button_channel_0_enable)
-      gui.oscilloscope_fl_light_button_channel_0_enable->value(ch2.is_enabled ? 1 : 0);
+      gui.oscilloscope_fl_light_button_channel_0_enable->value(ch1.is_enabled ? 1 : 0);
 
     if (gui.oscilloscope_fl_light_button_channel_0_ac_coupling)
-      gui.oscilloscope_fl_light_button_channel_0_ac_coupling->value(ch2.coupling ? 1 : 0);
+      gui.oscilloscope_fl_light_button_channel_0_ac_coupling->value(ch1.coupling ? 1 : 0);
 
     if (gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_0_scaling)
-      gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_0_scaling->value(static_cast<int>(ch2.scaling));
+      gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_0_scaling->value(static_cast<int>(ch1.scaling));
 
     if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_voltage_per_division)
     {
       set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_voltage_per_division,
                                 UnitKind::VOLT,
-                                ch2.voltage_per_div);
+                                ch1.voltage_per_div);
     }
 
     if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_vertical_offset)
     {
       set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_vertical_offset,
+                                UnitKind::VOLT,
+                                ch1.vertical_offset);
+    }
+  }
+
+  if (m_metadata.channels.size() >= 2)
+  {
+    const auto& ch2 = m_metadata.channels[1];
+
+    if (gui.oscilloscope_fl_light_button_channel_1_enable)
+      gui.oscilloscope_fl_light_button_channel_1_enable->value(ch2.is_enabled ? 1 : 0);
+
+    if (gui.oscilloscope_fl_light_button_channel_1_ac_coupling)
+      gui.oscilloscope_fl_light_button_channel_1_ac_coupling->value(ch2.coupling ? 1 : 0);
+
+    if (gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_1_scaling)
+      gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_1_scaling->value(static_cast<int>(ch2.scaling));
+
+    if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_voltage_per_division)
+    {
+      set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_voltage_per_division,
+                                UnitKind::VOLT,
+                                ch2.voltage_per_div);
+    }
+
+    if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_vertical_offset)
+    {
+      set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_vertical_offset,
                                 UnitKind::VOLT,
                                 ch2.vertical_offset);
     }

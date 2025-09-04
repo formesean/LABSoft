@@ -76,8 +76,6 @@ public:
 
   void load_file(const std::string &path);
   void unload_file();
-  double compute_cross_correlation();
-  double compute_similarity();
 
   void load_data_acc(); // Main function to load data into oscilloscope
 
@@ -104,12 +102,6 @@ public:
   bool get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
   double get_cmp_time_similarity_threshold() const { return m_cmp_time_similarity_threshold; }
   double get_cmp_frequency_similarity_threshold() const { return m_cmp_frequency_similarity_threshold; }
-
-  std::vector<double> dummy_student_data;
-  std::vector<double> instructor_data;
-
-  void print_samples(const std::vector<double> &instructor,
-                     const std::vector<double> &student);
 };
 
 #endif
