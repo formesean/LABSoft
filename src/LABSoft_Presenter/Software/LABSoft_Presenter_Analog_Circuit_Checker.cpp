@@ -236,8 +236,9 @@ update_gui_analog_circuit_checker()
       analog_display.samples(m_metadata.samples);
       analog_display.sampling_rate(m_metadata.sampling_rate);
 
-      // Convert sample data to pixel points for display (CH2 only)
+      // Convert imported CH2 to overlay points (drawn independently in red)
       LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints pixel_points;
+      std::vector<std::array<int, 2>> overlay_points;
       for (size_t idx = 0; idx < channel_data.size() && idx < LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS; ++idx)
       {
         if (idx != 1) continue;
@@ -245,6 +246,7 @@ update_gui_analog_circuit_checker()
 
         pixel_points[0].clear();
         pixel_points[1].clear();
+        overlay_points.clear();
 
         if (channel.is_enabled && !channel.sample_data.empty())
         {
@@ -252,7 +254,7 @@ update_gui_analog_circuit_checker()
           const unsigned display_height = analog_display.display_height();
 
           const size_t N = channel.sample_data.size();
-          pixel_points[1].reserve(N);
+          overlay_points.reserve(N);
 
           const double voltage_per_division = std::max(1e-9, channel.voltage_per_division);
           const double voltage_range        = voltage_per_division * static_cast<double>(LABC::OSC_DISPLAY::NUMBER_OF_ROWS);
@@ -262,7 +264,6 @@ update_gui_analog_circuit_checker()
             const size_t denom = (N > 1) ? (N - 1) : 1;
             int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width - 1)) / static_cast<double>(denom));
 
-            // Apply scaling correction and vertical offset (positive offset moves signal up)
             const double corrected_voltage = (channel.sample_data[i] * channel.scaling_corrector) + channel.vertical_offset;
             double normalized_voltage = (corrected_voltage + (voltage_range / 2.0)) / voltage_range;
             normalized_voltage = clamp01(normalized_voltage);
@@ -271,10 +272,10 @@ update_gui_analog_circuit_checker()
             x = std::max(0, std::min(x, static_cast<int>(display_width - 1)));
             y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
 
-            pixel_points[1].push_back({x, y});
+            overlay_points.push_back({x, y});
           }
 
-          // Sync GUI parameters for consistency
+          // Sync GUI parameters for consistency (use ch2 for reference scaling when needed)
           analog_display.voltage_per_division(static_cast<unsigned>(idx), channel.voltage_per_division);
           analog_display.vertical_offset(static_cast<unsigned>(idx), channel.vertical_offset);
         }
@@ -284,12 +285,11 @@ update_gui_analog_circuit_checker()
       analog_display.horizontal_offset(m_metadata.horizontal_offset);
 
       analog_display.load_pixel_points(pixel_points);
+      analog_display.load_overlay_points(overlay_points, FL_RED, true);
 
-      if (channel_data.size() > 1)
-      {
-        analog_display.channel_enable_disable(0, false);
-        analog_display.channel_enable_disable(1, channel_data[1].is_enabled);
-      }
+      // Disable base channels; overlay shows imported CH2 independently
+      analog_display.channel_enable_disable(0, false);
+      analog_display.channel_enable_disable(1, false);
       analog_display.update_display();
     }
     catch (const std::exception& e)
