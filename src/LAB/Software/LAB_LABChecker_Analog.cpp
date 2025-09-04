@@ -61,13 +61,19 @@ static std::stringstream create_circuit_checker_xml_string_with_data_impl(
     ss << "          <trms>" << osc.measurements.trms << "</trms>\n";
     ss << "        </measurements>\n";
 
-    // Samples: only channel 2
-    if (i == 1)
+    // Samples: export for channel 1 and channel 2
+    if (i == 0 || i == 1)
     {
-      ss << "        <samples>\n";
+      ss << "<samples>";
+      bool is_first_sample = true;
       for (const auto &s : osc.samples)
-        ss << "          <sample>" << s << "</sample>\n";
-      ss << "        </samples>\n";
+      {
+        if (!is_first_sample)
+          ss << ",";
+        ss << s;
+        is_first_sample = false;
+      }
+      ss << "</samples>\n";
     }
     ss << "      </channel>\n";
   }
