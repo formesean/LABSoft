@@ -315,6 +315,51 @@ void LABSoft_Presenter_Analog_Circuit_Checker::
 update_gui_oscilloscope()
 {
   LABSoft_GUI& gui = m_presenter.gui();
+  LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+
+  // Apply imported metadata to the underlying oscilloscope state
+  // Channels
+  if (m_metadata.channels.size() >= 1)
+  {
+    const auto &ch1 = m_metadata.channels[0];
+    osc.channel_enable_disable(0, ch1.is_enabled);
+    osc.coupling(0, ch1.coupling ? LABE::OSC::COUPLING::AC : LABE::OSC::COUPLING::DC);
+    osc.scaling(0, static_cast<LABE::OSC::SCALING>(ch1.scaling));
+    osc.voltage_per_division(0, ch1.voltage_per_div);
+    osc.vertical_offset(0, ch1.vertical_offset);
+  }
+  if (m_metadata.channels.size() >= 2)
+  {
+    const auto &ch2 = m_metadata.channels[1];
+    osc.channel_enable_disable(1, ch2.is_enabled);
+    osc.coupling(1, ch2.coupling ? LABE::OSC::COUPLING::AC : LABE::OSC::COUPLING::DC);
+    osc.scaling(1, static_cast<LABE::OSC::SCALING>(ch2.scaling));
+    osc.voltage_per_division(1, ch2.voltage_per_div);
+    osc.vertical_offset(1, ch2.vertical_offset);
+  }
+
+  // Horizontal/global
+  osc.horizontal_offset(m_metadata.horizontal_offset);
+  osc.time_per_division(m_metadata.time_per_division);
+  osc.samples(m_metadata.samples);
+  osc.sampling_rate(m_metadata.sampling_rate);
+
+  // Triggers
+  auto clamp_mode = [](unsigned v) -> LABE::OSC::TRIG::MODE {
+    if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::MODE>(v);
+  };
+  auto clamp_type = [](unsigned v) -> LABE::OSC::TRIG::TYPE {
+    if (v > 1) v = 1; return static_cast<LABE::OSC::TRIG::TYPE>(v);
+  };
+  auto clamp_cnd = [](unsigned v) -> LABE::OSC::TRIG::CND {
+    if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::CND>(v);
+  };
+
+  osc.trigger_mode(clamp_mode(m_metadata.trigger_mode));
+  osc.trigger_source((m_metadata.trigger_source == 0) ? 0u : 1u);
+  osc.trigger_type(clamp_type(m_metadata.trigger_type));
+  osc.trigger_condition(clamp_cnd(m_metadata.trigger_condition));
+  osc.trigger_level(m_metadata.trigger_level);
 
   if (m_metadata.channels.size() >= 1)
   {
