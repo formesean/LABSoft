@@ -541,10 +541,60 @@ cb_run_checker_acc (Fl_Button* w, void* data)
 
   try
   {
-    if (!checker.is_file_loaded())
+    LABSoft_GUI &gui_ref = m_presenter.gui();
+    auto *acc_disp_ptr = gui_ref.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
+    if (!acc_disp_ptr) return;
+
+    LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+    LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
+
+    const unsigned analog_w = acc_disp_ptr->display_width();
+    const unsigned analog_h = acc_disp_ptr->display_height();
+
+    LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui_ref.oscilloscope_labsoft_gui_oscilloscope_display);
+    const unsigned osc_tab_w = osc_gui_disp.display_width();
+    const unsigned osc_tab_h = osc_gui_disp.display_height();
+
+    const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
+    if (!same_size)
     {
-      fl_message("Please load a .labacc file first before running the checker.");
-      return;
+      osc_disp.display_parameters(
+        analog_w,
+        analog_h,
+        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+      );
+    }
+
+    osc_disp.update_pixel_points();
+    const auto &raw_buf = osc_disp.pixel_points();
+
+    // Populate ACC display with CH2 only
+    LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
+    if (raw_buf.size() > 1)
+      acc_pixels[1] = raw_buf[1];
+
+    acc_disp_ptr->voltage_per_division(1, osc.voltage_per_division(1));
+    acc_disp_ptr->vertical_offset(1, osc.vertical_offset(1));
+    acc_disp_ptr->time_per_division(osc.time_per_division());
+    acc_disp_ptr->horizontal_offset(osc.horizontal_offset());
+    acc_disp_ptr->samples(osc.samples());
+    acc_disp_ptr->sampling_rate(osc.sampling_rate());
+
+    acc_disp_ptr->load_pixel_points(acc_pixels);
+    acc_disp_ptr->channel_enable_disable(0, false);
+    acc_disp_ptr->channel_enable_disable(1, true);
+    acc_disp_ptr->update_display();
+
+    if (!same_size)
+    {
+      osc_disp.display_parameters(
+        osc_tab_w,
+        osc_tab_h,
+        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+      );
+      osc_disp.update_pixel_points();
     }
 
     std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
