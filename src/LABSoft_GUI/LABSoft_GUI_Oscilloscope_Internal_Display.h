@@ -13,12 +13,17 @@ class LABSoft_Presenter;
 
 class LABSoft_GUI_Oscilloscope_Internal_Display : public Fl_Widget
 {
-  using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
+  using PixelPoints = std::array<std::vector<std::array<int, 2>>,
                       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
 
   private:
     Fl_Color m_background_color = FL_BLACK;
     Fl_Color m_grid_color       = LABC::OSC_DISPLAY::GRID_COLOR;
+
+    // Optional overlay channel (for imported data rendered independently)
+    std::vector<std::array<int, 2>> m_overlay_points;
+    Fl_Color m_overlay_color = FL_RED;
+    bool m_overlay_enabled = false;
 
     //
     std::array<bool, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> m_channel_enabled = {0};
@@ -35,12 +40,12 @@ class LABSoft_GUI_Oscilloscope_Internal_Display : public Fl_Widget
     // connections
     const LABSoft_Presenter* m_presenter     = nullptr;
     const PixelPoints*        m_pixel_points  = nullptr;
-    
+
     // cached values for mouse drag horizontal offset change
     int     m_mouse_drag_start_x                  = 0;
     int     m_mouse_drag_start_y                  = 0;
     double  m_mouse_drag_start_horizontal_offset  = 0.0;
-          
+
   private:
     // widget functions
     void    draw   ();
@@ -50,9 +55,10 @@ class LABSoft_GUI_Oscilloscope_Internal_Display : public Fl_Widget
     // draw functions
     void    draw_grid          ();
     void    draw_channels      (const PixelPoints& pixel_points);
+    void    draw_overlay       ();
     void    draw_sample_marker (int x, int y);
-    void    calc_cached_values ();  
-    double  calc_mouse_drag_time_per_division_delta_scaler (int drag_x) const;     
+    void    calc_cached_values ();
+    double  calc_mouse_drag_time_per_division_delta_scaler (int drag_x) const;
 
     // callbacks
     void    cb_mouse_click  (int x, int y);
@@ -65,6 +71,9 @@ class LABSoft_GUI_Oscilloscope_Internal_Display : public Fl_Widget
     void    channel_enable_disable  (unsigned channel, bool state);
     void    load_presenter          (const LABSoft_Presenter& presenter);
     void    load_pixel_points       (const PixelPoints& pixel_points);
+    void    load_overlay_pixel_points(const std::vector<std::array<int, 2>>& points);
+    void    overlay_color           (Fl_Color color);
+    void    overlay_enable          (bool state);
     double  row_height              () const;
     double  column_width            () const;
     void    mark_samples            (bool state);

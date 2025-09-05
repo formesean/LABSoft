@@ -20,7 +20,7 @@ class LABSoft_GUI_Oscilloscope_Internal_Display;
 class LABSoft_GUI_Analog_Circuit_Checker_Display : public Fl_Group {
 
 private:
-   
+
     void init_child_widgets();
     void init_child_widgets_internal_display();
 
@@ -31,6 +31,9 @@ private:
 
 
 public:
+    using PixelPoints = std::array<std::vector<std::array<int, 2>>,
+                      LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
+
     // Constructor
     LABSoft_GUI_Analog_Circuit_Checker_Display(int X, int Y, int W, int H, const char* label = 0);
 
@@ -41,13 +44,22 @@ public:
 
     // Optional methods
     void update_display();  // A method to update or interact with the oscilloscope
-    void load_presenter       (const LABSoft_Presenter& presenter);  
+    void load_presenter       (const LABSoft_Presenter& presenter);
+    void load_pixel_points    (const PixelPoints& pixel_points);
+    void load_overlay_points  (const std::vector<std::array<int, 2>>& points, Fl_Color color = FL_RED, bool enabled = true);
     void voltage_per_division             (unsigned channel, double value);
     void time_per_division                (double value);
-    void samples                          (unsigned value); 
+    void samples                          (unsigned value);
     void sampling_rate                    (double value);
+    void horizontal_offset                (double value);
+    unsigned display_width                () const;
+    unsigned display_height               () const;
+    void vertical_offset                  (unsigned channel, double value);
+    void channel_enable_disable           (unsigned channel, bool state);
 
-    
+private:
+    // Persistent storage so the internal display can safely reference pixel points
+    PixelPoints m_pixel_points_storage{};
 };
 
 #endif

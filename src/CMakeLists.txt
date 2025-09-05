@@ -34,6 +34,7 @@ add_executable(LABSoft
   LAB/Software/LAB_Oscilloscope_Display.cpp
   LAB/Software/LAB_Shortcuts.cpp
   LAB/Software/LAB_LABChecker_Analog.cpp
+  LAB/Software/LAB_Analog_Circuit_Checker.cpp
 
   LABSoft_Presenter/LABSoft_Presenter_Unit.cpp
   LABSoft_Presenter/LABSoft_Presenter.cpp
@@ -88,6 +89,8 @@ add_executable(LABSoft
   ../lib/AD9833/AD9833.cpp
   ../lib/MCP4XXX/MCP4XXX.cpp
   ../lib/MCP23S17/MCP23S17.cpp
+  ../lib/KISSFFT/kiss_fft.c
+  ../lib/KISSFFT/kiss_fftr.c
 )
 
 target_link_libraries(LABSoft

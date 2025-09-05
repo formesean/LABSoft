@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<root>
+  <metadata>
+    <channels>2</channels>
+    <samples>2000</samples>
+    <sampling_rate>40000</sampling_rate>
+    <time_per_division>0.005</time_per_division>
+    <horizontal_offset>0</horizontal_offset>
+    <trigger_mode>0</trigger_mode>
+    <trigger_source>0</trigger_source>
+    <trigger_type>1</trigger_type>
+    <trigger_condition>0</trigger_condition>
+    <trigger_level>0</trigger_level>
+  </metadata>
+
+  <data>
+    <data_pair>
+      <input>Channel 1</input>
+      <output>
+        <samples>2000</samples>
+        <coupling>0</coupling>
+        <scaling>2</scaling>
+        <voltage_per_division>1</voltage_per_division>
+        <vertical_offset>0</vertical_offset>
+        <is_enabled>1</is_enabled>
+        <scaling_corrector>1</scaling_corrector>
+        <measurements>
+          <min>0</min>
+          <max>0</max>
+          <avg>0</avg>
+          <trms>0</trms>
+        </measurements>
+        <first_10_samples>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+          <sample>1.88324</sample>
+        </first_10_samples>
+      </output>
+    </data_pair>
+
+    <data_pair>
+      <input>Channel 2</input>
+      <output>
+        <samples>2000</samples>
+        <coupling>0</coupling>
+        <scaling>2</scaling>
+        <voltage_per_division>1</voltage_per_division>
+        <vertical_offset>0</vertical_offset>
+        <is_enabled>0</is_enabled>
+        <scaling_corrector>1</scaling_corrector>
+        <measurements>
+          <min>0</min>
+          <max>0</max>
+          <avg>0</avg>
+          <trms>0</trms>
+        </measurements>
+        <first_10_samples>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+          <sample>0</sample>
+        </first_10_samples>
+      </output>
+    </data_pair>
+
+    <data_pair>
+      <input>Function Generator Ch1</input>
+      <output>
+        <wave_type>0</wave_type>
+        <frequency>1000</frequency>
+        <period>0.001</period>
+      </output>
+    </data_pair>
+  </data>
+</root>

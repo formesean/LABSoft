@@ -15,13 +15,12 @@ LAB::LAB ()
   m_Calibration             (*this),
   m_Software_Navigation     (*this),
   m_Shortcuts               (*this),
-  m_LABChecker_Analog       (*this, m_Oscilloscope)
+  m_Analog_Circuit_Checker  (*this)
 {
-
 }
 
-AikaPi& LAB::
-rpi () const
+AikaPi &LAB::
+    rpi() const
 {
   return (m_LAB_Core);
 }
