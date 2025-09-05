@@ -374,91 +374,111 @@ double LAB_Analog_Circuit_Checker::
     compute_similarity()
 {
   double corr = compute_cross_correlation();
+  double fft_result = compute_fft();
   std::cout << "\n"
             << corr << "\n";
   return corr * 100.0; // percentage
                        // if corr =  1.0 ->  100% similar
                        // if corr =  0.0 ->  0%   similar
                        // if corr = -1.0 -> -100% (perfectly opposite)
-  double fft_result = compute_fft();
 }
 
 double LAB_Analog_Circuit_Checker::
   compute_fft()
 {
-  ChannelData channel;
-
   using scalar_t = kiss_fft_scalar;
   using cpx_t    = kiss_fft_cpx;
 
-  kiss_fftr_cfg  cfg = kiss_fftr_alloc(static_cast<int>(N), 0, nullptr, nullptr);
+  // check channel data
+  if (m_channel_data.empty()) 
+  {
+    std::printf("ERROR: No channel data loaded from .labacc file\n");
+    throw std::runtime_error("No channel data available for FFT computation");
+  }
+
+  // check instructor data
+  if (instructor_data.empty()) 
+  {
+    std::printf("ERROR: No instructor data available\n");
+    throw std::runtime_error("No instructor data available for FFT computation");
+  }
+
+  const size_t actual_N = std::min(instructor_data.size(), dummy_student_data.size());
+
+  kiss_fftr_cfg cfg = kiss_fftr_alloc(static_cast<int>(actual_N), 0, nullptr, nullptr);
   assert(cfg && "kiss_fftr_alloc failed");
 
-  //dummy student data
-  std::vector<scalar_t>xB(N);
-  for (size_t n = 0; n < N; ++n) xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
-  std::vector<cpx_t> XB(N/2 + 1);
+  // dummy student data
+  std::vector<scalar_t> xB(actual_N);
+  for (size_t n = 0; n < actual_N; ++n) 
+  {
+    xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
+  }
+  std::vector<cpx_t> XB(actual_N/2 + 1);
   kiss_fftr(cfg, xB.data(), XB.data());
 
-  //instructor data
-  std::vector<scalar_t> xA(N);
-  for (size_t n = 0; n<N; ++n) xA[n] = static_cast<scalar_t>(channel.sample_data[n]);
-  std::vector<cpx_t> XA(N/2 + 1);
+  // instructor data from file
+  std::vector<scalar_t> xA(actual_N);
+  for (size_t n = 0; n < actual_N; ++n) 
+  {
+    xA[n] = static_cast<scalar_t>(instructor_data[n]); 
+  }
+  std::vector<cpx_t> XA(actual_N/2 + 1);
   kiss_fftr(cfg, xA.data(), XA.data());
 
-  std::vector<double> magB(N/2 + 1);
+
+  std::vector<double> magB(actual_N/2 + 1);
   size_t peak_bin = 0;
   double peak_val = -1.0;
 
-  for (size_t k = 0; k <XB.size(); ++k)
-  {
+  for (size_t k = 0; k < XB.size(); ++k) {
     const double re = XB[k].r;
     const double im = XB[k].i;
     magB[k] = std::sqrt(re*re + im*im);
 
-    if (k > 0 && magB[k] > peak_val)
-    {   // ignore DC
+    if (k > 0 && magB[k] > peak_val) {  
       peak_val = magB[k];
       peak_bin = k;
     }
   }
 
-  const double bin_hz  = Fs / N;
+  const double bin_hz = Fs / actual_N; 
   const double peak_hz = peak_bin * bin_hz;
 
+  // data
   std::cout << "\nFFT summary (student signal, noisy):\n";
-    std::cout << "  Peak bin: " << peak_bin
-              << "  (~" << std::fixed << std::setprecision(1) << peak_hz << " Hz)\n";
+  std::cout << "  Peak bin: " << peak_bin
+            << "  (~" << std::fixed << std::setprecision(1) << peak_hz << " Hz)\n";
 
-    const double re = XB[peak_bin].r, im = XB[peak_bin].i;
-    const double phase_rad = std::atan2(im, re);
-    std::cout << "  Phase at peak: " << std::setprecision(6) << phase_rad << " rad\n";
+  const double re = XB[peak_bin].r, im = XB[peak_bin].i;
+  const double phase_rad = std::atan2(im, re);
+  std::cout << "  Phase at peak: " << std::setprecision(6) << phase_rad << " rad\n";
 
-    const double expected_phi = std::fmod(2.0 * M_PI * f * (static_cast<double>(delay)/Fs), 2.0*M_PI);
-    std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
+  const double expected_phi = std::fmod(2.0 * M_PI * f * (static_cast<double>(delay)/Fs), 2.0*M_PI);
+  std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
 
-    std::cout << "\nFirst 8 bins (magnitude):\n";
-    for (size_t k = 0; k < 8 && k < magB.size(); ++k)
-    {
-      std::cout << "  k=" << k
-                << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
-                << " Hz  |X|=" << std::setprecision(6) << magB[k] << "\n";
-    }
+  std::cout << "\nFirst 8 bins (magnitude):\n";
+  for (size_t k = 0; k < 8 && k < magB.size(); ++k) 
+  {
+    std::cout << "  k=" << k
+              << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
+              << " Hz  |X|=" << std::setprecision(6) << magB[k] << "\n";
+  }
 
-    double dot = 0.0, nA = 0.0, nB = 0.0;
-    for (size_t k = 1; k < XA.size() && k < XB.size(); ++k)
-    { // skip DC
-      const double mA = std::hypot(XA[k].r, XA[k].i);
-      const double mB = std::hypot(XB[k].r, XB[k].i);
-      dot += mA * mB;
-      nA  += mA * mA;
-      nB  += mB * mB;
-    }
-    const double spec_cos = dot / (std::sqrt(nA * nB) + 1e-20);
-    std::cout << "\nFFT similarity (magnitude spectrum, noisy): "
-              << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
+  double dot = 0.0, nA = 0.0, nB = 0.0;
+  for (size_t k = 1; k < XA.size() && k < XB.size(); ++k) 
+  { 
+    const double mA = std::hypot(XA[k].r, XA[k].i);
+    const double mB = std::hypot(XB[k].r, XB[k].i);
+    dot += mA * mB;
+    nA  += mA * mA;
+    nB  += mB * mB;
+  }
+  const double spec_cos = dot / (std::sqrt(nA * nB) + 1e-20);
+  std::cout << "\nFFT similarity (magnitude spectrum, noisy): "
+            << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
 
-    free(cfg);
+  free(cfg);
 
-    return spec_cos;
+  return spec_cos;
 }
