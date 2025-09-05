@@ -49,7 +49,7 @@ void LAB_Analog_Circuit_Checker::
   std::cout << " ]\n";
 }
 
-LAB_Analog_Circuit_Checker::
+/*LAB_Analog_Circuit_Checker::
     LAB_Analog_Circuit_Checker(LAB &_lab)
     : LAB_Module(_lab)
 {
@@ -81,7 +81,7 @@ LAB_Analog_Circuit_Checker::
   for (auto &val : dummy_student_data)
   {
     val = (val - offset) / amplitude;
-  }
+  }*/
 
   // using scalar_t = kiss_fft_scalar;
   // using cpx_t    = kiss_fft_cpx;
@@ -154,7 +154,7 @@ LAB_Analog_Circuit_Checker::
   //             << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
 
   //   free(cfg);
-}
+//}
 
 void LAB_Analog_Circuit_Checker::
     load_data_from_file_acc()
@@ -273,11 +273,14 @@ void LAB_Analog_Circuit_Checker::
       if (index_attr == 1)
 
       {
-        instructor_data = channel.sample_data;
-        print_samples(instructor_data, dummy_student_data);
-        double comparison = compute_similarity();
-        std::cout << "\nSimilarity: " << comparison << "%\n";
+        time_domain_analysis();
+        //instructor_data = channel.sample_data;
+
+        //double comparison = compute_similarity();
+        //std::cout << "\nSimilarity: " << comparison << "%\n";
       }
+
+
 
       m_channel_data.push_back(std::move(channel));
       ++idx;
@@ -384,29 +387,36 @@ void LAB_Analog_Circuit_Checker::
   // Intentionally left blank in ACC module. Presenter consumes parsed data for display.
 }
 
-double LAB_Analog_Circuit_Checker::
-    compute_cross_correlation()
+/*void LAB_Analog_Circuit_Checker::
+    cross_correlation(const std::vector<double> &instructor,
+                          const std::vector<double> &student)
 {
   ChannelData channel;
 
-  const size_t N = std::min(instructor_data.size(), dummy_student_data.size());
+  const size_t N = std::min(instructor.size(), student.size());
   double numerator = 0.0;
   double denom_x = 0.0;
   double denom_y = 0.0;
 
   for (size_t n = 0; n < N; n++)
   {
-    numerator += instructor_data[n] * dummy_student_data[n];
-    denom_x += instructor_data[n] * instructor_data[n];
-    denom_y += dummy_student_data[n] * dummy_student_data[n];
+    numerator += instructor[n] * student[n];
+    denom_x += instructor[n] * instructor[n];
+    denom_y += student[n] * student[n];
   }
 
-  if (denom_x == 0.0 || denom_y == 0.0)
-    return 0.0; // avoid div by zero
+  if (denom_x == 0.0 || denom_y == 0.0){
 
-  return numerator / std::sqrt(denom_x * denom_y); // normalized correlation
+    std::cout << "\nInvalid Comparison%\n";
+  }
+    // avoid div by zero
 
-  /*const size_t N = std::min(instructor_data.size(), dummy_student_data.size());
+  double corr = numerator / std::sqrt(denom_x * denom_y); // normalized correlation
+  double percentage = corr * 100.0;
+
+
+
+  const size_t N = std::min(instructor_data.size(), dummy_student_data.size());
   if (N == 0)
     return 0.0;
 
@@ -439,17 +449,99 @@ double LAB_Analog_Circuit_Checker::
     return 0.0; // avoid div by zero
 
   return numerator / std::sqrt(denom_x * denom_y); // Pearson correlation
-  */
-}
+  
+}*/
 
-double LAB_Analog_Circuit_Checker::
+/*double LAB_Analog_Circuit_Checker::
     compute_similarity()
 {
   double corr = compute_cross_correlation();
-  std::cout << "\n"
-            << corr << "\n";
+
   return corr * 100.0; // percentage
                        // if corr =  1.0 ->  100% similar
                        // if corr =  0.0 ->  0%   similar
                        // if corr = -1.0 -> -100% (perfectly opposite)
+}*/
+
+LAB_Analog_Circuit_Checker::CorrelationResult 
+LAB_Analog_Circuit_Checker::cross_correlation(const std::vector<double> &x,
+                                           const std::vector<double> &y)
+{
+    CorrelationResult result{0.0, 0.0};
+
+    if (x.empty() || y.empty()) {
+        std::cout << "\nInvalid Comparison: empty signal\n";
+        return result;
+    }
+
+    const size_t N = std::min(x.size(), y.size());
+    double numerator = 0.0;
+    double denom_x = 0.0;
+    double denom_y = 0.0;
+
+    for (size_t n = 0; n < N; n++) {
+        numerator += x[n] * y[n];
+        denom_x   += x[n] * x[n];
+        denom_y   += y[n] * y[n];
+    }
+
+    if (denom_x == 0.0 || denom_y == 0.0) {
+        std::cout << "\nInvalid Comparison: divide by zero\n";
+        return result;
+    }
+
+    result.coefficient = numerator / std::sqrt(denom_x * denom_y);
+    result.percentage  = result.coefficient * 100.0;
+
+    return result;
+}
+
+
+
+void LAB_Analog_Circuit_Checker::time_domain_analysis()
+{
+    if (m_channel_data.size() < 2) {
+        std::cout << "\nNot enough channels loaded for comparison\n";
+        return;
+    }
+
+    // Channel 2 (index 1) as Instructor
+    const std::vector<double>& instructor = m_channel_data[1].sample_data;
+
+    
+    // Student data (dummy signal)
+    constexpr size_t NUM_SAMPLES = 2000;
+    std::vector<double> student(NUM_SAMPLES);
+
+    double Fs        = 40e3;   // Sampling frequency
+    double amplitude = 1500;
+    double f         = 100;    // 100 Hz square wave
+    double offset    = 2048;
+    size_t delay     = 2;
+
+    for (size_t n = 0; n < NUM_SAMPLES; ++n)
+    {
+        // Apply delay
+        size_t delayed_index = (n >= delay) ? (n - delay) : 0;
+        double t_delayed = static_cast<double>(delayed_index) / Fs;
+
+        // Generate square wave
+        double sq_val = (fmod(f * t_delayed, 1.0) < 0.5) ? amplitude : -amplitude;
+
+        // Add offset
+        student[n] = sq_val + offset;
+    }
+
+    // Normalize to [-1, 1]
+    for (auto &val : student) {
+        val = (val - offset) / amplitude;
+    }
+    // Perform cross-correlation
+    CorrelationResult result = cross_correlation(instructor, student);
+
+    std::cout << "\nTime-Domain Analysis Result:\n";
+    std::cout << "  Correlation Coefficient: " << std::fixed << std::setprecision(4) 
+              << result.coefficient << "\n";
+    std::cout << "  Similarity Percentage:   " << std::fixed << std::setprecision(2) 
+              << result.percentage << " %\n";
 }
