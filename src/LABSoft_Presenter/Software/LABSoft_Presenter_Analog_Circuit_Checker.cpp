@@ -541,12 +541,19 @@ cb_load_file_acc (Fl_Button* w, void* data)
 
           // Load the .labacc file
           m_presenter.lab().m_Analog_Circuit_Checker.load_file(path);
+          import_metadata();
 
-            import_metadata                   ();
-            update_gui_oscilloscope           ();
-            update_gui_function_generator     ();
-            update_gui_acc_comparison         ();
-            update_gui_analog_circuit_checker ();
+          // turn off oscilloscope and function generator run button
+          gui().oscilloscope_fl_light_button_run_stop->value(0);
+          gui().function_generator_fl_light_button_run_stop->value(0);
+          presenter().m_Oscilloscope.cb_run_stop(gui().oscilloscope_fl_light_button_run_stop, nullptr);
+          presenter().m_Function_Generator.cb_run_stop(gui().function_generator_fl_light_button_run_stop, 0);
+
+          // update gui
+          update_gui_oscilloscope           ();
+          update_gui_function_generator     ();
+          update_gui_acc_comparison         ();
+          update_gui_analog_circuit_checker ();
 
           fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
         }
