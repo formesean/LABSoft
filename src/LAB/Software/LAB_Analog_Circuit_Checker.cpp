@@ -18,7 +18,13 @@
 
 // constexpr size_t N        = 2000;
 
-static void print_samples(const std::vector<double> &instructor,
+LAB_Analog_Circuit_Checker::
+    LAB_Analog_Circuit_Checker(LAB &_lab)
+    : LAB_Module(_lab)
+{
+}
+
+/*static void print_samples(const std::vector<double> &instructor,
                           const std::vector<double> &student);
 
 // Member version to satisfy linkage when called from within the class
@@ -47,7 +53,7 @@ void LAB_Analog_Circuit_Checker::
       std::cout << ", ";
   }
   std::cout << " ]\n";
-}
+}*/
 
 /*LAB_Analog_Circuit_Checker::
     LAB_Analog_Circuit_Checker(LAB &_lab)
@@ -83,77 +89,77 @@ void LAB_Analog_Circuit_Checker::
     val = (val - offset) / amplitude;
   }*/
 
-  // using scalar_t = kiss_fft_scalar;
-  // using cpx_t    = kiss_fft_cpx;
+// using scalar_t = kiss_fft_scalar;
+// using cpx_t    = kiss_fft_cpx;
 
-  // kiss_fftr_cfg  cfg = kiss_fftr_alloc(static_cast<int>(N), 0, nullptr, nullptr);
-  // assert(cfg && "kiss_fftr_alloc failed");
+// kiss_fftr_cfg  cfg = kiss_fftr_alloc(static_cast<int>(N), 0, nullptr, nullptr);
+// assert(cfg && "kiss_fftr_alloc failed");
 
-  // //dummy student data
-  // std::vector<scalar_t>xB(N);
-  // for (size_t n = 0; n < N; ++n) xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
-  // std::vector<cpx_t> XB(N/2 + 1);
-  // kiss_fftr(cfg, xB.data(), XB.data());
+// //dummy student data
+// std::vector<scalar_t>xB(N);
+// for (size_t n = 0; n < N; ++n) xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
+// std::vector<cpx_t> XB(N/2 + 1);
+// kiss_fftr(cfg, xB.data(), XB.data());
 
-  // //instructor data
-  // std::vector<scalar_t> xA(N);
-  // for (size_t n = 0; n<N; ++n) xA[n] = static_cast<scalar_t>(channel.sample_data[n]);
-  // std::vector<cpx_t> XA(N/2 + 1);
-  // kiss_fftr(cfg, xA.data(), XA.data());
+// //instructor data
+// std::vector<scalar_t> xA(N);
+// for (size_t n = 0; n<N; ++n) xA[n] = static_cast<scalar_t>(channel.sample_data[n]);
+// std::vector<cpx_t> XA(N/2 + 1);
+// kiss_fftr(cfg, xA.data(), XA.data());
 
-  // std::vector<double> magB(N/2 + 1);
-  // size_t peak_bin = 0;
-  // double peak_val = -1.0;
+// std::vector<double> magB(N/2 + 1);
+// size_t peak_bin = 0;
+// double peak_val = -1.0;
 
-  // for (size_t k = 0; k <XB.size(); ++k)
-  // {
-  //   const double re = XB[k].r;
-  //   const double im = XB[k].i;
-  //   magB[k] = std::sqrt(re*re + im*im);
+// for (size_t k = 0; k <XB.size(); ++k)
+// {
+//   const double re = XB[k].r;
+//   const double im = XB[k].i;
+//   magB[k] = std::sqrt(re*re + im*im);
 
-  //   if (k > 0 && magB[k] > peak_val)
-  //   {   // ignore DC
-  //     peak_val = magB[k];
-  //     peak_bin = k;
-  //   }
-  // }
+//   if (k > 0 && magB[k] > peak_val)
+//   {   // ignore DC
+//     peak_val = magB[k];
+//     peak_bin = k;
+//   }
+// }
 
-  // const double bin_hz  = Fs / N;
-  // const double peak_hz = peak_bin * bin_hz;
+// const double bin_hz  = Fs / N;
+// const double peak_hz = peak_bin * bin_hz;
 
-  // std::cout << "\nFFT summary (student signal, noisy):\n";
-  //   std::cout << "  Peak bin: " << peak_bin
-  //             << "  (~" << std::fixed << std::setprecision(1) << peak_hz << " Hz)\n";
+// std::cout << "\nFFT summary (student signal, noisy):\n";
+//   std::cout << "  Peak bin: " << peak_bin
+//             << "  (~" << std::fixed << std::setprecision(1) << peak_hz << " Hz)\n";
 
-  //   const double re = XB[peak_bin].r, im = XB[peak_bin].i;
-  //   const double phase_rad = std::atan2(im, re);
-  //   std::cout << "  Phase at peak: " << std::setprecision(6) << phase_rad << " rad\n";
+//   const double re = XB[peak_bin].r, im = XB[peak_bin].i;
+//   const double phase_rad = std::atan2(im, re);
+//   std::cout << "  Phase at peak: " << std::setprecision(6) << phase_rad << " rad\n";
 
-  //   const double expected_phi = std::fmod(2.0 * M_PI * f * (static_cast<double>(delay)/Fs), 2.0*M_PI);
-  //   std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
+//   const double expected_phi = std::fmod(2.0 * M_PI * f * (static_cast<double>(delay)/Fs), 2.0*M_PI);
+//   std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
 
-  //   std::cout << "\nFirst 8 bins (magnitude):\n";
-  //   for (size_t k = 0; k < 8 && k < magB.size(); ++k)
-  //   {
-  //     std::cout << "  k=" << k
-  //               << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
-  //               << " Hz  |X|=" << std::setprecision(6) << magB[k] << "\n";
-  //   }
+//   std::cout << "\nFirst 8 bins (magnitude):\n";
+//   for (size_t k = 0; k < 8 && k < magB.size(); ++k)
+//   {
+//     std::cout << "  k=" << k
+//               << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
+//               << " Hz  |X|=" << std::setprecision(6) << magB[k] << "\n";
+//   }
 
-  //   double dot = 0.0, nA = 0.0, nB = 0.0;
-  //   for (size_t k = 1; k < XA.size() && k < XB.size(); ++k)
-  //   { // skip DC
-  //     const double mA = std::hypot(XA[k].r, XA[k].i);
-  //     const double mB = std::hypot(XB[k].r, XB[k].i);
-  //     dot += mA * mB;
-  //     nA  += mA * mA;
-  //     nB  += mB * mB;
-  //   }
-  //   const double spec_cos = dot / (std::sqrt(nA * nB) + 1e-20);
-  //   std::cout << "\nFFT similarity (magnitude spectrum, noisy): "
-  //             << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
+//   double dot = 0.0, nA = 0.0, nB = 0.0;
+//   for (size_t k = 1; k < XA.size() && k < XB.size(); ++k)
+//   { // skip DC
+//     const double mA = std::hypot(XA[k].r, XA[k].i);
+//     const double mB = std::hypot(XB[k].r, XB[k].i);
+//     dot += mA * mB;
+//     nA  += mA * mA;
+//     nB  += mB * mB;
+//   }
+//   const double spec_cos = dot / (std::sqrt(nA * nB) + 1e-20);
+//   std::cout << "\nFFT similarity (magnitude spectrum, noisy): "
+//             << std::fixed << std::setprecision(2) << (spec_cos * 100.0) << " %\n";
 
-  //   free(cfg);
+//   free(cfg);
 //}
 
 void LAB_Analog_Circuit_Checker::
@@ -273,14 +279,12 @@ void LAB_Analog_Circuit_Checker::
       if (index_attr == 1)
 
       {
-        time_domain_analysis();
-        //instructor_data = channel.sample_data;
+        time_domain_analysis(channel.sample_data);
+        // instructor_data = channel.sample_data;
 
-        //double comparison = compute_similarity();
-        //std::cout << "\nSimilarity: " << comparison << "%\n";
+        // double comparison = compute_similarity();
+        // std::cout << "\nSimilarity: " << comparison << "%\n";
       }
-
-
 
       m_channel_data.push_back(std::move(channel));
       ++idx;
@@ -449,7 +453,7 @@ void LAB_Analog_Circuit_Checker::
     return 0.0; // avoid div by zero
 
   return numerator / std::sqrt(denom_x * denom_y); // Pearson correlation
-  
+
 }*/
 
 /*double LAB_Analog_Circuit_Checker::
@@ -463,85 +467,111 @@ void LAB_Analog_Circuit_Checker::
                        // if corr = -1.0 -> -100% (perfectly opposite)
 }*/
 
-LAB_Analog_Circuit_Checker::CorrelationResult 
+LAB_Analog_Circuit_Checker::CorrelationResult
 LAB_Analog_Circuit_Checker::cross_correlation(const std::vector<double> &x,
-                                           const std::vector<double> &y)
+                                              const std::vector<double> &y)
 {
-    CorrelationResult result{0.0, 0.0};
+  CorrelationResult result{0.0, 0.0};
 
-    if (x.empty() || y.empty()) {
-        std::cout << "\nInvalid Comparison: empty signal\n";
-        return result;
-    }
-
-    const size_t N = std::min(x.size(), y.size());
-    double numerator = 0.0;
-    double denom_x = 0.0;
-    double denom_y = 0.0;
-
-    for (size_t n = 0; n < N; n++) {
-        numerator += x[n] * y[n];
-        denom_x   += x[n] * x[n];
-        denom_y   += y[n] * y[n];
-    }
-
-    if (denom_x == 0.0 || denom_y == 0.0) {
-        std::cout << "\nInvalid Comparison: divide by zero\n";
-        return result;
-    }
-
-    result.coefficient = numerator / std::sqrt(denom_x * denom_y);
-    result.percentage  = result.coefficient * 100.0;
-
+  if (x.empty() || y.empty())
+  {
+    std::cout << "\nInvalid Comparison: empty signal\n";
     return result;
+  }
+
+  const size_t N = std::min(x.size(), y.size());
+  double numerator = 0.0;
+  double denom_x = 0.0;
+  double denom_y = 0.0;
+
+  for (size_t n = 0; n < N; n++)
+  {
+    numerator += x[n] * y[n];
+    denom_x += x[n] * x[n];
+    denom_y += y[n] * y[n];
+  }
+
+  if (denom_x == 0.0 || denom_y == 0.0)
+  {
+    std::cout << "\nInvalid Comparison: divide by zero\n";
+    return result;
+  }
+
+  constexpr size_t NUM_TO_PRINT = 10;
+  const size_t N_instructor = std::min(NUM_TO_PRINT, x.size());
+  const size_t N_student = std::min(NUM_TO_PRINT, y.size());
+
+  std::cout << "Instructor Data (first 10): [ ";
+  for (size_t i = 0; i < N_instructor; i++)
+  {
+    std::cout << std::fixed << std::setprecision(4) << x[i];
+    if (i < N_instructor - 1)
+      std::cout << ", ";
+  }
+  std::cout << " ]\n";
+
+  std::cout << "Student Data (first 10):    [ ";
+  for (size_t i = 0; i < N_student; i++)
+  {
+    std::cout << std::fixed << std::setprecision(4) << y[i];
+    if (i < N_student - 1)
+      std::cout << ", ";
+  }
+  std::cout << " ]\n";
+
+  result.coefficient = numerator / std::sqrt(denom_x * denom_y);
+  result.percentage = result.coefficient * 100.0;
+
+  return result;
 }
 
-
-
-void LAB_Analog_Circuit_Checker::time_domain_analysis()
+void LAB_Analog_Circuit_Checker::time_domain_analysis(const std::vector<double> &instructor)
 {
-    if (m_channel_data.size() < 2) {
-        std::cout << "\nNot enough channels loaded for comparison\n";
-        return;
-    }
-
-    // Channel 2 (index 1) as Instructor
-    const std::vector<double>& instructor = m_channel_data[1].sample_data;
-
-    
-    // Student data (dummy signal)
-    constexpr size_t NUM_SAMPLES = 2000;
-    std::vector<double> student(NUM_SAMPLES);
-
-    double Fs        = 40e3;   // Sampling frequency
-    double amplitude = 1500;
-    double f         = 100;    // 100 Hz square wave
-    double offset    = 2048;
-    size_t delay     = 2;
-
-    for (size_t n = 0; n < NUM_SAMPLES; ++n)
+  /*  if (m_channel_data.size() < 2)
     {
-        // Apply delay
-        size_t delayed_index = (n >= delay) ? (n - delay) : 0;
-        double t_delayed = static_cast<double>(delayed_index) / Fs;
+      std::cout << "\nNot enough channels loaded for comparison\n";
+      return;
+    }*/
 
-        // Generate square wave
-        double sq_val = (fmod(f * t_delayed, 1.0) < 0.5) ? amplitude : -amplitude;
+  // Channel 2 (index 1) as Instructor
+  //  ChannelData channel;
 
-        // Add offset
-        student[n] = sq_val + offset;
-    }
+  // const std::vector<double> &instructor = channel.sample_data;
 
-    // Normalize to [-1, 1]
-    for (auto &val : student) {
-        val = (val - offset) / amplitude;
-    }
-    // Perform cross-correlation
-    CorrelationResult result = cross_correlation(instructor, student);
+  // Student data (dummy signal)
+  constexpr size_t NUM_SAMPLES = 2000;
+  std::vector<double> student(NUM_SAMPLES);
 
-    std::cout << "\nTime-Domain Analysis Result:\n";
-    std::cout << "  Correlation Coefficient: " << std::fixed << std::setprecision(4) 
-              << result.coefficient << "\n";
-    std::cout << "  Similarity Percentage:   " << std::fixed << std::setprecision(2) 
-              << result.percentage << " %\n";
+  double Fs = 40e3; // Sampling frequency
+  double amplitude = 1500;
+  double f = 100; // 100 Hz square wave
+  double offset = 2048;
+  size_t delay = 2;
+
+  for (size_t n = 0; n < NUM_SAMPLES; ++n)
+  {
+    // Apply delay
+    size_t delayed_index = (n >= delay) ? (n - delay) : 0;
+    double t_delayed = static_cast<double>(delayed_index) / Fs;
+
+    // Generate square wave
+    double sq_val = (fmod(f * t_delayed, 1.0) < 0.5) ? amplitude : -amplitude;
+
+    // Add offset
+    student[n] = sq_val + offset;
+  }
+
+  // Normalize to [-1, 1]
+  for (auto &val : student)
+  {
+    val = (val - offset) / amplitude;
+  }
+  // Perform cross-correlation
+  CorrelationResult result = cross_correlation(instructor, instructor);
+
+  std::cout << "\nTime-Domain Analysis Result:\n";
+  std::cout << "  Correlation Coefficient: " << std::fixed << std::setprecision(4)
+            << result.coefficient << "\n";
+  std::cout << "  Similarity Percentage:   " << std::fixed << std::setprecision(2)
+            << result.percentage << " %\n";
 }

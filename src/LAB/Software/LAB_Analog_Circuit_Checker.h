@@ -70,10 +70,11 @@ private:
     double period;
   } m_func_gen_data;
 
-  struct CorrelationResult {
+  struct CorrelationResult
+  {
     double coefficient; // range [-1, 1]
     double percentage;  // coefficient * 100
-};
+  };
 
 public:
   LAB_Analog_Circuit_Checker(LAB &_lab);
@@ -81,8 +82,8 @@ public:
   void load_file(const std::string &path);
   void unload_file();
   CorrelationResult cross_correlation(const std::vector<double> &x,
-                     const std::vector<double> &y);
-  void time_domain_analysis();
+                                      const std::vector<double> &y);
+  void time_domain_analysis(const std::vector<double> &instructor);
   double compute_similarity();
 
   void load_data_acc(); // Main function to load data into oscilloscope
@@ -99,22 +100,22 @@ public:
   double get_horizontal_offset() const { return m_horizontal_offset; }
 
   // Trigger getters
-  unsigned  get_trigger_mode() const { return m_trigger_mode; }
-  unsigned  get_trigger_source() const { return m_trigger_source; }
-  unsigned  get_trigger_type() const { return m_trigger_type; }
-  unsigned  get_trigger_condition() const { return m_trigger_condition; }
-  double    get_trigger_level() const { return m_trigger_level; }
+  unsigned get_trigger_mode() const { return m_trigger_mode; }
+  unsigned get_trigger_source() const { return m_trigger_source; }
+  unsigned get_trigger_type() const { return m_trigger_type; }
+  unsigned get_trigger_condition() const { return m_trigger_condition; }
+  double get_trigger_level() const { return m_trigger_level; }
 
   // Comparison getters
   bool get_cmp_time_domain() const { return m_cmp_time_domain; }
   bool get_cmp_frequency_domain() const { return m_cmp_frequency_domain; }
   double get_cmp_similarity_threshold() const { return m_cmp_similarity_threshold; }
 
-  //std::vector<double> dummy_student_data;
-  //std::vector<double> instructor_data;
+  // std::vector<double> dummy_student_data;
+  // std::vector<double> instructor_data;
 
-  void print_samples(const std::vector<double> &instructor,
-                     const std::vector<double> &student);
+  /*void print_samples(const std::vector<double> &instructor,
+                     const std::vector<double> &student);*/
 };
 
 #endif
