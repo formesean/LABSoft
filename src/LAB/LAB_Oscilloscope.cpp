@@ -622,39 +622,6 @@ void LAB_Oscilloscope::
   }
   }
 
-  unsigned sz = m_parent_data.raw_data_buffer.size();
-  double amplitude = 1500;
-
-  double offset = 2048;
-  double freq_hz = 100;
-  double sample_rate = m_parent_data.sampling_rate;
-
-  for (unsigned i = 0; i < sz; ++i)
-  {
-    double t = static_cast<double>(i) / sample_rate;
-    double sq_val = (fmod(freq_hz * t, 1.0) < 0.5) ? amplitude : -amplitude;
-
-    int val_ch1 = static_cast<int>(offset + sq_val);
-    int val_ch2 = static_cast<int>(offset - sq_val);
-
-    double norm_ch1 = (val_ch1 - offset) / amplitude;
-    double norm_ch2 = (val_ch2 - offset) / amplitude;
-
-    if (val_ch1 < 0)
-      val_ch1 = 0;
-    else if (val_ch1 > 4095)
-      val_ch1 = 4095;
-
-    if (val_ch2 < 0)
-      val_ch2 = 0;
-    else if (val_ch2 > 4095)
-      val_ch2 = 4095;
-
-    uint16_t ch1 = static_cast<uint16_t>(val_ch1);
-    uint16_t ch2 = static_cast<uint16_t>(val_ch2);
-
-    m_parent_data.raw_data_buffer[i] = (ch2 << 16) | ch1;
-  }
   m_parent_data.trigger_frame_ready = true;
 }
 
