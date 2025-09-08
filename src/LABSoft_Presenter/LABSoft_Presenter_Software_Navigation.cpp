@@ -430,6 +430,7 @@ update_data_cycle()
                 custom_choice->input()->value(item->text);
                 custom_choice->value(item->text);
                 custom_choice->do_callback();
+                refresh_widget_list();
                 custom_choice->redraw();
                 break;
               }
@@ -460,6 +461,7 @@ update_data_cycle()
               {
                 choice->value(next);
                 choice->do_callback();
+                refresh_widget_list();
                 choice->redraw();
                 break;
               }
@@ -536,8 +538,7 @@ update_data_cycle()
             group_index = 0;
 
           auto* group = current_groups_in_tab[group_index];
-          if (current_widgets_in_group.empty())
-            current_widgets_in_group = get_widgets_in_group(group);
+          current_widgets_in_group = get_widgets_in_group(group);
 
           if (!current_widgets_in_group.empty())
           {
@@ -608,6 +609,7 @@ update_data_cycle()
       {
         Fl::focus(nullptr);
         widget->do_callback();
+        refresh_widget_list();
         widget->redraw();
       }
     }
