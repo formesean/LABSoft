@@ -8,6 +8,7 @@
 #include <array>
 #include <iomanip>
 #include <algorithm>
+#include <complex>
 
 #include "../LAB_Module.h"
 #include "../../Utility/pugixml.hpp"
@@ -53,8 +54,8 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     void load_function_generator_data_acc ();
     void clear_data_acc                   ();
 
-    CorrelationResult cross_correlation(const std::vector<double> &x,
-                                        const std::vector<double> &y);
+    CorrelationResult cross_correlation (const std::vector<double> &x,
+                                         const std::vector<double> &y);
 
     bool                m_is_file_loaded = false;
     std::string         m_file_path;
@@ -86,9 +87,11 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     bool is_file_loaded() const { return m_is_file_loaded; }
     void load_data_acc(); // Main function to load data into oscilloscope
 
-    CorrelationResult signal_analysis(const std::vector<double> &instructor,
-                                      const std::vector<double> &student);
-    double compute_fft();
+    CorrelationResult   signal_analysis (const std::vector<double> &instructor,
+                                         const std::vector<double> &student);
+    std::pair<std::vector<std::complex<double>>, std::vector<std::complex<double>>>
+                        compute_fft     (const std::vector<double> &x,
+                                         const std::vector<double> &y);
 
     // Getters
     const std::vector<ChannelData> &get_channel_data            () const { return m_channel_data; }
@@ -112,9 +115,6 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     bool      get_cmp_frequency_domain                () const { return m_cmp_frequency_domain; }
     double    get_cmp_time_similarity_threshold       () const { return m_cmp_time_similarity_threshold; }
     double    get_cmp_frequency_similarity_threshold  () const { return m_cmp_frequency_similarity_threshold; }
-
-    std::vector<double> dummy_student_data;
-    std::vector<double> instructor_data;
 };
 
 #endif
