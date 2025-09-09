@@ -46,6 +46,7 @@ public:
     void update_display();  // A method to update or interact with the oscilloscope
     void load_presenter       (const LABSoft_Presenter& presenter);
     void load_pixel_points    (const PixelPoints& pixel_points);
+    void load_overlay_points  (const std::vector<std::array<int, 2>>& points, Fl_Color color = FL_RED, bool enabled = true);
     void voltage_per_division             (unsigned channel, double value);
     void time_per_division                (double value);
     void samples                          (unsigned value);

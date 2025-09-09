@@ -124,6 +124,26 @@ load_pixel_points(const PixelPoints& pixel_points)
   }
 }
 
+void LABSoft_GUI_Analog_Circuit_Checker_Display::
+load_overlay_points(const std::vector<std::array<int, 2>>& points, Fl_Color color, bool enabled)
+{
+  if (!oscilloscope_display) return;
+  LABSoft_GUI_Oscilloscope_Internal_Display* internal = nullptr;
+  // Access internal display through known child order
+  for (int i = 0; i < oscilloscope_display->children(); ++i)
+  {
+    if (auto *w = oscilloscope_display->child(i))
+    {
+      internal = dynamic_cast<LABSoft_GUI_Oscilloscope_Internal_Display*>(w);
+      if (internal) break;
+    }
+  }
+  if (!internal) return;
+  internal->load_overlay_pixel_points(points);
+  internal->overlay_color(color);
+  internal->overlay_enable(enabled);
+}
+
 
 /*
 LABSoft_GUI_Analog_Circuit_Checker_Display:

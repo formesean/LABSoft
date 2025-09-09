@@ -20,7 +20,7 @@ LABSoft_GUI_Oscilloscope_Internal_Display (int         X,
   calc_cached_values ();
 }
 
-void LABSoft_GUI_Oscilloscope_Internal_Display:: 
+void LABSoft_GUI_Oscilloscope_Internal_Display::
 draw ()
 {
   draw_box  (FL_FLAT_BOX, m_background_color);
@@ -29,6 +29,10 @@ draw ()
   if (m_pixel_points != nullptr)
   {
     draw_channels (*m_pixel_points);
+  }
+  if (m_overlay_enabled && !m_overlay_points.empty())
+  {
+    draw_overlay();
   }
 }
 
@@ -50,7 +54,7 @@ handle (int event)
 
         return (1);
       }
-      else 
+      else
       {
         return (0);
       }
@@ -97,7 +101,7 @@ draw_grid ()
   // 2. draw rows
   for (unsigned row = 0; row < (LABC::OSC_DISPLAY::NUMBER_OF_ROWS - 1); row++)
   {
-    (row == LABC::OSC_DISPLAY::MID_ROW_INDEX) ? fl_line_style (FL_DASH) : 
+    (row == LABC::OSC_DISPLAY::MID_ROW_INDEX) ? fl_line_style (FL_DASH) :
                                                 fl_line_style (FL_DOT);
 
     int Y = std::round ((row + 1) * m_row_height) + y ();
@@ -108,7 +112,7 @@ draw_grid ()
   // 3. draw columns
   for (unsigned col = 0; col < (LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS - 1); col++)
   {
-    (col == LABC::OSC_DISPLAY::MID_COLUMN_INDEX) ?  fl_line_style (FL_DASH) : 
+    (col == LABC::OSC_DISPLAY::MID_COLUMN_INDEX) ?  fl_line_style (FL_DASH) :
                                                     fl_line_style (FL_DOT);
 
     int X = std::round ((col + 1) * m_column_width) + x ();
@@ -118,7 +122,7 @@ draw_grid ()
 
   // 4. draw upper and lower x-axis ticks
   fl_line_style (FL_SOLID, 0, NULL);
- 
+
   for (int a = 0; a < 2; a++)
   {
     for (int X = x (); X < (x () + w ()); X += m_column_width)
@@ -128,23 +132,23 @@ draw_grid ()
         int length = (i == LABC::OSC_DISPLAY::NUMBER_OF_MINOR_TICKS_HALF) ?
           LABC::OSC_DISPLAY::X_AXIS_SEMI_MAJOR_TICK_LENGTH :
           LABC::OSC_DISPLAY::X_AXIS_MINOR_TICK_LENGTH;
-        
+
         int x = X + (i * m_x_axis_minor_ticks_width);
 
-        (a == 0) ?  fl_line (x, y (), x, y () + length) : 
+        (a == 0) ?  fl_line (x, y (), x, y () + length) :
                     fl_line (x, y () + h () - length, x, y () + h ());
       }
 
       int length = LABC::OSC_DISPLAY::X_AXIS_MAJOR_TICK_LENGTH;
 
-      (a == 0) ?  fl_line (X, y (), X, y () + length) : 
+      (a == 0) ?  fl_line (X, y (), X, y () + length) :
                   fl_line (X, y () + h () - length, X, y () + h ());
     }
   }
 
   // 5. draw left and right y-axis ticks
   fl_line_style (FL_SOLID, 0, NULL);
- 
+
   for (int a = 0; a < 2; a++)
   {
     for (int Y = y (); Y < (y () + h ()); Y += m_row_height)
@@ -154,7 +158,7 @@ draw_grid ()
         int length = (i == LABC::OSC_DISPLAY::NUMBER_OF_MINOR_TICKS_HALF) ?
           LABC::OSC_DISPLAY::Y_AXIS_SEMI_MAJOR_TICK_LENGTH :
           LABC::OSC_DISPLAY::Y_AXIS_MINOR_TICK_LENGTH;
-        
+
         int y = Y + (i * m_y_axis_minor_ticks_width);
 
         (a == 0) ?  fl_line (x (), y, x () + length, y) :
@@ -194,23 +198,23 @@ draw_channels (const LABSoft_GUI_Oscilloscope_Internal_Display::PixelPoints& pix
         for (unsigned i = 0; i < (pp.size () - 1); i++)
         {
           fl_line (
-            pp[i][0]      + x (), 
-            pp[i][1]      + y (), 
-            pp[i + 1][0]  + x (), 
+            pp[i][0]      + x (),
+            pp[i][1]      + y (),
+            pp[i + 1][0]  + x (),
             pp[i + 1][1]  + y ()
           );
 
           draw_sample_marker  (pp[i][0] + x (), pp[i][1] + y ());
         }
       }
-      else 
-      {       
+      else
+      {
         for (int i = 0; i < (pp.size () - 1); i++)
-        {         
+        {
           fl_line (
-            pp[i][0]      + x (), 
-            pp[i][1]      + y (), 
-            pp[i + 1][0]  + x (), 
+            pp[i][0]      + x (),
+            pp[i][1]      + y (),
+            pp[i + 1][0]  + x (),
             pp[i + 1][1]  + y ()
           );
         }
@@ -218,6 +222,26 @@ draw_channels (const LABSoft_GUI_Oscilloscope_Internal_Display::PixelPoints& pix
     }
   }
 
+  fl_color      (0);
+  fl_line_style (0);
+  fl_pop_clip   ();
+}
+
+void LABSoft_GUI_Oscilloscope_Internal_Display::
+draw_overlay ()
+{
+  fl_push_clip (x (), y (), w (), h ());
+  fl_color(m_overlay_color);
+  const auto &pp = m_overlay_points;
+  for (int i = 0; i < (pp.size () - 1); i++)
+  {
+    fl_line (
+      pp[i][0]      + x (),
+      pp[i][1]      + y (),
+      pp[i + 1][0]  + x (),
+      pp[i + 1][1]  + y ()
+    );
+  }
   fl_color      (0);
   fl_line_style (0);
   fl_pop_clip   ();
@@ -281,7 +305,7 @@ void LABSoft_GUI_Oscilloscope_Internal_Display::
 cb_mouse_drag (int x)
 {
   // double drag_delta_scaler  = calc_mouse_drag_time_per_division_delta_scaler (x);
-  // double drag_delta_time    = drag_scaler * (m_time_per_division / 
+  // double drag_delta_time    = drag_scaler * (m_time_per_division /
   //                             LABC::OSC_DISPLAY::NUMBER_OF_MINOR_TICKS);
   // double new_horiz_offset   = drag_delta_time + m_mouse_drag_start_horizontal_offset;
 
@@ -290,7 +314,7 @@ cb_mouse_drag (int x)
   //   new_horiz_offset = 0.0;
   // }
 
-  // m_presenter->m_Oscilloscope_Display.cb_horizontal_offset 
+  // m_presenter->m_Oscilloscope_Display.cb_horizontal_offset
   //   (static_cast<void*>(&new_horiz_offset));
 }
 
@@ -307,31 +331,49 @@ load_presenter (const LABSoft_Presenter& presenter)
   m_presenter = &presenter;
 }
 
-void LABSoft_GUI_Oscilloscope_Internal_Display:: 
+void LABSoft_GUI_Oscilloscope_Internal_Display::
 load_pixel_points (const LABSoft_GUI_Oscilloscope_Internal_Display::PixelPoints& pixel_points)
 {
   m_pixel_points = &pixel_points;
 }
 
-double LABSoft_GUI_Oscilloscope_Internal_Display:: 
+void LABSoft_GUI_Oscilloscope_Internal_Display::
+load_overlay_pixel_points(const std::vector<std::array<int, 2>>& points)
+{
+  m_overlay_points = points;
+}
+
+void LABSoft_GUI_Oscilloscope_Internal_Display::
+overlay_color(Fl_Color color)
+{
+  m_overlay_color = color;
+}
+
+void LABSoft_GUI_Oscilloscope_Internal_Display::
+overlay_enable(bool state)
+{
+  m_overlay_enabled = state;
+}
+
+double LABSoft_GUI_Oscilloscope_Internal_Display::
 row_height () const
 {
   return (m_row_height);
 }
 
-double LABSoft_GUI_Oscilloscope_Internal_Display:: 
-column_width () const 
+double LABSoft_GUI_Oscilloscope_Internal_Display::
+column_width () const
 {
   return (m_column_width);
 }
 
-void LABSoft_GUI_Oscilloscope_Internal_Display:: 
+void LABSoft_GUI_Oscilloscope_Internal_Display::
 mark_samples (bool state)
 {
   m_mark_samples = state;
 }
 
-void LABSoft_GUI_Oscilloscope_Internal_Display:: 
+void LABSoft_GUI_Oscilloscope_Internal_Display::
 update_display ()
 {
   redraw ();

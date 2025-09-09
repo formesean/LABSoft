@@ -1,94 +1,52 @@
 #include "LAB_Analog_Circuit_Checker.h"
+
 #include <stdexcept>
 #include <cstdio>
-#include <iostream>
 #include <vector>
-#include <array>
 #include <cmath>
-#include <iomanip>
 #include <cassert>
 #include <algorithm>
+#include <cstdlib>
 
 #include "../../Utility/pugixml.hpp"
-extern "C"
-{
-  #include "../../../lib/KISSFFT/kiss_fftr.h"
-}
-
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-constexpr size_t N        = 2000;
-constexpr double Fs = 40e3; // Sampling frequency
-constexpr double amplitude = 1500;
-constexpr double f = 100; // 100 Hz square wave
-constexpr double offset = 2048;
-constexpr size_t delay = 2;
-
-static void print_samples(const std::vector<double> &instructor,
-                          const std::vector<double> &student);
-
-// Member version to satisfy linkage when called from within the class
-void LAB_Analog_Circuit_Checker::
-    print_samples(const std::vector<double> &instructor,
-                  const std::vector<double> &student)
+static std::vector<double>
+parse_csv_doubles (const char* text)
 {
-  constexpr size_t NUM_TO_PRINT = 10;
-  const size_t N_instructor = std::min(NUM_TO_PRINT, instructor.size());
-  const size_t N_student = std::min(NUM_TO_PRINT, student.size());
-
-  std::cout << "Instructor Data (first 10): [ ";
-  for (size_t i = 0; i < N_instructor; i++)
+  std::vector<double> values;
+  if (!text) return values;
+  const char* p = text;
+  while (*p)
   {
-    std::cout << std::fixed << std::setprecision(4) << instructor[i];
-    if (i < N_instructor - 1)
-      std::cout << ", ";
-  }
-  std::cout << " ]\n";
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') ++p;
+    if (!*p) break;
+    char* endptr = nullptr;
+    const double v = std::strtod(p, &endptr);
+    if (endptr == p)
+    {
+      ++p;
+      continue;
+    }
+    values.push_back(v);
+    p = endptr;
 
-  std::cout << "Student Data (first 10):    [ ";
-  for (size_t i = 0; i < N_student; i++)
-  {
-    std::cout << std::fixed << std::setprecision(4) << student[i];
-    if (i < N_student - 1)
-      std::cout << ", ";
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') ++p;
   }
-  std::cout << " ]\n";
+  return values;
 }
 
-LAB_Analog_Circuit_Checker::
-    LAB_Analog_Circuit_Checker(LAB &_lab)
+LAB_Analog_Circuit_Checker::LAB_Analog_Circuit_Checker(LAB &_lab)
     : LAB_Module(_lab)
 {
-  constexpr size_t NUM_SAMPLES = 2000;
-  dummy_student_data.resize(NUM_SAMPLES);
 
-
-
-  for (size_t n = 0; n < NUM_SAMPLES; ++n)
-  {
-    // Apply delay (if needed)
-    size_t delayed_index = (n >= delay) ? (n - delay) : 0;
-    double t_delayed = static_cast<double>(delayed_index) / Fs;
-
-    // Generate square wave:  +amplitude for half cycle, -amplitude for other half
-    double sq_val = (fmod(f * t_delayed, 1.0) < 0.5) ? amplitude : -amplitude;
-
-    // Add offset (to simulate ADC raw values around midscale)
-    dummy_student_data[n] = sq_val + offset;
-  }
-
-  // Normalize values to [-1, 1]
-  for (auto &val : dummy_student_data)
-  {
-    val = (val - offset) / amplitude;
-  }
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_data_from_file_acc()
+load_data_from_file_acc()
 {
   clear_data_acc();
   load_metadata_acc();
@@ -97,18 +55,12 @@ void LAB_Analog_Circuit_Checker::
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_metadata_acc()
+load_metadata_acc()
 {
-  // New format: data is under root/oscilloscope
   pugi::xml_node osc = m_xml_doc.child("root").child("oscilloscope");
 
-  if (!osc)
-  {
-    throw std::runtime_error("Missing oscilloscope section in .labacc file");
-  }
+  if (!osc) throw std::runtime_error("Missing oscilloscope section in .labacc file");
 
-  // Extract oscilloscope configuration from XML
-  // Channels: prefer explicit count from <channels>, else default to 1
   if (pugi::xml_node chans = osc.child("channels"))
   {
     unsigned cnt = 0;
@@ -123,49 +75,71 @@ void LAB_Analog_Circuit_Checker::
   {
     m_channels = 1;
   }
+
   m_samples = osc.child("samples").text().as_uint();
+
+  if (pugi::xml_node chans = osc.child("channels"))
+  {
+    for (pugi::xml_node ch : chans.children("channel"))
+    {
+      if (pugi::xml_node samples_node = ch.child("samples"))
+      {
+        const char* csv = samples_node.text().as_string();
+        const auto csv_vals = parse_csv_doubles(csv);
+        if (!csv_vals.empty())
+        {
+          m_samples = static_cast<unsigned>(csv_vals.size());
+          break;
+        }
+      }
+    }
+  }
+
   m_sampling_rate = osc.child("sampling_rate").text().as_double();
   m_time_per_division = osc.child("time_per_division").text().as_double();
   m_horizontal_offset = osc.child("horizontal_offset").text().as_double();
 
-  // Extract trigger configuration
   m_trigger_mode = osc.child("trigger_mode").text().as_uint();
   m_trigger_source = osc.child("trigger_source").text().as_uint();
   m_trigger_type = osc.child("trigger_type").text().as_uint();
   m_trigger_condition = osc.child("trigger_condition").text().as_uint();
   m_trigger_level = osc.child("trigger_level").text().as_double();
 
-  // Comparison settings (optional): look under root/comparison or osc children
   pugi::xml_node cmp = m_xml_doc.child("root").child("comparison");
   if (cmp)
   {
     m_cmp_time_domain = cmp.child("time_domain").text().as_bool();
     m_cmp_frequency_domain = cmp.child("frequency_domain").text().as_bool();
-    m_cmp_similarity_threshold = cmp.child("similarity_threshold").text().as_double();
+
+    if (auto n = cmp.child("time_similarity_threshold"))
+      m_cmp_time_similarity_threshold = n.text().as_double();
+    else
+      m_cmp_time_similarity_threshold = cmp.child("similarity_threshold").text().as_double();
+
+    if (auto n = cmp.child("frequency_similarity_threshold"))
+      m_cmp_frequency_similarity_threshold = n.text().as_double();
+    else
+      m_cmp_frequency_similarity_threshold = cmp.child("similarity_threshold").text().as_double();
   }
   else
   {
-    // try osc-level for backward-compat
     m_cmp_time_domain = osc.child("time_domain").text().as_bool(false);
     m_cmp_frequency_domain = osc.child("frequency_domain").text().as_bool(false);
-    m_cmp_similarity_threshold = osc.child("similarity_threshold").text().as_double(0.0);
+    const double combined = osc.child("similarity_threshold").text().as_double(0.0);
+    m_cmp_time_similarity_threshold = combined;
+    m_cmp_frequency_similarity_threshold = combined;
   }
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_channel_data_acc()
+load_channel_data_acc()
 {
-  // New format: channel-like data lives under root/oscilloscope
   pugi::xml_node osc = m_xml_doc.child("root").child("oscilloscope");
 
-  if (!osc)
-  {
-    throw std::runtime_error("Missing oscilloscope section in .labacc file");
-  }
+  if (!osc) throw std::runtime_error("Missing oscilloscope section in .labacc file");
 
   m_channel_data.clear();
 
-  // Preferred new format with <channels><channel index="..."> blocks
   if (pugi::xml_node chans = osc.child("channels"))
   {
     size_t idx = 0;
@@ -175,7 +149,6 @@ void LAB_Analog_Circuit_Checker::
       unsigned index_attr = ch.attribute("index").as_uint(idx);
       channel.name = std::string("Channel ") + std::to_string(index_attr + 1);
 
-      // Pull per-channel values, fallback to osc-level when missing
       channel.samples = osc.child("samples").text().as_uint();
       channel.coupling = ch.child("coupling").text().as_bool(osc.child("coupling").text().as_bool());
       channel.scaling = ch.child("scaling").text().as_uint(osc.child("scaling").text().as_uint());
@@ -194,17 +167,24 @@ void LAB_Analog_Circuit_Checker::
         channel.measurements.trms = measurements.child("trms").text().as_double();
       }
 
-      // Only Channel 2 (index 1) will have samples in new files; parse if present
       if (pugi::xml_node samples_node = ch.child("samples"))
       {
-        for (pugi::xml_node sample : samples_node.children("sample"))
-          channel.sample_data.push_back(sample.text().as_double());
-      }
+        const char* csv = samples_node.text().as_string();
+        channel.sample_data = parse_csv_doubles(csv);
+        channel.samples = static_cast<unsigned>(channel.sample_data.size());
 
-      if (index_attr == 1)
-
-      {
-        instructor_data = channel.sample_data;
+        // Debug print: first 10 samples for this channel
+        if (!channel.sample_data.empty())
+        {
+          std::cout << "[ACC] Channel " << (index_attr + 1) << " first 10 samples: ";
+          const size_t num_to_print = std::min<size_t>(10, channel.sample_data.size());
+          for (size_t k = 0; k < num_to_print; ++k)
+          {
+            if (k) std::cout << ", ";
+            std::cout << channel.sample_data[k];
+          }
+          std::cout << "\n";
+        }
       }
 
       m_channel_data.push_back(std::move(channel));
@@ -213,7 +193,6 @@ void LAB_Analog_Circuit_Checker::
   }
   else
   {
-    // Backward-compatible single-channel at osc-level
     ChannelData channel;
     channel.name = "Channel 1";
 
@@ -224,6 +203,7 @@ void LAB_Analog_Circuit_Checker::
     channel.vertical_offset = osc.child("vertical_offset").text().as_double();
     channel.is_enabled = osc.child("is_enabled").text().as_bool();
     channel.scaling_corrector = osc.child("scaling_corrector").text().as_double();
+
     if (channel.scaling_corrector == 0.0)
       channel.scaling_corrector = 1.0;
 
@@ -239,6 +219,19 @@ void LAB_Analog_Circuit_Checker::
     {
       for (pugi::xml_node sample : samples_node.children("sample"))
         channel.sample_data.push_back(sample.text().as_double());
+
+      // Debug print: first 10 samples for channel 1
+      if (!channel.sample_data.empty())
+      {
+        std::cout << "[ACC] Channel 1 first 10 samples: ";
+        const size_t num_to_print = std::min<size_t>(10, channel.sample_data.size());
+        for (size_t k = 0; k < num_to_print; ++k)
+        {
+          if (k) std::cout << ", ";
+          std::cout << channel.sample_data[k];
+        }
+        std::cout << "\n";
+      }
     }
 
     m_channel_data.push_back(channel);
@@ -246,16 +239,11 @@ void LAB_Analog_Circuit_Checker::
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_function_generator_data_acc()
+load_function_generator_data_acc()
 {
-  // New format: function generator data under root/function_generator
   pugi::xml_node fg = m_xml_doc.child("root").child("function_generator");
 
-  if (!fg)
-  {
-    // Not strictly required; leave defaults
-    return;
-  }
+  if (!fg) return;
 
   m_func_gen_data.wave_type = fg.child("wave_type").text().as_uint();
   m_func_gen_data.frequency = fg.child("frequency").text().as_double();
@@ -263,29 +251,24 @@ void LAB_Analog_Circuit_Checker::
 }
 
 void LAB_Analog_Circuit_Checker::
-    clear_data_acc()
+clear_data_acc()
 {
   m_channel_data.clear();
   m_func_gen_data = {0, 0.0, 0.0};
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_file(const std::string &path)
+load_file(const std::string &path)
 {
   try
   {
-    // Load and parse the .labacc XML file
     pugi::xml_parse_result result = m_xml_doc.load_file(path.c_str());
 
-    if (!result)
-    {
-      throw std::runtime_error("Failed to load .labacc file: " + std::string(result.description()));
-    }
+    if (!result) throw std::runtime_error("Failed to load .labacc file: " + std::string(result.description()));
 
     m_file_path = path;
     m_is_file_loaded = true;
 
-    // Load all data from the file
     load_data_from_file_acc();
   }
   catch (const std::exception &e)
@@ -298,7 +281,7 @@ void LAB_Analog_Circuit_Checker::
 }
 
 void LAB_Analog_Circuit_Checker::
-    unload_file()
+unload_file()
 {
   clear_data_acc();
   m_is_file_loaded = false;
@@ -307,81 +290,49 @@ void LAB_Analog_Circuit_Checker::
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_data_acc()
+load_data_acc()
 {
   // Intentionally left blank in ACC module. Presenter consumes parsed data for display.
 }
 
-double LAB_Analog_Circuit_Checker::
-    compute_cross_correlation()
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+cross_correlation(const std::vector<double> &x,
+                  const std::vector<double> &y)
 {
-  ChannelData channel;
+  CorrelationResult result{0.0, 0.0};
 
-  const size_t N = std::min(instructor_data.size(), dummy_student_data.size());
+  const size_t N = std::min(x.size(), y.size());
+  if (N == 0) return result;
+
   double numerator = 0.0;
   double denom_x = 0.0;
   double denom_y = 0.0;
 
   for (size_t n = 0; n < N; n++)
   {
-    numerator += instructor_data[n] * dummy_student_data[n];
-    denom_x += instructor_data[n] * instructor_data[n];
-    denom_y += dummy_student_data[n] * dummy_student_data[n];
+    const double xv = x[n];
+    const double yv = y[n];
+    numerator += xv * yv;
+    denom_x += xv * xv;
+    denom_y += yv * yv;
   }
 
-  if (denom_x == 0.0 || denom_y == 0.0)
-    return 0.0; // avoid div by zero
+  if (denom_x == 0.0 || denom_y == 0.0) return result;
 
-  return numerator / std::sqrt(denom_x * denom_y); // normalized correlation
-
-  /*const size_t N = std::min(instructor_data.size(), dummy_student_data.size());
-  if (N == 0)
-    return 0.0;
-
-  // Compute means
-  double mean_x = 0.0, mean_y = 0.0;
-  for (size_t n = 0; n < N; n++)
-  {
-    mean_x += instructor_data[n];
-    mean_y += dummy_student_data[n];
-  }
-  mean_x /= N;
-  mean_y /= N;
-
-  // Compute numerator and denominators
-  double numerator = 0.0;
-  double denom_x = 0.0;
-  double denom_y = 0.0;
-
-  for (size_t n = 0; n < N; n++)
-  {
-    double x = instructor_data[n] - mean_x;
-    double y = dummy_student_data[n] - mean_y;
-
-    numerator += x * y;
-    denom_x += x * x;
-    denom_y += y * y;
-  }
-
-  if (denom_x == 0.0 || denom_y == 0.0)
-    return 0.0; // avoid div by zero
-
-  return numerator / std::sqrt(denom_x * denom_y); // Pearson correlation
-  */
+  result.coefficient = numerator / std::sqrt(denom_x * denom_y);
+  result.percentage = result.coefficient * 100.0;
+  return result;
 }
 
-double LAB_Analog_Circuit_Checker::
-    compute_similarity()
+void LAB_Analog_Circuit_Checker::
+time_domain_analysis(const std::vector<double> &instructor,
+                     const std::vector<double> &student)
 {
-  double corr = compute_cross_correlation();
-  double fft_result = compute_fft();
-  std::cout << "\n"
-            << corr << "\n";
-  return corr * 100.0; // percentage
-                       // if corr =  1.0 ->  100% similar
-                       // if corr =  0.0 ->  0%   similar
-                       // if corr = -1.0 -> -100% (perfectly opposite)
+  CorrelationResult result = cross_correlation(instructor, student);
+  (void)result;
 }
+
+// EOF
 
 double LAB_Analog_Circuit_Checker::
   compute_fft()
@@ -390,14 +341,14 @@ double LAB_Analog_Circuit_Checker::
   using cpx_t    = kiss_fft_cpx;
 
   // check channel data
-  if (m_channel_data.empty()) 
+  if (m_channel_data.empty())
   {
     std::printf("ERROR: No channel data loaded from .labacc file\n");
     throw std::runtime_error("No channel data available for FFT computation");
   }
 
   // check instructor data
-  if (instructor_data.empty()) 
+  if (instructor_data.empty())
   {
     std::printf("ERROR: No instructor data available\n");
     throw std::runtime_error("No instructor data available for FFT computation");
@@ -410,7 +361,7 @@ double LAB_Analog_Circuit_Checker::
 
   // dummy student data
   std::vector<scalar_t> xB(actual_N);
-  for (size_t n = 0; n < actual_N; ++n) 
+  for (size_t n = 0; n < actual_N; ++n)
   {
     xB[n] = static_cast<scalar_t>(dummy_student_data[n]);
   }
@@ -419,9 +370,9 @@ double LAB_Analog_Circuit_Checker::
 
   // instructor data from file
   std::vector<scalar_t> xA(actual_N);
-  for (size_t n = 0; n < actual_N; ++n) 
+  for (size_t n = 0; n < actual_N; ++n)
   {
-    xA[n] = static_cast<scalar_t>(instructor_data[n]); 
+    xA[n] = static_cast<scalar_t>(instructor_data[n]);
   }
   std::vector<cpx_t> XA(actual_N/2 + 1);
   kiss_fftr(cfg, xA.data(), XA.data());
@@ -436,13 +387,13 @@ double LAB_Analog_Circuit_Checker::
     const double im = XB[k].i;
     magB[k] = std::sqrt(re*re + im*im);
 
-    if (k > 0 && magB[k] > peak_val) {  
+    if (k > 0 && magB[k] > peak_val) {
       peak_val = magB[k];
       peak_bin = k;
     }
   }
 
-  const double bin_hz = Fs / actual_N; 
+  const double bin_hz = Fs / actual_N;
   const double peak_hz = peak_bin * bin_hz;
 
   // data
@@ -458,7 +409,7 @@ double LAB_Analog_Circuit_Checker::
   std::cout << "  Expected phase from " << delay << "-sample delay: " << expected_phi << " rad\n";
 
   std::cout << "\nFirst 8 bins (magnitude):\n";
-  for (size_t k = 0; k < 8 && k < magB.size(); ++k) 
+  for (size_t k = 0; k < 8 && k < magB.size(); ++k)
   {
     std::cout << "  k=" << k
               << "  f=" << std::setw(6) << std::fixed << std::setprecision(1) << k*bin_hz
@@ -466,8 +417,8 @@ double LAB_Analog_Circuit_Checker::
   }
 
   double dot = 0.0, nA = 0.0, nB = 0.0;
-  for (size_t k = 1; k < XA.size() && k < XB.size(); ++k) 
-  { 
+  for (size_t k = 1; k < XA.size() && k < XB.size(); ++k)
+  {
     const double mA = std::hypot(XA[k].r, XA[k].i);
     const double mB = std::hypot(XB[k].r, XB[k].i);
     dot += mA * mB;

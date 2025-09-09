@@ -18,7 +18,8 @@ static std::stringstream create_circuit_checker_xml_string_with_data_impl(
     const LAB_Channel_Data_Function_Generator &func_gen,
     bool cmp_time_domain,
     bool cmp_frequency_domain,
-    double cmp_similarity_threshold)
+    double cmp_time_similarity_threshold,
+    double cmp_frequency_similarity_threshold)
 {
   std::stringstream ss;
   ss << std::fixed << std::setprecision(6);
@@ -60,13 +61,19 @@ static std::stringstream create_circuit_checker_xml_string_with_data_impl(
     ss << "          <trms>" << osc.measurements.trms << "</trms>\n";
     ss << "        </measurements>\n";
 
-    // Samples: only channel 2
-    if (i == 1)
+    // Samples: export for channel 1 and channel 2
+    if (i == 0 || i == 1)
     {
-      ss << "        <samples>\n";
+      ss << "<samples>";
+      bool is_first_sample = true;
       for (const auto &s : osc.samples)
-        ss << "          <sample>" << s << "</sample>\n";
-      ss << "        </samples>\n";
+      {
+        if (!is_first_sample)
+          ss << ",";
+        ss << s;
+        is_first_sample = false;
+      }
+      ss << "</samples>\n";
     }
     ss << "      </channel>\n";
   }
@@ -86,11 +93,12 @@ static std::stringstream create_circuit_checker_xml_string_with_data_impl(
   ss << "    <Rf>" << func_gen.Rf << "</Rf>\n";
   ss << "  </function_generator>\n";
 
-  // Comparison block
+  // Comparison
   ss << "  <comparison>\n";
   ss << "    <time_domain>" << (cmp_time_domain ? 1 : 0) << "</time_domain>\n";
   ss << "    <frequency_domain>" << (cmp_frequency_domain ? 1 : 0) << "</frequency_domain>\n";
-  ss << "    <similarity_threshold>" << cmp_similarity_threshold << "</similarity_threshold>\n";
+  ss << "    <time_similarity_threshold>" << cmp_time_similarity_threshold << "</time_similarity_threshold>\n";
+  ss << "    <frequency_similarity_threshold>" << cmp_frequency_similarity_threshold << "</frequency_similarity_threshold>\n";
   ss << "  </comparison>\n";
 
   ss << "</root>\n";
@@ -127,7 +135,8 @@ void LAB_LABChecker_Analog::create_circuit_checker_file(
     const LAB_Channel_Data_Function_Generator &func_gen,
     bool cmp_time_domain,
     bool cmp_frequency_domain,
-    double cmp_similarity_threshold,
+    double cmp_time_similarity_threshold,
+    double cmp_frequency_similarity_threshold,
     const char *password)
 {
   // Build channels array from current oscilloscope parent data
@@ -137,7 +146,8 @@ void LAB_LABChecker_Analog::create_circuit_checker_file(
     osc_channels.push_back(src);
 
   std::stringstream ss = create_circuit_checker_xml_string_with_data_impl(
-    osc_channels, osc_data, func_gen, cmp_time_domain, cmp_frequency_domain, cmp_similarity_threshold);
+    osc_channels, osc_data, func_gen, cmp_time_domain, cmp_frequency_domain,
+    cmp_time_similarity_threshold, cmp_frequency_similarity_threshold);
 
   // if (password)
   //     encrypt_stringstream(ss, std::string(password));
