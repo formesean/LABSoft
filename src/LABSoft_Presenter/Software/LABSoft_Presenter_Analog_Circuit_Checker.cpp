@@ -556,6 +556,11 @@ cb_load_file_acc (Fl_Button* w, void* data)
           update_gui_analog_circuit_checker ();
 
           fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
+
+          std::printf("=== CALLING COMPUTE_FFT ===\n");
+          double fft_result = m_presenter.lab().m_Analog_Circuit_Checker.compute_fft();
+          std::printf("FFT computation completed. Result: %.6f\n", fft_result);
+          std::printf("=== COMPUTE_FFT COMPLETED ===\n\n");
         }
         else
         {

@@ -88,6 +88,7 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
 
     void time_domain_analysis(const std::vector<double> &instructor,
                               const std::vector<double> &student);
+    double compute_fft();
 
     // Getters
     const std::vector<ChannelData> &get_channel_data            () const { return m_channel_data; }
@@ -111,6 +112,9 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     bool      get_cmp_frequency_domain                () const { return m_cmp_frequency_domain; }
     double    get_cmp_time_similarity_threshold       () const { return m_cmp_time_similarity_threshold; }
     double    get_cmp_frequency_similarity_threshold  () const { return m_cmp_frequency_similarity_threshold; }
+
+    std::vector<double> dummy_student_data;
+    std::vector<double> instructor_data;
 };
 
 #endif
