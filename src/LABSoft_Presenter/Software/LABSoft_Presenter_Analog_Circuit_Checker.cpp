@@ -106,7 +106,28 @@ static void set_input_choice_to_value (LABSoft_GUI_Fl_Input_Choice_With_Scroll* 
   if (idx >= 0)
   {
     mb->value(idx);
-    if (w->input()) w->input()->value(menu[idx].label());
+    if (w->input())
+    {
+      if (kind == UnitKind::SAMPLES)
+      {
+        long long integer_value = static_cast<long long>(std::llround(value));
+        if (integer_value >= 1000 && (integer_value % 1000) == 0)
+        {
+          long long thousands = integer_value / 1000;
+          char buf[32];
+          std::snprintf(buf, sizeof(buf), "%lld k", thousands);
+          w->input()->value(buf);
+        }
+        else
+        {
+          w->input()->value(menu[idx].label());
+        }
+      }
+      else
+      {
+        w->input()->value(menu[idx].label());
+      }
+    }
   }
 }
 
@@ -162,9 +183,10 @@ import_metadata()
   m_metadata.trigger_level      = analog_checker.get_trigger_level();
 
   // Persist comparison settings
-  m_metadata.comparison.time_domain          = analog_checker.get_cmp_time_domain();
-  m_metadata.comparison.frequency_domain     = analog_checker.get_cmp_frequency_domain();
-  m_metadata.comparison.similarity_threshold = analog_checker.get_cmp_similarity_threshold();
+  m_metadata.comparison.time_domain                   = analog_checker.get_cmp_time_domain();
+  m_metadata.comparison.frequency_domain              = analog_checker.get_cmp_frequency_domain();
+  m_metadata.comparison.time_similarity_threshold     = analog_checker.get_cmp_time_similarity_threshold();
+  m_metadata.comparison.frequency_similarity_threshold= analog_checker.get_cmp_frequency_similarity_threshold();
 
   // Channels
   m_metadata.channels.clear();
@@ -214,8 +236,9 @@ update_gui_analog_circuit_checker()
       analog_display.samples(m_metadata.samples);
       analog_display.sampling_rate(m_metadata.sampling_rate);
 
-      // Convert sample data to pixel points for display (CH2 only)
+      // Convert imported CH2 to overlay points (drawn independently in red)
       LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints pixel_points;
+      std::vector<std::array<int, 2>> overlay_points;
       for (size_t idx = 0; idx < channel_data.size() && idx < LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS; ++idx)
       {
         if (idx != 1) continue;
@@ -223,6 +246,7 @@ update_gui_analog_circuit_checker()
 
         pixel_points[0].clear();
         pixel_points[1].clear();
+        overlay_points.clear();
 
         if (channel.is_enabled && !channel.sample_data.empty())
         {
@@ -230,7 +254,7 @@ update_gui_analog_circuit_checker()
           const unsigned display_height = analog_display.display_height();
 
           const size_t N = channel.sample_data.size();
-          pixel_points[1].reserve(N);
+          overlay_points.reserve(N);
 
           const double voltage_per_division = std::max(1e-9, channel.voltage_per_division);
           const double voltage_range        = voltage_per_division * static_cast<double>(LABC::OSC_DISPLAY::NUMBER_OF_ROWS);
@@ -240,7 +264,6 @@ update_gui_analog_circuit_checker()
             const size_t denom = (N > 1) ? (N - 1) : 1;
             int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width - 1)) / static_cast<double>(denom));
 
-            // Apply scaling correction and vertical offset (positive offset moves signal up)
             const double corrected_voltage = (channel.sample_data[i] * channel.scaling_corrector) + channel.vertical_offset;
             double normalized_voltage = (corrected_voltage + (voltage_range / 2.0)) / voltage_range;
             normalized_voltage = clamp01(normalized_voltage);
@@ -249,10 +272,10 @@ update_gui_analog_circuit_checker()
             x = std::max(0, std::min(x, static_cast<int>(display_width - 1)));
             y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
 
-            pixel_points[1].push_back({x, y});
+            overlay_points.push_back({x, y});
           }
 
-          // Sync GUI parameters for consistency
+          // Sync GUI parameters for consistency (use ch2 for reference scaling when needed)
           analog_display.voltage_per_division(static_cast<unsigned>(idx), channel.voltage_per_division);
           analog_display.vertical_offset(static_cast<unsigned>(idx), channel.vertical_offset);
         }
@@ -262,12 +285,11 @@ update_gui_analog_circuit_checker()
       analog_display.horizontal_offset(m_metadata.horizontal_offset);
 
       analog_display.load_pixel_points(pixel_points);
-      // Reflect CH2 enable state
-      if (channel_data.size() > 1)
-      {
-        analog_display.channel_enable_disable(0, false);
-        analog_display.channel_enable_disable(1, channel_data[1].is_enabled);
-      }
+      analog_display.load_overlay_points(overlay_points, FL_RED, true);
+
+      // Disable base channels; overlay shows imported CH2 independently
+      analog_display.channel_enable_disable(0, false);
+      analog_display.channel_enable_disable(1, false);
       analog_display.update_display();
     }
     catch (const std::exception& e)
@@ -293,30 +315,103 @@ void LABSoft_Presenter_Analog_Circuit_Checker::
 update_gui_oscilloscope()
 {
   LABSoft_GUI& gui = m_presenter.gui();
+  LAB_Oscilloscope &osc = lab().m_Oscilloscope;
 
-  if (m_metadata.channels.size() > 1)
+  // Apply imported metadata to the underlying oscilloscope state
+  // Channels
+  if (m_metadata.channels.size() >= 1)
   {
-    const auto& ch2 = m_metadata.channels[1];
+    const auto &ch1 = m_metadata.channels[0];
+    osc.channel_enable_disable(0, ch1.is_enabled);
+    osc.coupling(0, ch1.coupling ? LABE::OSC::COUPLING::AC : LABE::OSC::COUPLING::DC);
+    osc.scaling(0, static_cast<LABE::OSC::SCALING>(ch1.scaling));
+    osc.voltage_per_division(0, ch1.voltage_per_div);
+    osc.vertical_offset(0, ch1.vertical_offset);
+  }
+  if (m_metadata.channels.size() >= 2)
+  {
+    const auto &ch2 = m_metadata.channels[1];
+    osc.channel_enable_disable(1, ch2.is_enabled);
+    osc.coupling(1, ch2.coupling ? LABE::OSC::COUPLING::AC : LABE::OSC::COUPLING::DC);
+    osc.scaling(1, static_cast<LABE::OSC::SCALING>(ch2.scaling));
+    osc.voltage_per_division(1, ch2.voltage_per_div);
+    osc.vertical_offset(1, ch2.vertical_offset);
+  }
+
+  // Horizontal/global
+  osc.horizontal_offset(m_metadata.horizontal_offset);
+  osc.time_per_division(m_metadata.time_per_division);
+  osc.samples(m_metadata.samples);
+  osc.sampling_rate(m_metadata.sampling_rate);
+
+  // Triggers
+  auto clamp_mode = [](unsigned v) -> LABE::OSC::TRIG::MODE {
+    if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::MODE>(v);
+  };
+  auto clamp_type = [](unsigned v) -> LABE::OSC::TRIG::TYPE {
+    if (v > 1) v = 1; return static_cast<LABE::OSC::TRIG::TYPE>(v);
+  };
+  auto clamp_cnd = [](unsigned v) -> LABE::OSC::TRIG::CND {
+    if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::CND>(v);
+  };
+
+  osc.trigger_mode(clamp_mode(m_metadata.trigger_mode));
+  osc.trigger_source((m_metadata.trigger_source == 0) ? 0u : 1u);
+  osc.trigger_type(clamp_type(m_metadata.trigger_type));
+  osc.trigger_condition(clamp_cnd(m_metadata.trigger_condition));
+  osc.trigger_level(m_metadata.trigger_level);
+
+  if (m_metadata.channels.size() >= 1)
+  {
+    const auto& ch1 = m_metadata.channels[0];
 
     if (gui.oscilloscope_fl_light_button_channel_0_enable)
-      gui.oscilloscope_fl_light_button_channel_0_enable->value(ch2.is_enabled ? 1 : 0);
+      gui.oscilloscope_fl_light_button_channel_0_enable->value(ch1.is_enabled ? 1 : 0);
 
     if (gui.oscilloscope_fl_light_button_channel_0_ac_coupling)
-      gui.oscilloscope_fl_light_button_channel_0_ac_coupling->value(ch2.coupling ? 1 : 0);
+      gui.oscilloscope_fl_light_button_channel_0_ac_coupling->value(ch1.coupling ? 1 : 0);
 
     if (gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_0_scaling)
-      gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_0_scaling->value(static_cast<int>(ch2.scaling));
+      gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_0_scaling->value(static_cast<int>(ch1.scaling));
 
     if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_voltage_per_division)
     {
       set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_voltage_per_division,
                                 UnitKind::VOLT,
-                                ch2.voltage_per_div);
+                                ch1.voltage_per_div);
     }
 
     if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_vertical_offset)
     {
       set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_0_vertical_offset,
+                                UnitKind::VOLT,
+                                ch1.vertical_offset);
+    }
+  }
+
+  if (m_metadata.channels.size() >= 2)
+  {
+    const auto& ch2 = m_metadata.channels[1];
+
+    if (gui.oscilloscope_fl_light_button_channel_1_enable)
+      gui.oscilloscope_fl_light_button_channel_1_enable->value(ch2.is_enabled ? 1 : 0);
+
+    if (gui.oscilloscope_fl_light_button_channel_1_ac_coupling)
+      gui.oscilloscope_fl_light_button_channel_1_ac_coupling->value(ch2.coupling ? 1 : 0);
+
+    if (gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_1_scaling)
+      gui.oscilloscope_labsoft_gui_fl_choice_with_scroll_channel_1_scaling->value(static_cast<int>(ch2.scaling));
+
+    if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_voltage_per_division)
+    {
+      set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_voltage_per_division,
+                                UnitKind::VOLT,
+                                ch2.voltage_per_div);
+    }
+
+    if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_vertical_offset)
+    {
+      set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_channel_1_vertical_offset,
                                 UnitKind::VOLT,
                                 ch2.vertical_offset);
     }
@@ -446,12 +541,19 @@ cb_load_file_acc (Fl_Button* w, void* data)
 
           // Load the .labacc file
           m_presenter.lab().m_Analog_Circuit_Checker.load_file(path);
+          import_metadata();
 
-            import_metadata                   ();
-            update_gui_oscilloscope           ();
-            update_gui_function_generator     ();
-            update_gui_acc_comparison         ();
-            update_gui_analog_circuit_checker ();
+          // turn off oscilloscope and function generator run button
+          gui().oscilloscope_fl_light_button_run_stop->value(0);
+          gui().function_generator_fl_light_button_run_stop->value(0);
+          presenter().m_Oscilloscope.cb_run_stop(gui().oscilloscope_fl_light_button_run_stop, nullptr);
+          presenter().m_Function_Generator.cb_run_stop(gui().function_generator_fl_light_button_run_stop, 0);
+
+          // update gui
+          update_gui_oscilloscope           ();
+          update_gui_function_generator     ();
+          update_gui_acc_comparison         ();
+          update_gui_analog_circuit_checker ();
 
           fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
         }
@@ -491,10 +593,60 @@ cb_run_checker_acc (Fl_Button* w, void* data)
 
   try
   {
-    if (!checker.is_file_loaded())
+    LABSoft_GUI &gui_ref = m_presenter.gui();
+    auto *acc_disp_ptr = gui_ref.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
+    if (!acc_disp_ptr) return;
+
+    LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+    LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
+
+    const unsigned analog_w = acc_disp_ptr->display_width();
+    const unsigned analog_h = acc_disp_ptr->display_height();
+
+    LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui_ref.oscilloscope_labsoft_gui_oscilloscope_display);
+    const unsigned osc_tab_w = osc_gui_disp.display_width();
+    const unsigned osc_tab_h = osc_gui_disp.display_height();
+
+    const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
+    if (!same_size)
     {
-      fl_message("Please load a .labacc file first before running the checker.");
-      return;
+      osc_disp.display_parameters(
+        analog_w,
+        analog_h,
+        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+      );
+    }
+
+    osc_disp.update_pixel_points();
+    const auto &raw_buf = osc_disp.pixel_points();
+
+    // Populate ACC display with CH2 only
+    LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
+    if (raw_buf.size() > 1)
+      acc_pixels[1] = raw_buf[1];
+
+    acc_disp_ptr->voltage_per_division(1, osc.voltage_per_division(1));
+    acc_disp_ptr->vertical_offset(1, osc.vertical_offset(1));
+    acc_disp_ptr->time_per_division(osc.time_per_division());
+    acc_disp_ptr->horizontal_offset(osc.horizontal_offset());
+    acc_disp_ptr->samples(osc.samples());
+    acc_disp_ptr->sampling_rate(osc.sampling_rate());
+
+    acc_disp_ptr->load_pixel_points(acc_pixels);
+    acc_disp_ptr->channel_enable_disable(0, false);
+    acc_disp_ptr->channel_enable_disable(1, true);
+    acc_disp_ptr->update_display();
+
+    if (!same_size)
+    {
+      osc_disp.display_parameters(
+        osc_tab_w,
+        osc_tab_h,
+        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+      );
+      osc_disp.update_pixel_points();
     }
     /*update_gui_analog_circuit_checker();
     double comparison = checker->lab().m_Analog__Circuit_Checker.compute.similarity();

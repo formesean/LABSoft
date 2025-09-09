@@ -63,7 +63,8 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
       {
         bool   time_domain            = true;
         bool   frequency_domain       = true;
-        double similarity_threshold   = 0.90;
+        double time_similarity_threshold     = 0.90;
+        double frequency_similarity_threshold = 0.90;
       } comparison;
     } m_metadata;
 

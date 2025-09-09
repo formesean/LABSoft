@@ -26,7 +26,8 @@ public:
       const LAB_Channel_Data_Function_Generator &func_gen,
       bool cmp_time_domain,
       bool cmp_frequency_domain,
-      double cmp_similarity_threshold,
+      double cmp_time_similarity_threshold,
+      double cmp_frequency_similarity_threshold,
       const char *password = nullptr);
 };
 

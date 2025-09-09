@@ -39,6 +39,9 @@ load_gui()
   analog_checker_disp_gui.channel_enable_disable(0, false);
   analog_checker_disp_gui.channel_enable_disable(1, true);
   analog_checker_disp_gui.update_display();
+
+  // Ensure comparison threshold inputs reflect checkbox state
+  sync_comparison_inputs_enabled();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
@@ -66,6 +69,15 @@ init_gui_callbacks()
   if (gui().analog_fl_button_capture_signal)
   {
     gui().analog_fl_button_capture_signal->callback((Fl_Callback *)cb_capture_signal, this);
+  }
+
+  if (gui().analog_fl_checkbutton_time_domain)
+  {
+    gui().analog_fl_checkbutton_time_domain->callback((Fl_Callback*)cb_toggle_time_domain, this);
+  }
+  if (gui().analog_fl_checkbutton_frequency_domain)
+  {
+    gui().analog_fl_checkbutton_frequency_domain->callback((Fl_Callback*)cb_toggle_frequency_domain, this);
   }
 }
 
@@ -170,6 +182,42 @@ update_gui_with_captured_data()
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
+sync_comparison_inputs_enabled()
+{
+  const int time_enabled = gui().analog_fl_checkbutton_time_domain ? gui().analog_fl_checkbutton_time_domain->value() : 0;
+  const int freq_enabled = gui().analog_fl_checkbutton_frequency_domain ? gui().analog_fl_checkbutton_frequency_domain->value() : 0;
+
+  if (gui().analog_fl_input_time_domain_similarity_threshold)
+  {
+    if (time_enabled) gui().analog_fl_input_time_domain_similarity_threshold->activate();
+    else              gui().analog_fl_input_time_domain_similarity_threshold->deactivate();
+  }
+  if (gui().analog_fl_input_frequency_domain_similarity_threshold)
+  {
+    if (freq_enabled) gui().analog_fl_input_frequency_domain_similarity_threshold->activate();
+    else              gui().analog_fl_input_frequency_domain_similarity_threshold->deactivate();
+  }
+}
+
+void LABSoft_Presenter_LABChecker_Analog::
+cb_toggle_time_domain(Fl_Check_Button *w, void *data)
+{
+  auto *self = static_cast<LABSoft_Presenter_LABChecker_Analog*>(data);
+  if (!self) return;
+  self->sync_comparison_inputs_enabled();
+  self->presenter().m_Software_Navigation.refresh_widget_list();
+}
+
+void LABSoft_Presenter_LABChecker_Analog::
+cb_toggle_frequency_domain(Fl_Check_Button *w, void *data)
+{
+  auto *self = static_cast<LABSoft_Presenter_LABChecker_Analog*>(data);
+  if (!self) return;
+  self->sync_comparison_inputs_enabled();
+  self->presenter().m_Software_Navigation.refresh_widget_list();
+}
+
+void LABSoft_Presenter_LABChecker_Analog::
 cb_analog_create_file(Fl_Button *w, void *data)
 {
   auto *acc = this;
@@ -186,11 +234,13 @@ cb_analog_create_file(Fl_Button *w, void *data)
   // Comparison settings from UI
   bool cmp_time_domain = acc->gui().analog_fl_checkbutton_time_domain->value();
   bool cmp_frequency_domain = acc->gui().analog_fl_checkbutton_frequency_domain->value();
-  double cmp_similarity_threshold = 0.0;
-  if (auto *fld = acc->gui().analog_fl_input_similarity_threshold) {
-    try {
-      cmp_similarity_threshold = std::stod(fld->value());
-    } catch (...) { cmp_similarity_threshold = 0.0; }
+  double cmp_time_similarity_threshold = 0.0;
+  double cmp_frequency_similarity_threshold = 0.0;
+  if (auto *fld = acc->gui().analog_fl_input_time_domain_similarity_threshold) {
+    try { cmp_time_similarity_threshold = std::stod(fld->value()); } catch (...) { cmp_time_similarity_threshold = 0.0; }
+  }
+  if (auto *fld = acc->gui().analog_fl_input_frequency_domain_similarity_threshold) {
+    try { cmp_frequency_similarity_threshold = std::stod(fld->value()); } catch (...) { cmp_frequency_similarity_threshold = 0.0; }
   }
 
   // FG snapshot
@@ -219,7 +269,8 @@ cb_analog_create_file(Fl_Button *w, void *data)
     fg_data,
     cmp_time_domain,
     cmp_frequency_domain,
-    cmp_similarity_threshold
+    cmp_time_similarity_threshold,
+    cmp_frequency_similarity_threshold
   );
 
   std::cout << "[SUCCESS] File saved to: " << file_path << std::endl;
