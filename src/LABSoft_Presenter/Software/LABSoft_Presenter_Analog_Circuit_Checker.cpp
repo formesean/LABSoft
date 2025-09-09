@@ -553,7 +553,13 @@ perform_time_domain_analysis()
     student.resize(n);
 
     auto result = checker.signal_analysis(instructor, student);
-    std::printf("[ACC] Time-domain similarity: coefficient=%.6f (%.2f %%)\n", result.coefficient, result.percentage);
+
+    if (gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold)
+    {
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
+      gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->value(buf);
+    }
   }
 }
 
@@ -609,7 +615,13 @@ perform_frequency_domain_analysis()
     mag_student.resize(mn);
 
     auto result = checker.signal_analysis(mag_instructor, mag_student);
-    std::printf("[ACC] Frequency-domain similarity: coefficient=%.6f (%.2f %%)\n", result.coefficient, result.percentage);
+
+    if (gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold)
+    {
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
+      gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
+    }
   }
 }
 

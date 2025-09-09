@@ -2079,7 +2079,6 @@ ly board.");
         main_fl_group_analog_circuit_checker->color(FL_LIGHT3);
         main_fl_group_analog_circuit_checker->selection_color(FL_LIGHT2);
         main_fl_group_analog_circuit_checker->labelsize(12);
-        main_fl_group_analog_circuit_checker->hide();
         { analog_circuit_checker_labsoft_gui_analog_circuit_checker_display = new LABSoft_GUI_Analog_Circuit_Checker_Display(260, 100, 920, 450);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->box(FL_FLAT_BOX);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->color(FL_GRAY0);
@@ -2124,7 +2123,6 @@ ly board.");
             o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_time_domain
           { analog_circuit_checker_fl_input_time_domain_similarity_threshold = new Fl_Output(90, 365, 100, 25);
-            analog_circuit_checker_fl_input_time_domain_similarity_threshold->deactivate();
           } // Fl_Output* analog_circuit_checker_fl_input_time_domain_similarity_threshold
           { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_frequency_domain = new Fl_Check_Button(65, 430, 135, 50, "Frequency Domain");
             analog_circuit_checker_fl_checkbutton_frequency_domain->down_box(FL_DOWN_BOX);
@@ -2133,7 +2131,6 @@ ly board.");
             o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_frequency_domain
           { analog_circuit_checker_fl_input_frequency_domain_similarity_threshold = new Fl_Output(90, 440, 100, 25);
-            analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->deactivate();
           } // Fl_Output* analog_circuit_checker_fl_input_frequency_domain_similarity_threshold
           { analog_circuit_checker_fl_button_export_results = new Fl_Button(41, 485, 180, 65, "Export Results");
             analog_circuit_checker_fl_button_export_results->box(FL_GTK_UP_BOX);
@@ -2148,6 +2145,7 @@ ly board.");
         main_fl_group_labchecker_analog_tab->color(FL_LIGHT3);
         main_fl_group_labchecker_analog_tab->selection_color(FL_LIGHT2);
         main_fl_group_labchecker_analog_tab->labelsize(12);
+        main_fl_group_labchecker_analog_tab->hide();
         { analog_labsoft_gui_analog_checker_display = new LABSoft_GUI_LABChecker_Analog_Checker_Display(260, 100, 920, 450);
           analog_labsoft_gui_analog_checker_display->box(FL_FLAT_BOX);
           analog_labsoft_gui_analog_checker_display->color(FL_GRAY0);
