@@ -648,7 +648,9 @@ cb_run_checker_acc (Fl_Button* w, void* data)
       );
       osc_disp.update_pixel_points();
     }
-
+    /*update_gui_analog_circuit_checker();
+    double comparison = checker->lab().m_Analog__Circuit_Checker.compute.similarity();
+    std::cout << "\nSimilarity: " << sim << "%\n";*/
     std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
   }
   catch (const std::exception &e)

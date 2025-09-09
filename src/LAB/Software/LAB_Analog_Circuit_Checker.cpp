@@ -1,7 +1,7 @@
 #include "LAB_Analog_Circuit_Checker.h"
+
 #include <stdexcept>
 #include <cstdio>
-#include <iostream>
 #include <vector>
 #include <cmath>
 #include <cassert>
@@ -9,6 +9,10 @@
 #include <cstdlib>
 
 #include "../../Utility/pugixml.hpp"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 static std::vector<double>
 parse_csv_doubles (const char* text)
@@ -254,7 +258,7 @@ clear_data_acc()
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_file(const std::string &path)
+load_file(const std::string &path)
 {
   try
   {
@@ -286,9 +290,46 @@ unload_file()
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_data_acc()
+load_data_acc()
 {
   // Intentionally left blank in ACC module. Presenter consumes parsed data for display.
+}
+
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+cross_correlation(const std::vector<double> &x,
+                  const std::vector<double> &y)
+{
+  CorrelationResult result{0.0, 0.0};
+
+  const size_t N = std::min(x.size(), y.size());
+  if (N == 0) return result;
+
+  double numerator = 0.0;
+  double denom_x = 0.0;
+  double denom_y = 0.0;
+
+  for (size_t n = 0; n < N; n++)
+  {
+    const double xv = x[n];
+    const double yv = y[n];
+    numerator += xv * yv;
+    denom_x += xv * xv;
+    denom_y += yv * yv;
+  }
+
+  if (denom_x == 0.0 || denom_y == 0.0) return result;
+
+  result.coefficient = numerator / std::sqrt(denom_x * denom_y);
+  result.percentage = result.coefficient * 100.0;
+  return result;
+}
+
+void LAB_Analog_Circuit_Checker::
+time_domain_analysis(const std::vector<double> &instructor,
+                     const std::vector<double> &student)
+{
+  CorrelationResult result = cross_correlation(instructor, student);
+  (void)result;
 }
 
 // EOF
