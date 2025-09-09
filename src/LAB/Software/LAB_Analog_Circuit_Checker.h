@@ -73,9 +73,10 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     double    m_trigger_level;
 
     // Comparison settings
-    bool m_cmp_time_domain            = false;
-    bool m_cmp_frequency_domain       = false;
-    double m_cmp_similarity_threshold = 0.0;
+    bool    m_cmp_time_domain                     = false;
+    bool    m_cmp_frequency_domain                = false;
+    double  m_cmp_time_similarity_threshold       = 0.0;
+    double  m_cmp_frequency_similarity_threshold  = 0.0;
 
   public:
     LAB_Analog_Circuit_Checker(LAB &_lab);
@@ -93,22 +94,23 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     const FunctionGenData          &get_function_generator_data () const { return m_func_gen_data; }
 
     // Metadata getters
-    unsigned  get_samples                  () const { return m_samples; }
-    double    get_time_per_division        () const { return m_time_per_division; }
-    double    get_sampling_rate            () const { return m_sampling_rate; }
-    double    get_horizontal_offset        () const { return m_horizontal_offset; }
+    unsigned  get_samples                             () const { return m_samples; }
+    double    get_time_per_division                   () const { return m_time_per_division; }
+    double    get_sampling_rate                       () const { return m_sampling_rate; }
+    double    get_horizontal_offset                   () const { return m_horizontal_offset; }
 
     // Trigger getters
-    unsigned  get_trigger_mode             () const { return m_trigger_mode; }
-    unsigned  get_trigger_source           () const { return m_trigger_source; }
-    unsigned  get_trigger_type             () const { return m_trigger_type; }
-    unsigned  get_trigger_condition        () const { return m_trigger_condition; }
-    double    get_trigger_level            () const { return m_trigger_level; }
+    unsigned  get_trigger_mode                        () const { return m_trigger_mode; }
+    unsigned  get_trigger_source                      () const { return m_trigger_source; }
+    unsigned  get_trigger_type                        () const { return m_trigger_type; }
+    unsigned  get_trigger_condition                   () const { return m_trigger_condition; }
+    double    get_trigger_level                       () const { return m_trigger_level; }
 
     // Comparison getters
-    bool      get_cmp_time_domain          () const { return m_cmp_time_domain; }
-    bool      get_cmp_frequency_domain     () const { return m_cmp_frequency_domain; }
-    double    get_cmp_similarity_threshold () const { return m_cmp_similarity_threshold; }
+    bool      get_cmp_time_domain                     () const { return m_cmp_time_domain; }
+    bool      get_cmp_frequency_domain                () const { return m_cmp_frequency_domain; }
+    double    get_cmp_time_similarity_threshold       () const { return m_cmp_time_similarity_threshold; }
+    double    get_cmp_frequency_similarity_threshold  () const { return m_cmp_frequency_similarity_threshold; }
 };
 
 #endif
