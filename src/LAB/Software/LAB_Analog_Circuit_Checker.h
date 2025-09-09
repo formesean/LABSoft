@@ -86,8 +86,8 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     bool is_file_loaded() const { return m_is_file_loaded; }
     void load_data_acc(); // Main function to load data into oscilloscope
 
-    void time_domain_analysis(const std::vector<double> &instructor,
-                              const std::vector<double> &student);
+    CorrelationResult signal_analysis(const std::vector<double> &instructor,
+                                      const std::vector<double> &student);
     double compute_fft();
 
     // Getters

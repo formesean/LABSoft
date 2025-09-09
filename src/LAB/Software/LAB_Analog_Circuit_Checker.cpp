@@ -184,19 +184,6 @@ load_channel_data_acc()
         const char* csv = samples_node.text().as_string();
         channel.sample_data = parse_csv_doubles(csv);
         channel.samples = static_cast<unsigned>(channel.sample_data.size());
-
-        // Debug print: first 10 samples for this channel
-        if (!channel.sample_data.empty())
-        {
-          std::cout << "[ACC] Channel " << (index_attr + 1) << " first 10 samples: ";
-          const size_t num_to_print = std::min<size_t>(10, channel.sample_data.size());
-          for (size_t k = 0; k < num_to_print; ++k)
-          {
-            if (k) std::cout << ", ";
-            std::cout << channel.sample_data[k];
-          }
-          std::cout << "\n";
-        }
       }
 
       m_channel_data.push_back(std::move(channel));
@@ -231,19 +218,6 @@ load_channel_data_acc()
     {
       for (pugi::xml_node sample : samples_node.children("sample"))
         channel.sample_data.push_back(sample.text().as_double());
-
-      // Debug print: first 10 samples for channel 1
-      if (!channel.sample_data.empty())
-      {
-        std::cout << "[ACC] Channel 1 first 10 samples: ";
-        const size_t num_to_print = std::min<size_t>(10, channel.sample_data.size());
-        for (size_t k = 0; k < num_to_print; ++k)
-        {
-          if (k) std::cout << ", ";
-          std::cout << channel.sample_data[k];
-        }
-        std::cout << "\n";
-      }
     }
 
     m_channel_data.push_back(channel);
@@ -336,12 +310,12 @@ cross_correlation(const std::vector<double> &x,
   return result;
 }
 
-void LAB_Analog_Circuit_Checker::
-time_domain_analysis(const std::vector<double> &instructor,
-                     const std::vector<double> &student)
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+signal_analysis(const std::vector<double> &instructor,
+                const std::vector<double> &student)
 {
   CorrelationResult result = cross_correlation(instructor, student);
-  (void)result;
+  return result;
 }
 
 double LAB_Analog_Circuit_Checker::
