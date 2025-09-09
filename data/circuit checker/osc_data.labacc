@@ -28,10 +28,10 @@
       </channel>
       <channel index="1">
         <is_enabled>1</is_enabled>
-        <voltage_per_division>0.500000</voltage_per_division>
+        <voltage_per_division>1.000000</voltage_per_division>
         <vertical_offset>0.000000</vertical_offset>
         <scaling>2</scaling>
-        <coupling>1</coupling>
+        <coupling>0</coupling>
         <measurements>
           <min>0.000000</min>
           <max>0.000000</max>
@@ -54,8 +54,8 @@
   </function_generator>
   <comparison>
     <time_domain>1</time_domain>
-    <frequency_domain>1</frequency_domain>
+    <frequency_domain>0</frequency_domain>
     <time_similarity_threshold>90.000000</time_similarity_threshold>
-    <frequency_similarity_threshold>94.000000</frequency_similarity_threshold>
+    <frequency_similarity_threshold>0.000000</frequency_similarity_threshold>
   </comparison>
 </root>

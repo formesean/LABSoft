@@ -1,4 +1,3 @@
-// student side
 #include "LABSoft_Presenter_Analog_Circuit_Checker.h"
 
 #include <cstdio>
@@ -514,6 +513,50 @@ update_gui_display()
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
+perform_time_domain_signal_analysis()
+{
+  auto &checker = lab().m_Analog_Circuit_Checker;
+
+  // Only proceed if comparison is enabled and a file is loaded
+  if (!checker.is_file_loaded())
+    return;
+
+  if (!checker.get_cmp_time_domain())
+    return;
+
+  // Instructor data from imported file: channel 2 (index 1)
+  std::vector<double> instructor;
+  const auto &ch_data = checker.get_channel_data();
+  if (ch_data.size() > 1 && ch_data[1].is_enabled && !ch_data[1].sample_data.empty())
+  {
+    instructor = ch_data[1].sample_data;
+  }
+
+  // Student data from oscilloscope tab: channel 2 (index 1)
+  std::vector<double> student;
+  LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+  if (osc.is_channel_enabled(1))
+  {
+    const auto &arr = osc.chan_samples(1);
+    const unsigned count = osc.samples();
+    const unsigned n = std::min<unsigned>(static_cast<unsigned>(arr.size()), count);
+    student.reserve(n);
+    for (unsigned i = 0; i < n; ++i)
+      student.push_back(arr[i]);
+  }
+
+  if (!instructor.empty() && !student.empty())
+  {
+    const unsigned n = std::min<unsigned>(static_cast<unsigned>(instructor.size()), static_cast<unsigned>(student.size()));
+    instructor.resize(n);
+    student.resize(n);
+
+    auto result = checker.signal_analysis(instructor, student);
+    std::printf("[ACC] Time-domain similarity: coefficient=%.6f (%.2f %%)\n", result.coefficient, result.percentage);
+  }
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
 cb_load_file_acc (Fl_Button* w, void* data)
 {
   Fl_Native_File_Chooser chooser;
@@ -556,11 +599,6 @@ cb_load_file_acc (Fl_Button* w, void* data)
           update_gui_analog_circuit_checker ();
 
           fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
-
-          std::printf("=== CALLING COMPUTE_FFT ===\n");
-          double fft_result = m_presenter.lab().m_Analog_Circuit_Checker.compute_fft();
-          std::printf("FFT computation completed. Result: %.6f\n", fft_result);
-          std::printf("=== COMPUTE_FFT COMPLETED ===\n\n");
         }
         else
         {
@@ -653,9 +691,10 @@ cb_run_checker_acc (Fl_Button* w, void* data)
       );
       osc_disp.update_pixel_points();
     }
-    /*update_gui_analog_circuit_checker();
-    double comparison = checker->lab().m_Analog__Circuit_Checker.compute.similarity();
-    std::cout << "\nSimilarity: " << sim << "%\n";*/
+
+    // Perform comparison if enabled
+    perform_time_domain_signal_analysis();
+
     std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
   }
   catch (const std::exception &e)
