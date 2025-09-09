@@ -22,7 +22,8 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
     void update_gui_oscilloscope           ();
     void update_gui_function_generator     ();
     void update_gui_display                ();
-    void perform_time_domain_signal_analysis();
+    void perform_time_domain_analysis      ();
+    void perform_frequency_domain_analysis ();
 
     struct ACC_Metadata
     {

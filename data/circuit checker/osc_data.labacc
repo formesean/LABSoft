@@ -54,8 +54,8 @@
   </function_generator>
   <comparison>
     <time_domain>1</time_domain>
-    <frequency_domain>0</frequency_domain>
+    <frequency_domain>1</frequency_domain>
     <time_similarity_threshold>90.000000</time_similarity_threshold>
-    <frequency_similarity_threshold>0.000000</frequency_similarity_threshold>
+    <frequency_similarity_threshold>95.000000</frequency_similarity_threshold>
   </comparison>
 </root>

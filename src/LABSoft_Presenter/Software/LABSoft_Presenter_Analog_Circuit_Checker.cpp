@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <array>
+#include <complex>
 #include <cctype>
 #include <cstdlib>
 #include <limits>
@@ -513,7 +514,7 @@ update_gui_display()
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
-perform_time_domain_signal_analysis()
+perform_time_domain_analysis()
 {
   auto &checker = lab().m_Analog_Circuit_Checker;
 
@@ -553,6 +554,62 @@ perform_time_domain_signal_analysis()
 
     auto result = checker.signal_analysis(instructor, student);
     std::printf("[ACC] Time-domain similarity: coefficient=%.6f (%.2f %%)\n", result.coefficient, result.percentage);
+  }
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
+perform_frequency_domain_analysis()
+{
+  auto &checker = lab().m_Analog_Circuit_Checker;
+
+  if (!checker.is_file_loaded())
+    return;
+
+  if (!checker.get_cmp_frequency_domain())
+    return;
+
+  // Instructor data from imported file: channel 2 (index 1)
+  std::vector<double> instructor;
+  const auto &ch_data = checker.get_channel_data();
+  if (ch_data.size() > 1 && ch_data[1].is_enabled && !ch_data[1].sample_data.empty())
+  {
+    instructor = ch_data[1].sample_data;
+  }
+
+  // Student data from oscilloscope tab: channel 2 (index 1)
+  std::vector<double> student;
+  LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+  if (osc.is_channel_enabled(1))
+  {
+    const auto &arr = osc.chan_samples(1);
+    const unsigned count = osc.samples();
+    const unsigned n = std::min<unsigned>(static_cast<unsigned>(arr.size()), count);
+    student.reserve(n);
+    for (unsigned i = 0; i < n; ++i)
+      student.push_back(arr[i]);
+  }
+
+  if (!instructor.empty() && !student.empty())
+  {
+    const unsigned n = std::min<unsigned>(static_cast<unsigned>(instructor.size()), static_cast<unsigned>(student.size()));
+    instructor.resize(n);
+    student.resize(n);
+
+    const auto fft_samples = checker.compute_fft(instructor, student);
+
+    std::vector<double> mag_instructor;
+    std::vector<double> mag_student;
+    mag_instructor.reserve(fft_samples.first.size());
+    mag_student.reserve(fft_samples.second.size());
+    for (const auto &c : fft_samples.first)  mag_instructor.push_back(std::abs(c));
+    for (const auto &c : fft_samples.second) mag_student.push_back(std::abs(c));
+
+    const unsigned mn = std::min<unsigned>(static_cast<unsigned>(mag_instructor.size()), static_cast<unsigned>(mag_student.size()));
+    mag_instructor.resize(mn);
+    mag_student.resize(mn);
+
+    auto result = checker.signal_analysis(mag_instructor, mag_student);
+    std::printf("[ACC] Frequency-domain similarity: coefficient=%.6f (%.2f %%)\n", result.coefficient, result.percentage);
   }
 }
 
@@ -693,7 +750,8 @@ cb_run_checker_acc (Fl_Button* w, void* data)
     }
 
     // Perform comparison if enabled
-    perform_time_domain_signal_analysis();
+    perform_time_domain_analysis();
+    perform_frequency_domain_analysis();
 
     std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
   }
