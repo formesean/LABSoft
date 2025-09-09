@@ -10,9 +10,21 @@
 
 #include "../../Utility/pugixml.hpp"
 
+extern "C"
+{
+  #include "../../../lib/KISSFFT/kiss_fftr.h"
+}
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+constexpr size_t N        = 2000;
+constexpr double Fs = 40e3; // Sampling frequency
+constexpr double amplitude = 1500;
+constexpr double f = 100; // 100 Hz square wave
+constexpr double offset = 2048;
+constexpr size_t delay = 2;
 
 static std::vector<double>
 parse_csv_doubles (const char* text)
@@ -332,10 +344,8 @@ time_domain_analysis(const std::vector<double> &instructor,
   (void)result;
 }
 
-// EOF
-
 double LAB_Analog_Circuit_Checker::
-  compute_fft()
+compute_fft()
 {
   using scalar_t = kiss_fft_scalar;
   using cpx_t    = kiss_fft_cpx;
@@ -433,3 +443,5 @@ double LAB_Analog_Circuit_Checker::
 
   return spec_cos;
 }
+
+// EOF
