@@ -1,14 +1,24 @@
 #include "LAB_Analog_Circuit_Checker.h"
+
 #include <stdexcept>
 #include <cstdio>
-#include <iostream>
 #include <vector>
 #include <cmath>
 #include <cassert>
 #include <algorithm>
 #include <cstdlib>
+#include <complex>
 
 #include "../../Utility/pugixml.hpp"
+
+extern "C"
+{
+  #include "../../../lib/KISSFFT/kiss_fftr.h"
+}
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 static std::vector<double>
 parse_csv_doubles (const char* text)
@@ -168,19 +178,6 @@ load_channel_data_acc()
         const char* csv = samples_node.text().as_string();
         channel.sample_data = parse_csv_doubles(csv);
         channel.samples = static_cast<unsigned>(channel.sample_data.size());
-
-        // Debug print: first 10 samples for this channel
-        if (!channel.sample_data.empty())
-        {
-          std::cout << "[ACC] Channel " << (index_attr + 1) << " first 10 samples: ";
-          const size_t num_to_print = std::min<size_t>(10, channel.sample_data.size());
-          for (size_t k = 0; k < num_to_print; ++k)
-          {
-            if (k) std::cout << ", ";
-            std::cout << channel.sample_data[k];
-          }
-          std::cout << "\n";
-        }
       }
 
       m_channel_data.push_back(std::move(channel));
@@ -215,19 +212,6 @@ load_channel_data_acc()
     {
       for (pugi::xml_node sample : samples_node.children("sample"))
         channel.sample_data.push_back(sample.text().as_double());
-
-      // Debug print: first 10 samples for channel 1
-      if (!channel.sample_data.empty())
-      {
-        std::cout << "[ACC] Channel 1 first 10 samples: ";
-        const size_t num_to_print = std::min<size_t>(10, channel.sample_data.size());
-        for (size_t k = 0; k < num_to_print; ++k)
-        {
-          if (k) std::cout << ", ";
-          std::cout << channel.sample_data[k];
-        }
-        std::cout << "\n";
-      }
     }
 
     m_channel_data.push_back(channel);
@@ -254,7 +238,7 @@ clear_data_acc()
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_file(const std::string &path)
+load_file(const std::string &path)
 {
   try
   {
@@ -286,9 +270,99 @@ unload_file()
 }
 
 void LAB_Analog_Circuit_Checker::
-    load_data_acc()
+load_data_acc()
 {
   // Intentionally left blank in ACC module. Presenter consumes parsed data for display.
 }
 
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+cross_correlation(const std::vector<double> &x,
+                  const std::vector<double> &y)
+{
+  CorrelationResult result{0.0, 0.0};
+
+  const size_t N = std::min(x.size(), y.size());
+  if (N == 0) return result;
+
+  double numerator = 0.0;
+  double denom_x = 0.0;
+  double denom_y = 0.0;
+
+  for (size_t n = 0; n < N; n++)
+  {
+    const double xv = x[n];
+    const double yv = y[n];
+    numerator += xv * yv;
+    denom_x += xv * xv;
+    denom_y += yv * yv;
+  }
+
+  if (denom_x == 0.0 || denom_y == 0.0) return result;
+
+  result.coefficient = numerator / std::sqrt(denom_x * denom_y);
+  result.percentage = result.coefficient * 100.0;
+  return result;
+}
+
+std::pair<std::vector<std::complex<double>>, std::vector<std::complex<double>>> LAB_Analog_Circuit_Checker::
+compute_fft(const std::vector<double> &x,
+            const std::vector<double> &y)
+{
+  using scalar_t = kiss_fft_scalar;
+  using cpx_t    = kiss_fft_cpx;
+
+  // Input validation
+  if (x.empty() || y.empty()) throw std::runtime_error("X or Y data is empty");
+
+  const size_t actual_N = std::min(x.size(), y.size());
+
+  if (actual_N == 0) throw std::runtime_error("No data available for FFT computation");
+
+  // Configure KISS FFT for real-to-complex transform
+  kiss_fftr_cfg cfg = kiss_fftr_alloc(static_cast<int>(actual_N), 0, nullptr, nullptr);
+
+  if (!cfg) throw std::runtime_error("Failed to allocate KISS FFT configuration");
+
+  // Process student data (time domain -> frequency domain)
+  std::vector<scalar_t> xB(actual_N);
+  for (size_t n = 0; n < actual_N; ++n)
+  {
+    xB[n] = static_cast<scalar_t>(y[n]);
+  }
+  std::vector<cpx_t> XB(actual_N/2 + 1);
+  kiss_fftr(cfg, xB.data(), XB.data());
+
+  std::vector<scalar_t> xA(actual_N);
+  for (size_t n = 0; n < actual_N; ++n)
+  {
+    xA[n] = static_cast<scalar_t>(x[n]);
+  }
+  std::vector<cpx_t> XA(actual_N/2 + 1);
+  kiss_fftr(cfg, xA.data(), XA.data());
+
+  // Convert KISS FFT complex results to std::complex<double>
+  std::vector<std::complex<double>> x_freq(actual_N/2 + 1);
+  std::vector<std::complex<double>> y_freq(actual_N/2 + 1);
+
+  for (size_t k = 0; k < XA.size(); ++k)
+  {
+    x_freq[k] = std::complex<double>(XA[k].r, XA[k].i);
+    y_freq[k] = std::complex<double>(XB[k].r, XB[k].i);
+  }
+
+  // Clean up KISS FFT configuration
+  free(cfg);
+
+  // Return frequency domain results: (x_freq, y_freq)
+  return std::make_pair(x_freq, y_freq);
+}
+
+
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+signal_analysis(const std::vector<double> &instructor,
+                const std::vector<double> &student)
+{
+  CorrelationResult result = cross_correlation(instructor, student);
+  return result;
+}
 // EOF
