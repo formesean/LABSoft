@@ -74,11 +74,12 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
 public:
   LABSoft_Presenter_Analog_Circuit_Checker(LABSoft_Presenter &_LABSoft_Presenter);
 
-  void update_display();
-  void cb_load_file_acc(Fl_Button *w, void *data);
-  void cb_run_checker_acc(Fl_Button *w, void *data);
+  void update_display     ();
 
-  // Accessor for imported metadata
+  void cb_load_file_acc   (Fl_Button *w, void *data);
+  void cb_run_checker_acc (Fl_Button *w, void *data);
+  void cb_toggle_view     (Fl_Button *w, void *data);
+
   const ACC_Metadata &metadata() const { return m_metadata; }
 };
 

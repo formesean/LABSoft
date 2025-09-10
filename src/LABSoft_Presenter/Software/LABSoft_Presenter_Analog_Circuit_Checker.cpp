@@ -773,4 +773,23 @@ cb_run_checker_acc (Fl_Button* w, void* data)
   }
 }
 
+void LABSoft_Presenter_Analog_Circuit_Checker::
+cb_toggle_view (Fl_Button* w, void* data)
+{
+  if (!w) return;
+
+  const char* LABEL_FREQ = "View Frequency Domain";
+  const char* LABEL_TIME = "View Time Domain";
+
+  const char* current_cstr = w->label();
+  const std::string current_label = current_cstr ? current_cstr : "";
+
+  if (current_label == LABEL_FREQ)
+    w->copy_label(LABEL_TIME);
+  else
+    w->copy_label(LABEL_FREQ);
+
+  w->redraw();
+}
+
 // EOF

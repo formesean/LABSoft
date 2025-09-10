@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {323 260 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {314 290 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -2215,45 +2215,50 @@ class LABSoft_GUI {open
             class LABSoft_GUI_Analog_Circuit_Checker_Display
           } {}
           Fl_Group analog_circuit_checker_fl_group_1 {open
-            xywh {21 80 220 225} box ROUNDED_FRAME labelsize 12
+            xywh {21 80 220 185} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Button analog_circuit_checker_fl_button_load_file {
               label {Load File}
               callback {m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_load_file_acc (o, v);}
-              xywh {41 95 180 60} box GTK_UP_BOX color 54 labelsize 12
+              xywh {40 95 180 45} box GTK_UP_BOX color 54 labelsize 12
             }
             Fl_Output analog_circuit_checker_fl_output_selected_file {
               label {Selected File}
-              xywh {40 186 180 39} labelsize 12 align 1 textsize 12
+              xywh {40 165 180 30} labelsize 12 align 1 textsize 12
             }
             Fl_Button analog_circuit_checker_fl_button_run_checker {
               label {Run Checker}
               callback {m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_run_checker_acc (o, v);}
-              xywh {41 240 180 50} box GTK_UP_BOX color 54 labelsize 12
+              xywh {41 205 180 45} box GTK_UP_BOX color 54 labelsize 12
             }
           }
           Fl_Group analog_circuit_checker_fl_group_2 {open
-            xywh {21 325 220 245} box ROUNDED_FRAME labelsize 12
+            xywh {21 285 220 285} box ROUNDED_FRAME labelsize 12
           } {
             Fl_Check_Button analog_circuit_checker_fl_checkbutton_time_domain {
               label {Time Domain}
-              xywh {65 355 135 50} down_box DOWN_BOX labelsize 12 align 1
+              xywh {65 315 135 50} down_box DOWN_BOX labelsize 12 align 1
               code0 {o->set_output();}
             }
             Fl_Output analog_circuit_checker_fl_input_time_domain_similarity_threshold {
-              xywh {90 365 100 25}
+              xywh {90 325 100 25}
             }
             Fl_Check_Button analog_circuit_checker_fl_checkbutton_frequency_domain {
               label {Frequency Domain}
-              xywh {65 430 135 50} down_box DOWN_BOX labelsize 12 align 1
+              xywh {65 390 135 50} down_box DOWN_BOX labelsize 12 align 1
               code0 {o->set_output();}
             }
-            Fl_Output analog_circuit_checker_fl_input_frequency_domain_similarity_threshold {selected
-              xywh {90 440 100 25}
+            Fl_Output analog_circuit_checker_fl_input_frequency_domain_similarity_threshold {
+              xywh {90 400 100 25}
+            }
+            Fl_Button analog_circuit_checker_fl_button_toggle_view {
+              label {View Frequency Domain}
+              callback {m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_toggle_view (o, v);} selected
+              xywh {40 450 180 45} box GTK_UP_BOX color 54 labelsize 12
             }
             Fl_Button analog_circuit_checker_fl_button_export_results {
               label {Export Results}
-              xywh {41 485 180 65} box GTK_UP_BOX color 54 labelsize 12
+              xywh {41 510 180 45} box GTK_UP_BOX color 54 labelsize 12
             }
           }
         }

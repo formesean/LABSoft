@@ -386,6 +386,11 @@ public:
   Fl_Output *analog_circuit_checker_fl_input_time_domain_similarity_threshold;
   Fl_Check_Button *analog_circuit_checker_fl_checkbutton_frequency_domain;
   Fl_Output *analog_circuit_checker_fl_input_frequency_domain_similarity_threshold;
+  Fl_Button *analog_circuit_checker_fl_button_toggle_view;
+private:
+  inline void cb_analog_circuit_checker_fl_button_toggle_view_i(Fl_Button*, void*);
+  static void cb_analog_circuit_checker_fl_button_toggle_view(Fl_Button*, void*);
+public:
   Fl_Button *analog_circuit_checker_fl_button_export_results;
   Fl_Group *main_fl_group_labchecker_analog_tab;
   LABSoft_GUI_LABChecker_Analog_Checker_Display *analog_labsoft_gui_analog_checker_display;
