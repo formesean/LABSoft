@@ -1,4 +1,3 @@
-// student side
 #include "LABSoft_Presenter_Analog_Circuit_Checker.h"
 
 #include <cstdio>
@@ -7,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <array>
+#include <complex>
 #include <cctype>
 #include <cstdlib>
 #include <limits>
@@ -217,6 +217,126 @@ import_metadata()
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
+prepare_instructor_data()
+{
+  time_instructor.clear();
+  freq_instructor.clear();
+  time_instructor_pixels.clear();
+
+  const auto &ch_data = lab().m_Analog_Circuit_Checker.get_channel_data();
+
+  if (ch_data.size() > 1 && ch_data[1].is_enabled && !ch_data[1].sample_data.empty())
+  {
+    time_instructor = ch_data[1].sample_data;
+
+    const auto spectrum = lab().m_Analog_Circuit_Checker.compute_fft(time_instructor);
+    freq_instructor.reserve(spectrum.size());
+
+    for (const auto &c : spectrum)
+      freq_instructor.push_back(std::abs(c));
+
+    LABSoft_GUI *gui_ptr = &m_presenter.gui();
+    auto *acc_disp_ptr = gui_ptr ? gui_ptr->analog_circuit_checker_labsoft_gui_analog_circuit_checker_display : nullptr;
+    if (acc_disp_ptr)
+    {
+      const unsigned display_width  = acc_disp_ptr->display_width();
+      const unsigned display_height = acc_disp_ptr->display_height();
+
+      const auto &channel = ch_data[1];
+      const size_t N = time_instructor.size();
+      time_instructor_pixels.reserve(N);
+
+      const double voltage_per_division = std::max(1e-9, channel.voltage_per_division);
+      const double voltage_range        = voltage_per_division * static_cast<double>(LABC::OSC_DISPLAY::NUMBER_OF_ROWS);
+
+      for (size_t i = 0; i < N; ++i)
+      {
+        const size_t denom = (N > 1) ? (N - 1) : 1;
+        int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width - 1)) / static_cast<double>(denom));
+
+        const double corrected_voltage = (time_instructor[i] * channel.scaling_corrector) + channel.vertical_offset;
+        double normalized_voltage = (corrected_voltage + (voltage_range / 2.0)) / voltage_range;
+        normalized_voltage = clamp01(normalized_voltage);
+        int y = static_cast<int>(display_height * (1.0 - normalized_voltage));
+
+        x = std::max(0, std::min(x, static_cast<int>(display_width - 1)));
+        y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
+
+        time_instructor_pixels.push_back({x, y});
+      }
+    }
+  }
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
+prepare_student_data()
+{
+  time_student.clear();
+  freq_student.clear();
+  time_student_pixels.clear();
+
+  LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+  if (!osc.is_channel_enabled(1)) return;
+
+  const auto &arr = osc.chan_samples(1);
+  const unsigned count = osc.samples();
+  const unsigned n = std::min<unsigned>(static_cast<unsigned>(arr.size()), count);
+
+  time_student.reserve(n);
+  for (unsigned i = 0; i < n; ++i)
+    time_student.push_back(arr[i]);
+
+  const auto spectrum = lab().m_Analog_Circuit_Checker.compute_fft(time_student);
+  freq_student.reserve(spectrum.size());
+
+  for (const auto &c : spectrum)
+    freq_student.push_back(std::abs(c));
+
+  LABSoft_GUI *gui_ptr = &m_presenter.gui();
+  auto *acc_disp_ptr = gui_ptr ? gui_ptr->analog_circuit_checker_labsoft_gui_analog_circuit_checker_display : nullptr;
+  if (acc_disp_ptr)
+  {
+    LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
+
+    const unsigned analog_w = acc_disp_ptr->display_width();
+    const unsigned analog_h = acc_disp_ptr->display_height();
+
+    LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui_ptr->oscilloscope_labsoft_gui_oscilloscope_display);
+    const unsigned osc_tab_w = osc_gui_disp.display_width();
+    const unsigned osc_tab_h = osc_gui_disp.display_height();
+
+    const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
+    if (!same_size)
+    {
+      osc_disp.display_parameters(
+        analog_w,
+        analog_h,
+        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+      );
+    }
+
+    osc_disp.update_pixel_points();
+    const auto &raw_buf = osc_disp.pixel_points();
+
+    time_student_pixels.clear();
+    if (raw_buf.size() > 1)
+      time_student_pixels = raw_buf[1];
+
+    if (!same_size)
+    {
+      osc_disp.display_parameters(
+        osc_tab_w,
+        osc_tab_h,
+        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
+        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
+      );
+      osc_disp.update_pixel_points();
+    }
+  }
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
 update_gui_analog_circuit_checker()
 {
   LABSoft_GUI& gui = m_presenter.gui();
@@ -225,76 +345,99 @@ update_gui_analog_circuit_checker()
 
   if (m_presenter.lab().m_Analog_Circuit_Checker.is_file_loaded())
   {
-    const auto& channel_data   = m_presenter.lab().m_Analog_Circuit_Checker.get_channel_data();
-    const auto& func_gen_data  = m_presenter.lab().m_Analog_Circuit_Checker.get_function_generator_data();
-    const auto& analog_checker = m_presenter.lab().m_Analog_Circuit_Checker;
+    // Configure base UI from metadata
+    analog_display.time_per_division  (m_metadata.time_per_division);
+    analog_display.samples            (m_metadata.samples);
+    analog_display.sampling_rate      (m_metadata.sampling_rate);
+    analog_display.horizontal_offset  (m_metadata.horizontal_offset);
 
-    try
+    // Apply channel 2 parameters if present (student channel)
+    if (m_metadata.channels.size() > 1)
     {
-      // Configure UI from metadata
-      analog_display.time_per_division(m_metadata.time_per_division);
-      analog_display.samples(m_metadata.samples);
-      analog_display.sampling_rate(m_metadata.sampling_rate);
+      const auto &ch2m = m_metadata.channels[1];
+      analog_display.voltage_per_division (1, ch2m.voltage_per_div);
+      analog_display.vertical_offset      (1, ch2m.vertical_offset);
+    }
 
-      // Convert imported CH2 to overlay points (drawn independently in red)
-      LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints pixel_points;
+    // Time vs Frequency view
+    if (m_view_frequency)
+    {
+      analog_display.set_frequency_view(true, m_metadata.sampling_rate);
+
+      LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints freq_pixels{};
       std::vector<std::array<int, 2>> overlay_points;
-      for (size_t idx = 0; idx < channel_data.size() && idx < LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS; ++idx)
+
+      const bool have_instructor = !freq_instructor.empty();
+      const bool have_student    = !freq_student.empty();
+
+      if (have_instructor || have_student)
       {
-        if (idx != 1) continue;
-        const auto& channel = channel_data[idx];
+        const unsigned display_width  = analog_display.display_width();
+        const unsigned display_height = analog_display.display_height();
+        const size_t denom_instructor = (freq_instructor.size() > 1) ? (freq_instructor.size() - 1) : 1;
+        const size_t denom_student    = (freq_student.size()    > 1) ? (freq_student.size()    - 1) : 1;
 
-        pixel_points[0].clear();
-        pixel_points[1].clear();
-        overlay_points.clear();
+        double max_mag = 0.0;
+        if (have_instructor) for (double v : freq_instructor) if (v > max_mag) max_mag = v;
+        if (have_student)    for (double v : freq_student)    if (v > max_mag) max_mag = v;
+        if (max_mag <= 0.0) max_mag = 1.0;
 
-        if (channel.is_enabled && !channel.sample_data.empty())
+        // Student -> channel 1 pixels
+        if (have_student)
         {
-          const unsigned display_width  = analog_display.display_width();
-          const unsigned display_height = analog_display.display_height();
-
-          const size_t N = channel.sample_data.size();
-          overlay_points.reserve(N);
-
-          const double voltage_per_division = std::max(1e-9, channel.voltage_per_division);
-          const double voltage_range        = voltage_per_division * static_cast<double>(LABC::OSC_DISPLAY::NUMBER_OF_ROWS);
-
+          const size_t N = freq_student.size();
+          freq_pixels[1].reserve(N);
           for (size_t i = 0; i < N; ++i)
           {
-            const size_t denom = (N > 1) ? (N - 1) : 1;
-            int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width - 1)) / static_cast<double>(denom));
-
-            const double corrected_voltage = (channel.sample_data[i] * channel.scaling_corrector) + channel.vertical_offset;
-            double normalized_voltage = (corrected_voltage + (voltage_range / 2.0)) / voltage_range;
-            normalized_voltage = clamp01(normalized_voltage);
-            int y = static_cast<int>(display_height * (1.0 - normalized_voltage));
-
-            x = std::max(0, std::min(x, static_cast<int>(display_width - 1)));
+            int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width  - 1)) / static_cast<double>(denom_student));
+            double normalized = clamp01(freq_student[i] / max_mag);
+            int y = static_cast<int>(display_height * (1.0 - normalized));
+            x = std::max(0, std::min(x, static_cast<int>(display_width  - 1)));
             y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
+            freq_pixels[1].push_back({x, y});
+          }
+        }
 
+        // Instructor -> red overlay
+        if (have_instructor)
+        {
+          const size_t N = freq_instructor.size();
+          overlay_points.reserve(N);
+          for (size_t i = 0; i < N; ++i)
+          {
+            int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width  - 1)) / static_cast<double>(denom_instructor));
+            double normalized = clamp01(freq_instructor[i] / max_mag);
+            int y = static_cast<int>(display_height * (1.0 - normalized));
+            x = std::max(0, std::min(x, static_cast<int>(display_width  - 1)));
+            y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
             overlay_points.push_back({x, y});
           }
-
-          // Sync GUI parameters for consistency (use ch2 for reference scaling when needed)
-          analog_display.voltage_per_division(static_cast<unsigned>(idx), channel.voltage_per_division);
-          analog_display.vertical_offset(static_cast<unsigned>(idx), channel.vertical_offset);
         }
       }
 
-      // Sync horizontal offset to GUI
-      analog_display.horizontal_offset(m_metadata.horizontal_offset);
+      analog_display.load_pixel_points(freq_pixels);
+      analog_display.load_overlay_points(overlay_points, FL_RED, true);
+      analog_display.channel_enable_disable(0, false);
+      analog_display.channel_enable_disable(1, have_student);
+      analog_display.update_display();
+    }
+    else
+    {
+      analog_display.set_frequency_view(false, m_metadata.sampling_rate);
+
+      // Build time-domain view using prepared pixel buffers
+      LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints pixel_points{};
+      if (!time_student_pixels.empty())
+        pixel_points[1] = time_student_pixels;
+
+      const bool have_student = !time_student_pixels.empty();
+      std::vector<std::array<int, 2>> overlay_points = time_instructor_pixels; // instructor in red overlay
 
       analog_display.load_pixel_points(pixel_points);
       analog_display.load_overlay_points(overlay_points, FL_RED, true);
-
-      // Disable base channels; overlay shows imported CH2 independently
       analog_display.channel_enable_disable(0, false);
-      analog_display.channel_enable_disable(1, false);
+      analog_display.channel_enable_disable(1, have_student);
       analog_display.update_display();
-    }
-    catch (const std::exception& e)
-    {
-      fl_message("Error updating analog circuit checker display: %s", e.what());
     }
   }
 }
@@ -514,7 +657,49 @@ update_gui_display()
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
-cb_load_file_acc (Fl_Button* w, void* data)
+perform_time_domain_analysis()
+{
+  auto &checker = lab().m_Analog_Circuit_Checker;
+
+  if (!checker.is_file_loaded()) return;
+  if (!checker.get_cmp_time_domain()) return;
+
+  if (!time_instructor.empty() && !time_student.empty())
+  {
+    auto result = checker.signal_analysis(time_instructor, time_student);
+
+    if (gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold)
+    {
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
+      gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->value(buf);
+    }
+  }
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
+perform_frequency_domain_analysis()
+{
+  auto &checker = lab().m_Analog_Circuit_Checker;
+
+  if (!checker.is_file_loaded()) return;
+  if (!checker.get_cmp_frequency_domain()) return;
+
+  if (!freq_instructor.empty() && !freq_student.empty())
+  {
+    auto result = checker.signal_analysis(freq_instructor, freq_student);
+
+    if (gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold)
+    {
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
+      gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
+    }
+  }
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
+cb_load_file_acc(Fl_Button* w, void* data)
 {
   Fl_Native_File_Chooser chooser;
 
@@ -541,14 +726,24 @@ cb_load_file_acc (Fl_Button* w, void* data)
 
           // Load the .labacc file
           m_presenter.lab().m_Analog_Circuit_Checker.load_file(path);
+          import_metadata();
 
-            import_metadata                   ();
-            update_gui_oscilloscope           ();
-            update_gui_function_generator     ();
-            update_gui_acc_comparison         ();
-            update_gui_analog_circuit_checker ();
+          // turn off oscilloscope and function generator run button
+          gui().oscilloscope_fl_light_button_run_stop->value(0);
+          gui().function_generator_fl_light_button_run_stop->value(0);
+          presenter().m_Oscilloscope.cb_run_stop(gui().oscilloscope_fl_light_button_run_stop, nullptr);
+          presenter().m_Function_Generator.cb_run_stop(gui().function_generator_fl_light_button_run_stop, 0);
 
-          fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
+          // prepare and configure sample data
+          prepare_instructor_data           ();
+
+          // update gui
+          update_gui_oscilloscope           ();
+          update_gui_function_generator     ();
+          update_gui_acc_comparison         ();
+          update_gui_analog_circuit_checker ();
+
+          // fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
         }
         else
         {
@@ -578,76 +773,60 @@ cb_load_file_acc (Fl_Button* w, void* data)
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
-cb_run_checker_acc (Fl_Button* w, void* data)
+cb_run_checker_acc(Fl_Button* w, void* data)
 {
   auto &checker = lab().m_Analog_Circuit_Checker;
 
   std::printf("\n=== ANALOG CIRCUIT CHECKER - RUN CHECKER TRIGGERED ===\n");
 
-  try
+  LABSoft_GUI &gui_ref = m_presenter.gui();
+  auto *acc_disp_ptr = gui_ref.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
+  if (!acc_disp_ptr) return;
+  LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+
+  osc.channel_enable_disable(1, true);
+  prepare_student_data();
+
+  LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
+  if (!time_student_pixels.empty())
+    acc_pixels[1] = time_student_pixels;
+
+  acc_disp_ptr->set_frequency_view(false, osc.sampling_rate());
+  acc_disp_ptr->load_pixel_points(acc_pixels);
+  acc_disp_ptr->channel_enable_disable(0, false);
+  acc_disp_ptr->channel_enable_disable(1, true);
+  acc_disp_ptr->update_display();
+
+  perform_time_domain_analysis();
+  perform_frequency_domain_analysis();
+
+  std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
+cb_toggle_view(Fl_Button* w, void* data)
+{
+  if (!w) return;
+
+  const char* LABEL_FREQ = "View Frequency Domain";
+  const char* LABEL_TIME = "View Time Domain";
+
+  const char* current_cstr = w->label();
+  const std::string current_label = current_cstr ? current_cstr : "";
+
+  if (current_label == LABEL_FREQ)
   {
-    LABSoft_GUI &gui_ref = m_presenter.gui();
-    auto *acc_disp_ptr = gui_ref.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
-    if (!acc_disp_ptr) return;
-
-    LAB_Oscilloscope &osc = lab().m_Oscilloscope;
-    LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
-
-    const unsigned analog_w = acc_disp_ptr->display_width();
-    const unsigned analog_h = acc_disp_ptr->display_height();
-
-    LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui_ref.oscilloscope_labsoft_gui_oscilloscope_display);
-    const unsigned osc_tab_w = osc_gui_disp.display_width();
-    const unsigned osc_tab_h = osc_gui_disp.display_height();
-
-    const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
-    if (!same_size)
-    {
-      osc_disp.display_parameters(
-        analog_w,
-        analog_h,
-        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-      );
-    }
-
-    osc_disp.update_pixel_points();
-    const auto &raw_buf = osc_disp.pixel_points();
-
-    // Populate ACC display with CH2 only
-    LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
-    if (raw_buf.size() > 1)
-      acc_pixels[1] = raw_buf[1];
-
-    acc_disp_ptr->voltage_per_division(1, osc.voltage_per_division(1));
-    acc_disp_ptr->vertical_offset(1, osc.vertical_offset(1));
-    acc_disp_ptr->time_per_division(osc.time_per_division());
-    acc_disp_ptr->horizontal_offset(osc.horizontal_offset());
-    acc_disp_ptr->samples(osc.samples());
-    acc_disp_ptr->sampling_rate(osc.sampling_rate());
-
-    acc_disp_ptr->load_pixel_points(acc_pixels);
-    acc_disp_ptr->channel_enable_disable(0, false);
-    acc_disp_ptr->channel_enable_disable(1, true);
-    acc_disp_ptr->update_display();
-
-    if (!same_size)
-    {
-      osc_disp.display_parameters(
-        osc_tab_w,
-        osc_tab_h,
-        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-      );
-      osc_disp.update_pixel_points();
-    }
-
-    std::printf("\n=== ANALOG CIRCUIT CHECKER - COMPLETED ===\n\n");
+    w->copy_label(LABEL_TIME);
+    m_view_frequency = true;
   }
-  catch (const std::exception &e)
+  else
   {
-    fl_message("Error running analog circuit checker: %s", e.what());
+    w->copy_label(LABEL_FREQ);
+    m_view_frequency = false;
   }
+
+  update_gui_analog_circuit_checker();
+  w->redraw();
 }
 
 // EOF

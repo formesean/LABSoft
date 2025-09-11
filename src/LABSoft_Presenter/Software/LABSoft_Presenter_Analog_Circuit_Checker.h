@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 
 #include "../LABSoft_Presenter_Unit.h"
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
@@ -15,13 +16,17 @@
 class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
 {
   private:
-    void load_gui                          ();
-    void import_metadata                   ();
-    void update_gui_analog_circuit_checker ();
-    void update_gui_acc_comparison         ();
-    void update_gui_oscilloscope           ();
-    void update_gui_function_generator     ();
-    void update_gui_display                ();
+    void load_gui                           ();
+    void import_metadata                    ();
+    void prepare_instructor_data            ();
+    void prepare_student_data               ();
+    void update_gui_analog_circuit_checker  ();
+    void update_gui_acc_comparison          ();
+    void update_gui_oscilloscope            ();
+    void update_gui_function_generator      ();
+    void update_gui_display                 ();
+    void perform_time_domain_analysis       ();
+    void perform_frequency_domain_analysis  ();
 
     struct ACC_Metadata
     {
@@ -68,16 +73,27 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
       } comparison;
     } m_metadata;
 
+    bool m_view_frequency = false;
 
-public:
-  LABSoft_Presenter_Analog_Circuit_Checker(LABSoft_Presenter &_LABSoft_Presenter);
+  public:
+    LABSoft_Presenter_Analog_Circuit_Checker(LABSoft_Presenter &_LABSoft_Presenter);
 
-  void update_display();
-  void cb_load_file_acc(Fl_Button *w, void *data);
-  void cb_run_checker_acc(Fl_Button *w, void *data);
+    void update_display     ();
 
-  // Accessor for imported metadata
-  const ACC_Metadata &metadata() const { return m_metadata; }
+    void cb_load_file_acc   (Fl_Button *w, void *data);
+    void cb_run_checker_acc (Fl_Button *w, void *data);
+    void cb_toggle_view     (Fl_Button *w, void *data);
+
+    const ACC_Metadata &metadata() const { return m_metadata; }
+
+    std::vector<double> time_instructor;
+    std::vector<double> time_student;
+    std::vector<double> freq_instructor;
+    std::vector<double> freq_student;
+    std::vector<std::array<int, 2>> time_instructor_pixels;
+    std::vector<std::array<int, 2>> time_student_pixels;
 };
 
 #endif
+
+// EOF

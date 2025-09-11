@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 
 project(LABSoft
   VERSION 2.0
-  LANGUAGES CXX
-)
+  LANGUAGES C CXX
+) 
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -51,6 +51,7 @@ public:
     void time_per_division                (double value);
     void samples                          (unsigned value);
     void sampling_rate                    (double value);
+    void set_frequency_view               (bool enabled, double sampling_rate);
     void horizontal_offset                (double value);
     unsigned display_width                () const;
     unsigned display_height               () const;

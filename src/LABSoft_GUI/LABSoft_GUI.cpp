@@ -901,6 +901,13 @@ void LABSoft_GUI::cb_analog_circuit_checker_fl_button_run_checker(Fl_Button* o, 
   ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_circuit_checker_fl_button_run_checker_i(o,v);
 }
 
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_toggle_view_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_toggle_view (o, v);
+}
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_toggle_view(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_circuit_checker_fl_button_toggle_view_i(o,v);
+}
+
 void LABSoft_GUI::cb_analog_fl_checkbutton_time_domain_i(Fl_Check_Button* o, void* v) {
   m_LABSoft_Presenter->m_LABChecker_Analog.cb_toggle_time_domain(o, v);
 }
@@ -2079,7 +2086,6 @@ ly board.");
         main_fl_group_analog_circuit_checker->color(FL_LIGHT3);
         main_fl_group_analog_circuit_checker->selection_color(FL_LIGHT2);
         main_fl_group_analog_circuit_checker->labelsize(12);
-        main_fl_group_analog_circuit_checker->hide();
         { analog_circuit_checker_labsoft_gui_analog_circuit_checker_display = new LABSoft_GUI_Analog_Circuit_Checker_Display(260, 100, 920, 450);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->box(FL_FLAT_BOX);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->color(FL_GRAY0);
@@ -2092,21 +2098,21 @@ ly board.");
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->when(FL_WHEN_RELEASE);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->end();
         } // LABSoft_GUI_Analog_Circuit_Checker_Display* analog_circuit_checker_labsoft_gui_analog_circuit_checker_display
-        { analog_circuit_checker_fl_group_1 = new Fl_Group(21, 80, 220, 225);
+        { analog_circuit_checker_fl_group_1 = new Fl_Group(21, 80, 220, 185);
           analog_circuit_checker_fl_group_1->box(FL_ROUNDED_FRAME);
           analog_circuit_checker_fl_group_1->labelsize(12);
-          { analog_circuit_checker_fl_button_load_file = new Fl_Button(41, 95, 180, 60, "Load File");
+          { analog_circuit_checker_fl_button_load_file = new Fl_Button(40, 95, 180, 45, "Load File");
             analog_circuit_checker_fl_button_load_file->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_load_file->color(FL_LIGHT3);
             analog_circuit_checker_fl_button_load_file->labelsize(12);
             analog_circuit_checker_fl_button_load_file->callback((Fl_Callback*)cb_analog_circuit_checker_fl_button_load_file);
           } // Fl_Button* analog_circuit_checker_fl_button_load_file
-          { analog_circuit_checker_fl_output_selected_file = new Fl_Output(40, 186, 180, 39, "Selected File");
+          { analog_circuit_checker_fl_output_selected_file = new Fl_Output(40, 165, 180, 30, "Selected File");
             analog_circuit_checker_fl_output_selected_file->labelsize(12);
             analog_circuit_checker_fl_output_selected_file->textsize(12);
             analog_circuit_checker_fl_output_selected_file->align(Fl_Align(FL_ALIGN_TOP));
           } // Fl_Output* analog_circuit_checker_fl_output_selected_file
-          { analog_circuit_checker_fl_button_run_checker = new Fl_Button(41, 240, 180, 50, "Run Checker");
+          { analog_circuit_checker_fl_button_run_checker = new Fl_Button(41, 205, 180, 45, "Run Checker");
             analog_circuit_checker_fl_button_run_checker->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_run_checker->color(FL_LIGHT3);
             analog_circuit_checker_fl_button_run_checker->labelsize(12);
@@ -2114,28 +2120,32 @@ ly board.");
           } // Fl_Button* analog_circuit_checker_fl_button_run_checker
           analog_circuit_checker_fl_group_1->end();
         } // Fl_Group* analog_circuit_checker_fl_group_1
-        { analog_circuit_checker_fl_group_2 = new Fl_Group(21, 325, 220, 245);
+        { analog_circuit_checker_fl_group_2 = new Fl_Group(21, 285, 220, 285);
           analog_circuit_checker_fl_group_2->box(FL_ROUNDED_FRAME);
           analog_circuit_checker_fl_group_2->labelsize(12);
-          { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_time_domain = new Fl_Check_Button(65, 355, 135, 50, "Time Domain");
+          { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_time_domain = new Fl_Check_Button(65, 315, 135, 50, "Time Domain");
             analog_circuit_checker_fl_checkbutton_time_domain->down_box(FL_DOWN_BOX);
             analog_circuit_checker_fl_checkbutton_time_domain->labelsize(12);
             analog_circuit_checker_fl_checkbutton_time_domain->align(Fl_Align(FL_ALIGN_TOP));
             o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_time_domain
-          { analog_circuit_checker_fl_input_time_domain_similarity_threshold = new Fl_Output(90, 365, 100, 25);
-            analog_circuit_checker_fl_input_time_domain_similarity_threshold->deactivate();
+          { analog_circuit_checker_fl_input_time_domain_similarity_threshold = new Fl_Output(90, 325, 100, 25);
           } // Fl_Output* analog_circuit_checker_fl_input_time_domain_similarity_threshold
-          { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_frequency_domain = new Fl_Check_Button(65, 430, 135, 50, "Frequency Domain");
+          { Fl_Check_Button* o = analog_circuit_checker_fl_checkbutton_frequency_domain = new Fl_Check_Button(65, 390, 135, 50, "Frequency Domain");
             analog_circuit_checker_fl_checkbutton_frequency_domain->down_box(FL_DOWN_BOX);
             analog_circuit_checker_fl_checkbutton_frequency_domain->labelsize(12);
             analog_circuit_checker_fl_checkbutton_frequency_domain->align(Fl_Align(FL_ALIGN_TOP));
             o->set_output();
           } // Fl_Check_Button* analog_circuit_checker_fl_checkbutton_frequency_domain
-          { analog_circuit_checker_fl_input_frequency_domain_similarity_threshold = new Fl_Output(90, 440, 100, 25);
-            analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->deactivate();
+          { analog_circuit_checker_fl_input_frequency_domain_similarity_threshold = new Fl_Output(90, 400, 100, 25);
           } // Fl_Output* analog_circuit_checker_fl_input_frequency_domain_similarity_threshold
-          { analog_circuit_checker_fl_button_export_results = new Fl_Button(41, 485, 180, 65, "Export Results");
+          { analog_circuit_checker_fl_button_toggle_view = new Fl_Button(40, 450, 180, 45, "View Frequency Domain");
+            analog_circuit_checker_fl_button_toggle_view->box(FL_GTK_UP_BOX);
+            analog_circuit_checker_fl_button_toggle_view->color(FL_LIGHT3);
+            analog_circuit_checker_fl_button_toggle_view->labelsize(12);
+            analog_circuit_checker_fl_button_toggle_view->callback((Fl_Callback*)cb_analog_circuit_checker_fl_button_toggle_view);
+          } // Fl_Button* analog_circuit_checker_fl_button_toggle_view
+          { analog_circuit_checker_fl_button_export_results = new Fl_Button(41, 510, 180, 45, "Export Results");
             analog_circuit_checker_fl_button_export_results->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_export_results->color(FL_LIGHT3);
             analog_circuit_checker_fl_button_export_results->labelsize(12);
@@ -2148,6 +2158,7 @@ ly board.");
         main_fl_group_labchecker_analog_tab->color(FL_LIGHT3);
         main_fl_group_labchecker_analog_tab->selection_color(FL_LIGHT2);
         main_fl_group_labchecker_analog_tab->labelsize(12);
+        main_fl_group_labchecker_analog_tab->hide();
         { analog_labsoft_gui_analog_checker_display = new LABSoft_GUI_LABChecker_Analog_Checker_Display(260, 100, 920, 450);
           analog_labsoft_gui_analog_checker_display->box(FL_FLAT_BOX);
           analog_labsoft_gui_analog_checker_display->color(FL_GRAY0);
