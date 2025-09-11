@@ -304,17 +304,16 @@ cross_correlation(const std::vector<double> &x,
   return result;
 }
 
-std::pair<std::vector<std::complex<double>>, std::vector<std::complex<double>>> LAB_Analog_Circuit_Checker::
-compute_fft(const std::vector<double> &x,
-            const std::vector<double> &y)
+std::vector<std::complex<double>> LAB_Analog_Circuit_Checker::
+compute_fft(const std::vector<double> &data)
 {
   using scalar_t = kiss_fft_scalar;
   using cpx_t    = kiss_fft_cpx;
 
   // Input validation
-  if (x.empty() || y.empty()) throw std::runtime_error("X or Y data is empty");
+  if (data.empty()) throw std::runtime_error("Data is empty");
 
-  const size_t actual_N = std::min(x.size(), y.size());
+  const size_t actual_N = data.size();
 
   if (actual_N == 0) throw std::runtime_error("No data available for FFT computation");
 
@@ -323,38 +322,28 @@ compute_fft(const std::vector<double> &x,
 
   if (!cfg) throw std::runtime_error("Failed to allocate KISS FFT configuration");
 
-  // Process student data (time domain -> frequency domain)
-  std::vector<scalar_t> xB(actual_N);
-  for (size_t n = 0; n < actual_N; ++n)
-  {
-    xB[n] = static_cast<scalar_t>(y[n]);
-  }
-  std::vector<cpx_t> XB(actual_N/2 + 1);
-  kiss_fftr(cfg, xB.data(), XB.data());
-
+  // Process data (time domain -> frequency domain)
   std::vector<scalar_t> xA(actual_N);
   for (size_t n = 0; n < actual_N; ++n)
   {
-    xA[n] = static_cast<scalar_t>(x[n]);
+    xA[n] = static_cast<scalar_t>(data[n]);
   }
   std::vector<cpx_t> XA(actual_N/2 + 1);
   kiss_fftr(cfg, xA.data(), XA.data());
 
   // Convert KISS FFT complex results to std::complex<double>
-  std::vector<std::complex<double>> x_freq(actual_N/2 + 1);
-  std::vector<std::complex<double>> y_freq(actual_N/2 + 1);
+  std::vector<std::complex<double>> data_freq(actual_N/2 + 1);
 
   for (size_t k = 0; k < XA.size(); ++k)
   {
-    x_freq[k] = std::complex<double>(XA[k].r, XA[k].i);
-    y_freq[k] = std::complex<double>(XB[k].r, XB[k].i);
+    data_freq[k] = std::complex<double>(XA[k].r, XA[k].i);
   }
 
   // Clean up KISS FFT configuration
   free(cfg);
 
-  // Return frequency domain results: (x_freq, y_freq)
-  return std::make_pair(x_freq, y_freq);
+  // Return frequency domain results
+  return data_freq;
 }
 
 
