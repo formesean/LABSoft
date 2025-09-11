@@ -108,6 +108,23 @@ sampling_rate(double value)
   oscilloscope_display->sampling_rate(value);
 }
 
+void LABSoft_GUI_Analog_Circuit_Checker_Display::
+set_frequency_view(bool enabled, double sampling_rate)
+{
+  if (!oscilloscope_display) return;
+  oscilloscope_display->set_frequency_view(enabled, sampling_rate);
+  if (enabled)
+  {
+    oscilloscope_display->hide_voltage_per_division_labels(0);
+    oscilloscope_display->hide_voltage_per_division_labels(1);
+  }
+  else
+  {
+    oscilloscope_display->show_voltage_per_division_labels(0);
+    oscilloscope_display->show_voltage_per_division_labels(1);
+  }
+}
+
 // New: forward pixel points into the underlying oscilloscope display
 void LABSoft_GUI_Analog_Circuit_Checker_Display::
 load_pixel_points(const PixelPoints& pixel_points)

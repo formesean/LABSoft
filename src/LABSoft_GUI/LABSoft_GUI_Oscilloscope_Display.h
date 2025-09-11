@@ -18,7 +18,7 @@ class LABSoft_GUI_Oscilloscope_Internal_Display;
 
 class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
 {
-  using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
+  using PixelPoints = std::array<std::vector<std::array<int, 2>>,
                       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>;
 
   private:
@@ -31,6 +31,10 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
     double    m_sampling_rate     = 0.0;
     unsigned  m_selected_channel  = 0;
 
+    // frequency view state
+    bool      m_frequency_mode    = false;
+    double    m_frequency_max     = 0.0; // Nyquist (sampling_rate/2) when in frequency mode
+
     // connections
     const LABSoft_Presenter* m_presenter  = nullptr;
 
@@ -40,23 +44,23 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
     LABSoft_GUI_Fl_Slider*                      m_horizontal_offset_slider  = nullptr;
     LABSoft_GUI_Fl_Slider*                      m_vertical_offset_slider    = nullptr;
     LABSoft_GUI_Fl_Slider*                      m_trigger_level_slider      = nullptr;
-    LABSoft_GUI_Oscilloscope_Internal_Display*  m_internal_display          = nullptr; 
+    LABSoft_GUI_Oscilloscope_Internal_Display*  m_internal_display          = nullptr;
 
     std::array<
-      Fl_Button*, 
+      Fl_Button*,
       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS
     > m_channel_selectors;
 
     std::array<
-      Fl_Box*, 
+      Fl_Box*,
       LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS + 1
     > m_time_per_division_labels;
 
     std::array<
       std::array<
-        Fl_Box*, 
+        Fl_Box*,
         LABC::OSC_DISPLAY::NUMBER_OF_ROWS + 1
-      >, 
+      >,
       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS
     > m_voltage_per_division_labels;
 
@@ -93,7 +97,7 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
     void update_gui_vertical_offset_slider  ();
     void update_gui_vertical_elements       ();
     void update_gui_horizontal_elements     ();
-    
+
     // calc
     double calc_row_voltage_per_division  (unsigned channel, unsigned row);
     double calc_col_time_per_division     (unsigned col);
@@ -105,9 +109,12 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
   public:
     LABSoft_GUI_Oscilloscope_Display (int X, int Y, int W, int H, const char* label = 0);
 
-    void load_presenter       (const LABSoft_Presenter& presenter);  
+    void load_presenter       (const LABSoft_Presenter& presenter);
     void load_pixel_points    (const PixelPoints& pixel_points);
     void update_display       ();
+
+    // Frequency view controls
+    void set_frequency_view(bool enabled, double sampling_rate);
 
     void mark_samples                     (bool state);
     void channel_enable_disable           (unsigned channel, bool state);
@@ -115,7 +122,7 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
     void voltage_per_division             (unsigned channel, double value);
     void horizontal_offset                (double value);
     void time_per_division                (double value);
-    void samples                          (unsigned value); 
+    void samples                          (unsigned value);
     void sampling_rate                    (double value);
     void trigger_source                   (unsigned channel);
     void trigger_channel                  (unsigned channel);
