@@ -21,6 +21,9 @@ class LAB_Software_Navigation : public LAB_Module
 
     std::array<uint8_t, 3> update_spi_data ();
 
+    void set_tx_message                    (uint8_t type, uint8_t action, uint8_t value);
+    void set_tx_logan_config               (unsigned samples, double sampling_rate);
+
   private:
     void init_spi          ();
     void spi_transfer      ();

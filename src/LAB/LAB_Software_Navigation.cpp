@@ -54,6 +54,50 @@ update_spi_data()
 
 void
 LAB_Software_Navigation::
+set_tx_message(uint8_t type, uint8_t action, uint8_t value)
+{
+  type   &= 0x0F;
+  action &= 0x0F;
+  value  &= 0x0F;
+
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+
+  m_tx_buffer[0] = static_cast<uint8_t>((type << 4) | action);
+  m_tx_buffer[1] = static_cast<uint8_t>((value << 4) | checksum);
+}
+
+void
+LAB_Software_Navigation::
+set_tx_logan_config(unsigned samples, double sampling_rate)
+{
+  // Map to 4-bit fields (0..15). You can refine the encoding later.
+  // Example: samples bucketized by powers of two up to 2000; rate in a small set.
+  uint8_t samples_nibble = 0;
+  if (samples == 2000) samples_nibble = 0xA;
+  else if (samples == 1000) samples_nibble = 0x9;
+  else if (samples == 500) samples_nibble = 0x8;
+  else if (samples == 200) samples_nibble = 0x7;
+  else if (samples == 100) samples_nibble = 0x6;
+  else if (samples == 50) samples_nibble = 0x5;
+  else if (samples == 20) samples_nibble = 0x4;
+  else if (samples == 10) samples_nibble = 0x3;
+  else if (samples == 5)  samples_nibble = 0x2;
+  else if (samples == 2)  samples_nibble = 0x1;
+
+  uint8_t rate_nibble = 0;
+  if (sampling_rate == 100) rate_nibble = 0x7;
+  else if (sampling_rate == 50)  rate_nibble = 0x6;
+  else if (sampling_rate == 20)  rate_nibble = 0x5;
+  else if (sampling_rate == 10)  rate_nibble = 0x4;
+  else if (sampling_rate == 50)  rate_nibble = 0x3;
+  else if (sampling_rate == 20)  rate_nibble = 0x2;
+  else if (sampling_rate == 1)  rate_nibble = 0x1;
+
+  set_tx_message(0x6, samples_nibble, rate_nibble);
+}
+
+void
+LAB_Software_Navigation::
 spi_transfer()
 {
   rpi().gpio.write(m_parent_data.CS_PIN, false);
@@ -65,6 +109,9 @@ spi_transfer()
   );
 
   rpi().gpio.write(m_parent_data.CS_PIN, true);
+
+  m_tx_buffer[0] = 0x00;
+  m_tx_buffer[1] = 0x00;
 }
 
 bool

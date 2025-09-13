@@ -37,6 +37,7 @@ update_data_cycle()
 {
   auto data = lab().m_Software_Navigation.update_spi_data();
   if (data[0] == 0 && data[1] == 0 && data[2] == 0) return;
+  if (data[0] == 1 && data[1] == 2 && data[2] == 1) LOG("EYYYYYYYYYYY");;
 
   // Macro Keys
   if (data[0] == 1)
