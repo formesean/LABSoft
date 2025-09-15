@@ -350,7 +350,7 @@ namespace LABC
       constexpr unsigned MISO_PIN = 19;
       constexpr unsigned MOSI_PIN = 20;
       constexpr unsigned SCLK_PIN = 21;
-      constexpr unsigned TRANSFER_SIZE = 2;
+      constexpr unsigned TRANSFER_SIZE = 254;
     }
   };
 };

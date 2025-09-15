@@ -1,5 +1,6 @@
 #include "LAB_Software_Navigation.h"
 #include "LAB.h"
+#include <cstdio>
 
 LAB_Software_Navigation::
 LAB_Software_Navigation(LAB &lab)
@@ -36,11 +37,12 @@ update_spi_data()
 {
   spi_transfer();
 
-  const uint16_t spi_data = (static_cast<uint16_t>(m_rx_buffer[0]) << 8) |
-                             static_cast<uint16_t>(m_rx_buffer[1]);
+  const uint16_t spi_data = (static_cast<uint16_t>(m_rx_buffer[0]) << 8) | static_cast<uint16_t>(m_rx_buffer[1]);
 
   if (spi_data == 0x0000 || spi_data == 0xFFFF)
     return {0, 0, 0};
+
+  std::printf("0x%04X (0x%02X 0x%02X)\n", static_cast<unsigned>(spi_data), static_cast<unsigned>(m_rx_buffer[0]), static_cast<unsigned>(m_rx_buffer[1]));
 
   if (!validate_spi_data(spi_data))
     return {0, 0, 0};
@@ -70,8 +72,6 @@ void
 LAB_Software_Navigation::
 set_tx_logan_config(unsigned samples, double sampling_rate)
 {
-  // Map to 4-bit fields (0..15). You can refine the encoding later.
-  // Example: samples bucketized by powers of two up to 2000; rate in a small set.
   uint8_t samples_nibble = 0;
   if (samples == 2000) samples_nibble = 0xA;
   else if (samples == 1000) samples_nibble = 0x9;
@@ -85,13 +85,13 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   else if (samples == 2)  samples_nibble = 0x1;
 
   uint8_t rate_nibble = 0;
-  if (sampling_rate == 100) rate_nibble = 0x7;
-  else if (sampling_rate == 50)  rate_nibble = 0x6;
-  else if (sampling_rate == 20)  rate_nibble = 0x5;
-  else if (sampling_rate == 10)  rate_nibble = 0x4;
-  else if (sampling_rate == 50)  rate_nibble = 0x3;
-  else if (sampling_rate == 20)  rate_nibble = 0x2;
-  else if (sampling_rate == 1)  rate_nibble = 0x1;
+  if (sampling_rate >= 100) rate_nibble = 0x7;
+  else if (sampling_rate >= 50)  rate_nibble = 0x6;
+  else if (sampling_rate >= 20)  rate_nibble = 0x5;
+  else if (sampling_rate >= 10)  rate_nibble = 0x4;
+  else if (sampling_rate >= 5)   rate_nibble = 0x3;
+  else if (sampling_rate >= 2)   rate_nibble = 0x2;
+  else if (sampling_rate >= 1)   rate_nibble = 0x1;
 
   set_tx_message(0x6, samples_nibble, rate_nibble);
 }
@@ -107,7 +107,6 @@ spi_transfer()
     reinterpret_cast<char *>(m_tx_buffer.data()),
     m_parent_data.TRANSFER_SIZE
   );
-
   rpi().gpio.write(m_parent_data.CS_PIN, true);
 
   m_tx_buffer[0] = 0x00;
