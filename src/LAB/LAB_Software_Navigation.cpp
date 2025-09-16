@@ -100,6 +100,8 @@ void
 LAB_Software_Navigation::
 spi_transfer()
 {
+  rpi().aux.spi(0).clear_fifos();
+
   rpi().gpio.write(m_parent_data.CS_PIN, false);
 
   rpi().aux.spi(0).xfer(
@@ -107,6 +109,7 @@ spi_transfer()
     reinterpret_cast<char *>(m_tx_buffer.data()),
     m_parent_data.TRANSFER_SIZE
   );
+
   rpi().gpio.write(m_parent_data.CS_PIN, true);
 
   m_tx_buffer[0] = 0x00;

@@ -74,7 +74,7 @@ cb_run_stop (Fl_Light_Button* w,
       lab ().m_Logic_Analyzer.samples (),
       lab ().m_Logic_Analyzer.sampling_rate ()
     );
-    // (void) lab ().m_Software_Navigation.update_spi_data ();
+    (void) lab ().m_Software_Navigation.update_spi_data ();
 
     lab ().m_Logic_Analyzer.run ();
   }

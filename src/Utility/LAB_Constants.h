@@ -345,12 +345,12 @@ namespace LABC
 
     namespace SNM
     {
-      constexpr unsigned BAUD_RATE = 20000000;
+      constexpr unsigned BAUD_RATE = 30000000;
       constexpr unsigned CS_PIN = 16;
       constexpr unsigned MISO_PIN = 19;
       constexpr unsigned MOSI_PIN = 20;
       constexpr unsigned SCLK_PIN = 21;
-      constexpr unsigned TRANSFER_SIZE = 254;
+      constexpr unsigned TRANSFER_SIZE = 2;
     }
   };
 };
