@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
+#include <cstdio>
 
 #include "LAB.h"
 #include "../Utility/LAB_Utility_Functions.h"

@@ -9,6 +9,10 @@
 #include "../Utility/LABSoft_GUI_Label.h"
 #include "../Utility/LABSoft_GUI_Label_Values.h"
 
+#ifndef LAB_GUI_UPDATE_LA_SAMPLES
+#define LAB_GUI_UPDATE_LA_SAMPLES 0
+#endif
+
 LABSoft_Presenter_Logic_Analyzer::
 LABSoft_Presenter_Logic_Analyzer (LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit (_LABSoft_Presenter)
@@ -213,7 +217,10 @@ display_update_cycle ()
 {
   if (lab ().m_Logic_Analyzer.is_running ())
   {
+    // Optionally update LA samples on GUI thread
+#if LAB_GUI_UPDATE_LA_SAMPLES
     lab ().m_Logic_Analyzer.update_data_samples ();
+#endif
 
     gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
       update_display ();
