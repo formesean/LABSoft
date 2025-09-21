@@ -102,27 +102,7 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
 
 void
 LAB_Software_Navigation::
-spi_transfer()
-{
-  rpi().aux.spi(0).clear_fifos();
-
-  rpi().gpio.write(m_parent_data.CS_PIN, false);
-
-  rpi().aux.spi(0).xfer(
-    reinterpret_cast<char *>(m_rx_buffer.data()),
-    reinterpret_cast<char *>(m_tx_buffer.data()),
-    m_parent_data.TRANSFER_SIZE
-  );
-
-  rpi().gpio.write(m_parent_data.CS_PIN, true);
-
-  m_tx_buffer[0] = 0x00;
-  m_tx_buffer[1] = 0x00;
-}
-
-void
-LAB_Software_Navigation::
-spi_transfer_bytes(uint8_t* rx, const uint8_t* tx, unsigned n)
+spi_transfer(uint8_t* rx, const uint8_t* tx, unsigned n)
 {
   if (n == 0) return;
   rpi().aux.spi(0).clear_fifos();
@@ -193,16 +173,9 @@ worker_loop()
     if (transfer_size > 1) rx_buffer_static[1] = 0;
 
     // Single transfer for fixed small transfer_size
-    spi_transfer_bytes(rx_buffer_static, tx_buffer_static, transfer_size);
+    spi_transfer(rx_buffer_static, tx_buffer_static, transfer_size);
 
     // If we aborted mid-burst, skip processing
-    if (!m_read_enabled)
-    {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      continue;
-    }
-
-    // If disabled during/after transfer, drop this buffer
     if (!m_read_enabled)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));

@@ -1052,7 +1052,23 @@ time_per_division () const
 void LAB_Logic_Analyzer::
 samples (unsigned value)
 {
+  // Guard against out-of-range values
+  if (!LABF::is_within_range(
+        static_cast<double>(value),
+        static_cast<double>(LABC::LOGAN::MIN_SAMPLES),
+        static_cast<double>(LABC::LOGAN::MAX_SAMPLES),
+        LABC::LABSOFT::EPSILON))
+  {
+    return;
+  }
 
+  // Update cached sample count and DMA transfer lengths
+  set_samples (value);
+
+  // Keep horizontal timing consistent with the new sample count
+  set_time_per_division (
+    calc_time_per_division (value, m_parent_data.sampling_rate)
+  );
 }
 
 unsigned LAB_Logic_Analyzer::

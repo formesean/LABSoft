@@ -129,7 +129,7 @@ cb_samples (Fl_Input_Choice*  w,
 {
   LABSoft_GUI_Label lbl (
     w->value (),
-    lab ().m_Logic_Analyzer.samples (),
+    0.0,
     LABSoft_GUI_Label::UNIT::NONE
   );
 

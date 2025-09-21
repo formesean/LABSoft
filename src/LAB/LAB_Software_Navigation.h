@@ -41,10 +41,9 @@ class LAB_Software_Navigation : public LAB_Module
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
 
   private:
-    void init_spi          ();
-    void spi_transfer      ();
-    void spi_transfer_bytes(uint8_t* rx, const uint8_t* tx, unsigned n);
-    void worker_loop       ();
+    void init_spi           ();
+    void spi_transfer       (uint8_t* rx, const uint8_t* tx, unsigned n);
+    void worker_loop        ();
 
     bool validate_spi_data (uint16_t spi_data) noexcept;
 
