@@ -59,17 +59,22 @@ update_spi_data()
 
 void
 LAB_Software_Navigation::
-set_tx_message(uint8_t type, uint8_t action, uint8_t value)
+set_tx_logan_message(uint8_t type, uint8_t samples, uint8_t sampling_rate)
 {
-  type   &= 0x0F;
-  action &= 0x0F;
-  value  &= 0x0F;
+  // first nibble = checksum
+  // second nibble = sampling_rate
+  // third nibble = samples
+  // fourth nibble = type
 
-  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  type   &= 0x0F;
+  samples &= 0x0F;
+  sampling_rate  &= 0x0F;
+
+  const uint8_t checksum = (type ^ samples ^ sampling_rate) & 0x0F;
 
   std::lock_guard<std::mutex> lock(m_tx_mutex);
-  m_tx_buffer[0] = static_cast<uint8_t>((type << 4) | action);
-  m_tx_buffer[1] = static_cast<uint8_t>((value << 4) | checksum);
+  m_tx_buffer[0] = static_cast<uint8_t>((type << 4) | samples);
+  m_tx_buffer[1] = static_cast<uint8_t>((sampling_rate << 4) | checksum);
 }
 
 void
@@ -77,16 +82,17 @@ LAB_Software_Navigation::
 set_tx_logan_config(unsigned samples, double sampling_rate)
 {
   uint8_t samples_nibble = 0;
-  if (samples == 2000) samples_nibble = 0xA;
-  else if (samples == 1000) samples_nibble = 0x9;
-  else if (samples == 500) samples_nibble = 0x8;
-  else if (samples == 200) samples_nibble = 0x7;
-  else if (samples == 100) samples_nibble = 0x6;
-  else if (samples == 50) samples_nibble = 0x5;
-  else if (samples == 20) samples_nibble = 0x4;
-  else if (samples == 10) samples_nibble = 0x3;
-  else if (samples == 5)  samples_nibble = 0x2;
-  else if (samples == 2)  samples_nibble = 0x1;
+  if (samples >= 2000) samples_nibble = 0xA;
+  else if (samples >= 1000) samples_nibble = 0x9;
+  else if (samples >= 500) samples_nibble = 0x8;
+  else if (samples >= 200) samples_nibble = 0x7;
+  else if (samples >= 100) samples_nibble = 0x6;
+  else if (samples >= 50) samples_nibble = 0x5;
+  else if (samples >= 20) samples_nibble = 0x4;
+  else if (samples >= 10) samples_nibble = 0x3;
+  else if (samples >= 5)  samples_nibble = 0x2;
+  else if (samples >= 2)  samples_nibble = 0x1;
+  else if (samples >= 0)  samples_nibble = 0x0;
 
   uint8_t rate_nibble = 0;
   if (sampling_rate >= 100) rate_nibble = 0x7;
@@ -96,8 +102,54 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   else if (sampling_rate >= 5)   rate_nibble = 0x3;
   else if (sampling_rate >= 2)   rate_nibble = 0x2;
   else if (sampling_rate >= 1)   rate_nibble = 0x1;
+  else if (sampling_rate >= 0)   rate_nibble = 0x0;
 
-  set_tx_message(0x6, samples_nibble, rate_nibble);
+  set_tx_logan_message(0x6, samples_nibble, rate_nibble);
+}
+
+void
+LAB_Software_Navigation::
+set_tx_logan_triggers()
+{
+  auto enc = [](LABE::LOGAN::TRIG::CND c) -> uint8_t {
+    switch (c)
+    {
+      case LABE::LOGAN::TRIG::CND::IGNORE:          return 0x0;
+      case LABE::LOGAN::TRIG::CND::LOW:             return 0x1;
+      case LABE::LOGAN::TRIG::CND::HIGH:            return 0x2;
+      case LABE::LOGAN::TRIG::CND::RISING_EDGE:     return 0x3;
+      case LABE::LOGAN::TRIG::CND::FALLING_EDGE:    return 0x4;
+      case LABE::LOGAN::TRIG::CND::EITHER_EDGE:     return 0x5;
+      default:                                      return 0x0;
+    }
+  };
+
+  const auto &pdata = lab().m_Logic_Analyzer.parent_data();
+
+  // first nibble     = channel 1 and its trigger mode e.g. 0x11 (bit 0 is the trigger mode, bit 1 is the channel)
+  // second nibble    = channel 2 and its trigger mode e.g. 0x23
+  // third nibble     = channel 3 and its trigger mode e.g. 0x31
+  // fourth nibble    = channel 4 and its trigger mode e.g. 0x40
+
+  uint8_t m1 = 0, m2 = 0, m3 = 0, m4 = 0;
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 0) m1 = enc(pdata.channel_data[0].trigger_condition);
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 1) m2 = enc(pdata.channel_data[1].trigger_condition);
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 2) m3 = enc(pdata.channel_data[2].trigger_condition);
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 3) m4 = enc(pdata.channel_data[3].trigger_condition);
+
+  const uint16_t payload =
+      (static_cast<uint16_t>(m4) << 12) |
+      (static_cast<uint16_t>(m3) <<  8) |
+      (static_cast<uint16_t>(m2) <<  4) |
+      (static_cast<uint16_t>(m1) <<  0);
+
+  // std::lock_guard<std::mutex> lock(m_tx_mutex);
+  // m_tx_buffer[0] = static_cast<uint8_t>((payload >> 8) & 0xFF);
+  // m_tx_buffer[1] = static_cast<uint8_t>(payload & 0xFF);
+
+  std::printf("LOGAN TRIG PACKET -> 0x%02X 0x%02X\n",
+    static_cast<unsigned>((payload >> 8) & 0xFF),
+    static_cast<unsigned>(payload & 0xFF));
 }
 
 void

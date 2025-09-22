@@ -74,10 +74,15 @@ cb_run_stop (Fl_Light_Button* w,
   }
   else
   {
+    lab ().m_Software_Navigation.set_tx_logan_triggers ();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(4));
+
     lab ().m_Software_Navigation.set_tx_logan_config(
       lab ().m_Logic_Analyzer.samples (),
       lab ().m_Logic_Analyzer.sampling_rate ()
     );
+
     (void) lab ().m_Software_Navigation.update_spi_data ();
 
     lab ().m_Logic_Analyzer.run ();
@@ -180,6 +185,7 @@ cb_trigger_condition (Fl_Menu_Button* w,
     LABS_GUI_VALUES::LOGAN_DISPLAY::TRIG_CND_s.at (std::string (w->text ()));
 
   lab ().m_Logic_Analyzer.trigger_condition (channel, trig_cnd);
+  lab ().m_Software_Navigation.set_tx_logan_triggers ();
 }
 
 void LABSoft_Presenter_Logic_Analyzer::

@@ -37,8 +37,9 @@ class LAB_Software_Navigation : public LAB_Module
 
     void set_worker_enabled                (bool enable);
 
-    void set_tx_message                    (uint8_t type, uint8_t action, uint8_t value);
+    void set_tx_logan_message              (uint8_t type, uint8_t samples, uint8_t sampling_rate);
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
+    void set_tx_logan_triggers             ();
 
   private:
     void init_spi           ();
