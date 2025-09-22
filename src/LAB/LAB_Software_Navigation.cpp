@@ -59,26 +59,6 @@ update_spi_data()
 
 void
 LAB_Software_Navigation::
-set_tx_logan_message(uint8_t type, uint8_t samples, uint8_t sampling_rate)
-{
-  // first nibble = checksum
-  // second nibble = sampling_rate
-  // third nibble = samples
-  // fourth nibble = type
-
-  type   &= 0x0F;
-  samples &= 0x0F;
-  sampling_rate  &= 0x0F;
-
-  const uint8_t checksum = (type ^ samples ^ sampling_rate) & 0x0F;
-
-  std::lock_guard<std::mutex> lock(m_tx_mutex);
-  m_tx_buffer[0] = static_cast<uint8_t>((type << 4) | samples);
-  m_tx_buffer[1] = static_cast<uint8_t>((sampling_rate << 4) | checksum);
-}
-
-void
-LAB_Software_Navigation::
 set_tx_logan_config(unsigned samples, double sampling_rate)
 {
   uint8_t samples_nibble = 0;
@@ -104,7 +84,17 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   else if (sampling_rate >= 1)   rate_nibble = 0x1;
   else if (sampling_rate >= 0)   rate_nibble = 0x0;
 
-  set_tx_logan_message(0x6, samples_nibble, rate_nibble);
+  // first nibble = checksum
+  // second nibble = sampling_rate
+  // third nibble = samples
+  // fourth nibble = type
+
+  const uint8_t type      = 0x6;
+  const uint8_t checksum  = (type ^ samples_nibble ^ rate_nibble) & 0x0F;
+
+  std::lock_guard<std::mutex> lock(m_tx_mutex);
+  m_tx_buffer[0] = static_cast<uint8_t>((type << 4) | samples_nibble);
+  m_tx_buffer[1] = static_cast<uint8_t>((rate_nibble << 4) | checksum);
 }
 
 void
@@ -126,10 +116,10 @@ set_tx_logan_triggers()
 
   const auto &pdata = lab().m_Logic_Analyzer.parent_data();
 
-  // first nibble     = channel 1 and its trigger mode e.g. 0x11 (bit 0 is the trigger mode, bit 1 is the channel)
-  // second nibble    = channel 2 and its trigger mode e.g. 0x23
-  // third nibble     = channel 3 and its trigger mode e.g. 0x31
-  // fourth nibble    = channel 4 and its trigger mode e.g. 0x40
+  // first nibble     = channel 1 and its trigger mode
+  // second nibble    = channel 2 and its trigger mode
+  // third nibble     = channel 3 and its trigger mode
+  // fourth nibble    = channel 4 and its trigger mode
 
   uint8_t m1 = 0, m2 = 0, m3 = 0, m4 = 0;
   if (LABC::LOGAN::NUMBER_OF_CHANNELS > 0) m1 = enc(pdata.channel_data[0].trigger_condition);
@@ -143,13 +133,9 @@ set_tx_logan_triggers()
       (static_cast<uint16_t>(m2) <<  4) |
       (static_cast<uint16_t>(m1) <<  0);
 
-  // std::lock_guard<std::mutex> lock(m_tx_mutex);
-  // m_tx_buffer[0] = static_cast<uint8_t>((payload >> 8) & 0xFF);
-  // m_tx_buffer[1] = static_cast<uint8_t>(payload & 0xFF);
-
-  std::printf("LOGAN TRIG PACKET -> 0x%02X 0x%02X\n",
-    static_cast<unsigned>((payload >> 8) & 0xFF),
-    static_cast<unsigned>(payload & 0xFF));
+  std::lock_guard<std::mutex> lock(m_tx_mutex);
+  m_tx_buffer[0] = static_cast<uint8_t>((payload >> 8) & 0xFF);
+  m_tx_buffer[1] = static_cast<uint8_t>(payload & 0xFF);
 }
 
 void
@@ -177,23 +163,6 @@ validate_spi_data(uint16_t spi_data) noexcept
   const uint8_t checksum =  spi_data        & 0x0F;
 
   return checksum == ((type ^ action ^ value) & 0x0F);
-}
-
-void
-LAB_Software_Navigation::
-set_worker_enabled(bool enable)
-{
-  m_read_enabled = enable;
-  if (enable)
-  {
-    m_queue_cv.notify_one();
-  }
-  else
-  {
-    // Flush any queued messages so GUI stops receiving immediately
-    std::lock_guard<std::mutex> ql(m_queue_mutex);
-    while (!m_queue.empty()) m_queue.pop();
-  }
 }
 
 void

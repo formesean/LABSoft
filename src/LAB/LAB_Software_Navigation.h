@@ -35,9 +35,6 @@ class LAB_Software_Navigation : public LAB_Module
     std::array<uint8_t, 3> update_spi_data ();
     bool try_dequeue                       (std::array<uint8_t, 3>& out);
 
-    void set_worker_enabled                (bool enable);
-
-    void set_tx_logan_message              (uint8_t type, uint8_t samples, uint8_t sampling_rate);
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
     void set_tx_logan_triggers             ();
 
@@ -50,7 +47,7 @@ class LAB_Software_Navigation : public LAB_Module
 
     std::atomic<bool> m_read_enabled {true};
 
-    static constexpr std::size_t MAX_QUEUE = 64;
+    static constexpr std::size_t MAX_QUEUE = 127;
 };
 
 #endif

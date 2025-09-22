@@ -76,12 +76,13 @@ cb_run_stop (Fl_Light_Button* w,
   {
     lab ().m_Software_Navigation.set_tx_logan_triggers ();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(4));
-
-    lab ().m_Software_Navigation.set_tx_logan_config(
-      lab ().m_Logic_Analyzer.samples (),
-      lab ().m_Logic_Analyzer.sampling_rate ()
-    );
+    Fl::add_timeout(0.005, [](void* p){
+      auto* presenter = static_cast<LABSoft_Presenter_Logic_Analyzer*>(p);
+      presenter->lab().m_Software_Navigation.set_tx_logan_config(
+        presenter->lab().m_Logic_Analyzer.samples(),
+        presenter->lab().m_Logic_Analyzer.sampling_rate()
+      );
+    }, this);
 
     (void) lab ().m_Software_Navigation.update_spi_data ();
 
@@ -186,6 +187,14 @@ cb_trigger_condition (Fl_Menu_Button* w,
 
   lab ().m_Logic_Analyzer.trigger_condition (channel, trig_cnd);
   lab ().m_Software_Navigation.set_tx_logan_triggers ();
+
+  Fl::add_timeout(0.005, [](void* p){
+    auto* presenter = static_cast<LABSoft_Presenter_Logic_Analyzer*>(p);
+    presenter->lab().m_Software_Navigation.set_tx_logan_config(
+      presenter->lab().m_Logic_Analyzer.samples(),
+      presenter->lab().m_Logic_Analyzer.sampling_rate()
+    );
+  }, this);
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
