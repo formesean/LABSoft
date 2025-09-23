@@ -6,11 +6,9 @@
 
 #include <cstdint>
 #include <array>
-#include <thread>
 #include <mutex>
 #include <queue>
 #include <atomic>
-#include <condition_variable>
 
 class LAB_Software_Navigation : public LAB_Module
 {
@@ -20,19 +18,19 @@ class LAB_Software_Navigation : public LAB_Module
     std::array<uint8_t, LABC::PIN::SNM::TRANSFER_SIZE> m_rx_buffer = {0};
     std::array<uint8_t, LABC::PIN::SNM::TRANSFER_SIZE> m_tx_buffer = {0};
 
-    // Worker thread infrastructure
-    std::thread                         m_worker;
-    std::atomic<bool>                   m_running {false};
+    // Concurrency and queuing (single-threaded service, guarded transfers)
+    std::mutex                          m_spi_mutex;
     std::mutex                          m_tx_mutex;
     std::queue<std::array<uint8_t, 3> >  m_queue;
     std::mutex                          m_queue_mutex;
-    std::condition_variable             m_queue_cv;
+    std::atomic<bool>                   m_stop_sent {false};
 
   public:
     LAB_Software_Navigation                (LAB &lab);
     ~LAB_Software_Navigation               ();
 
     std::array<uint8_t, 3> update_spi_data ();
+    void tick                              ();
     bool try_dequeue                       (std::array<uint8_t, 3>& out);
 
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
@@ -47,7 +45,7 @@ class LAB_Software_Navigation : public LAB_Module
   private:
     void init_spi           ();
     void spi_transfer       (uint8_t* rx, const uint8_t* tx, unsigned n);
-    void worker_loop        ();
+    void service_once       ();
 
     bool validate_spi_data (uint16_t spi_data) noexcept;
 
