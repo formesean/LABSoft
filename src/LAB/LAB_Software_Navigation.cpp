@@ -138,6 +138,91 @@ set_tx_logan_triggers()
   m_tx_buffer[1] = static_cast<uint8_t>(payload & 0xFF);
 }
 
+// Compose a 2-byte header with checksum and stage it into TX buffer
+void
+LAB_Software_Navigation::
+set_tx_header(uint8_t type, uint8_t action, uint8_t value)
+{
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | action);
+  const uint8_t b1 = static_cast<uint8_t>((value << 4) | checksum);
+  std::lock_guard<std::mutex> lock(m_tx_mutex);
+  m_tx_buffer[0] = b0;
+  m_tx_buffer[1] = b1;
+}
+
+// Blocking immediate TX send bypassing the worker cadence
+void
+LAB_Software_Navigation::
+send_immediate_tx_blocking(uint8_t b0, uint8_t b1)
+{
+  uint8_t rx[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
+  const uint8_t tx[LABC::PIN::SNM::TRANSFER_SIZE] = {b0, b1};
+  spi_transfer(rx, tx, m_parent_data.TRANSFER_SIZE);
+}
+
+// Public API to set SNM attach flag
+void
+LAB_Software_Navigation::
+set_snm_attached(bool attached)
+{
+  m_snm_attached = attached;
+  if (attached)
+  {
+    announce_snm_attached();
+  }
+}
+
+// Build and send the SNM attached announce command
+void
+LAB_Software_Navigation::
+announce_snm_attached()
+{
+  // Define protocol: type=0xA, action=0x1 means "ANNOUNCE", value=0x1 means "SNM attached"
+  constexpr uint8_t type = 0xA;
+  constexpr uint8_t action = 0x1;
+  constexpr uint8_t value = 0x1;
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | action);
+  const uint8_t b1 = static_cast<uint8_t>((value << 4) | checksum);
+
+  {
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = b0;
+    m_tx_buffer[1] = b1;
+  }
+
+  send_immediate_tx_blocking(b0, b1);
+}
+
+void
+LAB_Software_Navigation::
+announce_program_stopping()
+{
+  // Define protocol: type=0xA, action=0x1 means "ANNOUNCE", value=0x0 means "program stopping"
+  constexpr uint8_t type = 0xA;
+  constexpr uint8_t action = 0x1;
+  constexpr uint8_t value = 0x0;
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | action);
+  const uint8_t b1 = static_cast<uint8_t>((value << 4) | checksum);
+
+  {
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = b0;
+    m_tx_buffer[1] = b1;
+  }
+
+  send_immediate_tx_blocking(b0, b1);
+}
+
+bool
+LAB_Software_Navigation::
+is_snm_config_enabled() const
+{
+  return m_parent_data.SNM_ATTACHED;
+}
+
 void
 LAB_Software_Navigation::
 spi_transfer(uint8_t* rx, const uint8_t* tx, unsigned n)

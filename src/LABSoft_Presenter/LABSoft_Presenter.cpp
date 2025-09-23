@@ -30,6 +30,14 @@ LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
   load_presenter_to_gui ();
 
   Fl::add_timeout (LABC::LABSOFT::DISPLAY_UPDATE_RATE, update_display, this);
+
+  if (m_LAB.m_Software_Navigation.is_snm_config_enabled())
+  {
+    Fl::add_timeout(0.0, [](void* data){
+      auto* self = static_cast<LABSoft_Presenter*>(data);
+      self->m_LAB.m_Software_Navigation.set_snm_attached(true);
+    }, this);
+  }
 }
 
 void LABSoft_Presenter::

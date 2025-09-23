@@ -38,6 +38,12 @@ class LAB_Software_Navigation : public LAB_Module
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
     void set_tx_logan_triggers             ();
 
+    // SNM attach handshake
+    void set_snm_attached                  (bool attached);
+    void announce_snm_attached             ();
+    void announce_program_stopping         ();
+    bool is_snm_config_enabled             () const;
+
   private:
     void init_spi           ();
     void spi_transfer       (uint8_t* rx, const uint8_t* tx, unsigned n);
@@ -46,6 +52,11 @@ class LAB_Software_Navigation : public LAB_Module
     bool validate_spi_data (uint16_t spi_data) noexcept;
 
     std::atomic<bool> m_read_enabled {true};
+
+    // SNM state and helpers
+    std::atomic<bool> m_snm_attached {false};
+    void set_tx_header(uint8_t type, uint8_t action, uint8_t value);
+    void send_immediate_tx_blocking(uint8_t b0, uint8_t b1);
 
     static constexpr std::size_t MAX_QUEUE = 127;
 };
