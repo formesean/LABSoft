@@ -25,7 +25,7 @@ using ChanWidget  = class LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget;
 using DispOverlay = class LABSoft_GUI_Logic_Analyzer_Display_Graph_Overlay;
 using Disp        = class LABSoft_GUI_Logic_Analyzer_Display;
 
-using PixelPoints = std::array<std::vector<std::array<int, 2>>, 
+using PixelPoints = std::array<std::vector<std::array<int, 2>>,
                       LABC::LOGAN::NUMBER_OF_CHANNELS>;
 
 namespace LOGAN_DISPLAY
@@ -36,10 +36,10 @@ namespace LOGAN_DISPLAY
   constexpr int       CHANNEL_SETTING_WIDTH                  = 30;
   constexpr int       CHANNEL_DIO_WIDTH                      = 60;
   constexpr int       CHANNEL_TRIGGER_WIDTH                  = 40;
-  constexpr int       CHANNEL_INFO_WIDTH                     = CHANNEL_DRAGGER_WIDTH + 
-                                                                CHANNEL_NAME_WIDTH + 
-                                                                CHANNEL_SETTING_WIDTH + 
-                                                                CHANNEL_DIO_WIDTH + 
+  constexpr int       CHANNEL_INFO_WIDTH                     = CHANNEL_DRAGGER_WIDTH +
+                                                                CHANNEL_NAME_WIDTH +
+                                                                CHANNEL_SETTING_WIDTH +
+                                                                CHANNEL_DIO_WIDTH +
                                                                 CHANNEL_TRIGGER_WIDTH;
 
   constexpr int DISPLAY_WIDTH = 1180;
@@ -47,7 +47,7 @@ namespace LOGAN_DISPLAY
   constexpr int CHANNEL_GRAPH_WIDTH = CHANNEL_WIDTH - CHANNEL_INFO_WIDTH;
   constexpr unsigned AXIS_LABEL_SIZE = 12;
 
-  constexpr unsigned  STATUS_HEIGHT                 = 20; 
+  constexpr unsigned  STATUS_HEIGHT                 = 20;
   constexpr unsigned  DISPLAY_STATUS_BOX_HEIGHT             = STATUS_HEIGHT;
   constexpr unsigned  DISPLAY_STATUS_BOX_WIDTH              = 90;
   constexpr unsigned  CHANNEL_BUTTON_HEIGHT                 = 60;
@@ -60,7 +60,7 @@ namespace LOGAN_DISPLAY
   constexpr unsigned  TIME_PER_DIVISION_LABELS_SIZE         = 10;
   constexpr unsigned  TIME_PER_DIVSION_LABELS_LAST_OFFSET   = 20;
 
-  static constexpr uint32_t CHANNEL_COLORS[] = 
+  static constexpr uint32_t CHANNEL_COLORS[] =
   {
     212, // light pink
     60, // green
@@ -68,7 +68,7 @@ namespace LOGAN_DISPLAY
     122 // brick?
   };
 
-  
+
   constexpr double    CHANNEL_GRAPH_PEAK_TO_PEAK_SPREAD       = 60.0; // in percent, with the graph widget height as max
 
   constexpr Fl_Boxtype  GRAPH_BOX         = FL_THIN_DOWN_BOX;
@@ -100,16 +100,16 @@ class LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph : public Fl_Widget
     int           m_channel       = -1;
     int           m_graph_offset  = 0;
     DisplayData*  m_display_data  = nullptr;
-    
+
   private:
     void draw               ();
     void draw_signal        ();
     void calc_graph_offset  ();
-  
+
   public:
     LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph (int X, int Y, int W, int H, const char* label = 0);
    ~LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph ();
-   
+
     void load_display_data  (DisplayData* display_data);
     void channel            (int channel);
     void graph_offset       (int offset);
@@ -132,7 +132,7 @@ class LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget : public Fl_Group
     Fl_Output*                                        m_fl_output_dio_pin;
     Fl_Menu_Button*                                   m_fl_menu_button_trigger_mode;
     LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph* m_fl_widget_channel_graph;
-    
+
     static Fl_Menu_Item menu_m_fl_menu_button_trigger_mode[];
 
   private:
@@ -157,7 +157,7 @@ class LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget : public Fl_Group
 
 // ========== LABSoft_GUI_Logic_Analyzer_Display_Graph_Overlay ==========
 
-class LABSoft_GUI_Logic_Analyzer_Display_Graph_Overlay : public Fl_Widget 
+class LABSoft_GUI_Logic_Analyzer_Display_Graph_Overlay : public Fl_Widget
 {
   private:
     DisplayData* m_display_data;
@@ -184,14 +184,14 @@ class LABSoft_GUI_Logic_Analyzer_Display : public Fl_Group
     LABSoft_Presenter*             m_LABSoft_Presenter;
 
     // gui
-    Fl_Pack*                        m_pack;           
+    Fl_Pack*                        m_pack;
     DispOverlay*                    m_overlay;
-    Fl_Scroll*                      m_scroll;  
+    Fl_Scroll*                      m_scroll;
     std::vector<ChanWidget*>        m_channel_widgets;
     std::array<int, 2>              m_graph_base_line_coords;
     Fl_Box*                         m_status;
     Fl_Box*                         m_top_info;
-    
+
     std::array<
       Fl_Box*,
       LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS
@@ -226,6 +226,7 @@ class LABSoft_GUI_Logic_Analyzer_Display : public Fl_Group
     void add_channel                  (unsigned channel, const char* name = 0);
     void clear_all_channels           ();
     void update_gui_time_per_division ();
+    void update_gui_trigger_modes     ();
     void update_display               ();
 };
 

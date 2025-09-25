@@ -763,59 +763,56 @@ cache_trigger_condition (unsigned               channel,
 {
   LABE::LOGAN::TRIG::CND prev_cnd = m_parent_data.channel_data[channel].trigger_condition;
 
-  if (condition != prev_cnd)
+  if (condition == prev_cnd)
   {
-    // 1. Delete old condition from trigger cache.
-    if (prev_cnd != LABE::LOGAN::TRIG::CND::IGNORE)
+    return;
+  }
+
+  // 1) Remove channel from both caches to avoid duplicates
+  {
+    std::vector<unsigned>::iterator it = std::find (
+      m_parent_data.trigger_cache_level.begin (),
+      m_parent_data.trigger_cache_level.end (),
+      channel
+    );
+    if (it != m_parent_data.trigger_cache_level.end ())
     {
-      std::vector<unsigned>* vec;
+      m_parent_data.trigger_cache_level.erase (it);
+    }
+  }
+  {
+    std::vector<unsigned>::iterator it = std::find (
+      m_parent_data.trigger_cache_edge.begin (),
+      m_parent_data.trigger_cache_edge.end (),
+      channel
+    );
+    if (it != m_parent_data.trigger_cache_edge.end ())
+    {
+      m_parent_data.trigger_cache_edge.erase (it);
+    }
+  }
 
-      switch (prev_cnd)
-      {
-        case (LABE::LOGAN::TRIG::CND::HIGH):
-        case (LABE::LOGAN::TRIG::CND::LOW):
-        {
-          vec = &m_parent_data.trigger_cache_level;
-          break;
-        }
-
-        case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
-        {
-          vec = &m_parent_data.trigger_cache_edge;
-          break;
-        }
-
-        std::vector<unsigned>::iterator it = std::find (vec->begin (), vec->end (), channel);
-
-        if (it != vec->end ())
-        {
-          vec->erase (it);
-        }
-      }
+  // 2) Add channel to the appropriate cache for the NEW condition
+  switch (condition)
+  {
+    case (LABE::LOGAN::TRIG::CND::HIGH):
+    case (LABE::LOGAN::TRIG::CND::LOW):
+    {
+      m_parent_data.trigger_cache_level.emplace_back (channel);
+      break;
     }
 
-    // 2. Add new condition to trigger cache.
-    if (condition != LABE::LOGAN::TRIG::CND::IGNORE)
+    case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
+    case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
+    case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
     {
-      switch (prev_cnd)
-      {
-        case (LABE::LOGAN::TRIG::CND::HIGH):
-        case (LABE::LOGAN::TRIG::CND::LOW):
-        {
-          m_parent_data.trigger_cache_level.emplace_back (channel);
-          break;
-        }
+      m_parent_data.trigger_cache_edge.emplace_back (channel);
+      break;
+    }
 
-        case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
-        {
-          m_parent_data.trigger_cache_level.emplace_back (channel);
-          break;
-        }
-      }
+    case (LABE::LOGAN::TRIG::CND::IGNORE):
+    {
+      break;
     }
   }
 }
@@ -1131,20 +1128,39 @@ trigger_mode (LABE::LOGAN::TRIG::MODE value)
 void LAB_Logic_Analyzer::
 trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
 {
-  // 1. Delete the old trigger condition of the channel and cache the new one.
+  // Enforce single active trigger channel: if setting a non-IGNORE condition
+  // on this channel, clear all other channels to IGNORE first.
+  if (condition != LABE::LOGAN::TRIG::CND::IGNORE)
+  {
+    for (unsigned c = 0; c < m_parent_data.channel_data.size (); c++)
+    {
+      if (c == channel)
+      {
+        continue;
+      }
+
+      if (m_parent_data.channel_data[c].trigger_condition != LABE::LOGAN::TRIG::CND::IGNORE)
+      {
+        // Update caches and stored state
+        cache_trigger_condition (c, LABE::LOGAN::TRIG::CND::IGNORE);
+        m_parent_data.channel_data[c].trigger_condition = LABE::LOGAN::TRIG::CND::IGNORE;
+
+        // Clear GPIO event detects for that channel
+        unsigned other_gpio_pin = LABC::PIN::LOGAN[c];
+        m_LAB.rpi ().gpio.clear_all_event_detect (other_gpio_pin);
+      }
+    }
+  }
+
+  // 1. Update caches for this channel
   cache_trigger_condition (channel, condition);
 
-  // 2. Store the channel's new trigger condition to channel_data.
+  // 2. Store the channel's new trigger condition
   m_parent_data.channel_data[channel].trigger_condition = condition;
 
-  // 3. Get the BCM GPIO pin of the channel.
+  // 3. Clear and set GPIO event detect for this channel
   unsigned gpio_pin = LABC::PIN::LOGAN[channel];
-
-  // 4. Clear all event detect conditions of the GPIO pin.
-  //    In LAB, a pin/channel should only have one trigger condition.
   m_LAB.rpi ().gpio.clear_all_event_detect (gpio_pin);
-
-  // 5. Set the trigger condition of the pin/channel.
   set_trigger_condition (gpio_pin, condition);
 }
 

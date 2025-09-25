@@ -26,6 +26,10 @@ init ()
 {
   gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
     load_parent_data (lab ().m_Logic_Analyzer.parent_data ());
+
+  // Sync trigger labels with current trigger conditions
+  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
+    update_gui_trigger_modes ();
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
@@ -187,6 +191,10 @@ cb_trigger_condition (Fl_Menu_Button* w,
 
   lab ().m_Logic_Analyzer.trigger_condition (channel, trig_cnd);
   lab ().m_Software_Navigation.set_tx_logan_triggers ();
+
+  // Reflect single-active-trigger policy by updating all channel labels
+  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
+    update_gui_trigger_modes ();
 
   Fl::add_timeout(0.005, [](void* p){
     auto* presenter = static_cast<LABSoft_Presenter_Logic_Analyzer*>(p);
