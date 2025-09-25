@@ -1083,6 +1083,25 @@ sampling_rate (double value)
   if (LABF::is_within_range (value, LABC::LOGAN::MIN_SAMPLING_RATE,
     LABC::LOGAN::MAX_SAMPLING_RATE, LABC::LABSOFT::EPSILON))
   {
+    const unsigned min_samples = LABC::LOGAN::MIN_SAMPLES;
+    const unsigned max_samples = LABC::LOGAN::MAX_SAMPLES;
+    const double   target_window_seconds = 5.0;
+
+    unsigned recommended_samples = static_cast<unsigned>(value * target_window_seconds);
+
+    if (recommended_samples < min_samples)
+    {
+      recommended_samples = min_samples;
+    }
+    else if (recommended_samples > max_samples)
+    {
+      recommended_samples = max_samples;
+    }
+
+    if (recommended_samples != m_parent_data.samples)
+    {set_samples (recommended_samples);
+    }
+
     set_time_per_division (m_parent_data.samples, value);
     set_sampling_rate     (value);
   }
