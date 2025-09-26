@@ -247,6 +247,17 @@ validate_spi_data(uint16_t spi_data) noexcept
   return checksum == ((type ^ action ^ value) & 0x0F);
 }
 
+bool
+LAB_Software_Navigation::
+is_logan_header(uint16_t word) noexcept
+{
+  // Treat any checksum-valid header with type 0x6 as a LOGAN frame marker.
+  // Example observed: 0x6161 (type=0x6, action=0x1, value=0x6, checksum=0x1)
+  if (!validate_spi_data(word)) return false;
+  const uint8_t type = (word >> 12) & 0x0F;
+  return (type == 0x6);
+}
+
 void
 LAB_Software_Navigation::
 service_once()
@@ -280,32 +291,73 @@ service_once()
   }
 #endif
 
-  // Parse and validate header (first 2 bytes)
-  const uint16_t header = (static_cast<uint16_t>(rx_buffer_static[0]) << 8) | rx_buffer_static[1];
-  if (header != 0x0000 && header != 0xFFFF && validate_spi_data(header) && m_read_enabled)
+  // Parse incoming words with LOGAN state machine precedence
+  const uint16_t word0 = (static_cast<uint16_t>(rx_buffer_static[0]) << 8) | rx_buffer_static[1];
+  if (m_logan_rx_state == LOGAN_RX_STATE::EXPECT_PAYLOAD)
   {
-    const uint8_t type   = (header >> 12) & 0x0F;
-    const uint8_t action = (header >> 8)  & 0x0F;
-    const uint8_t value  = (header >> 4)  & 0x0F;
+#if SNM_DEBUG_SPI_DUMP
+    std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(word0));
+#endif
+  }
+  else
+  {
+    const bool snm_ok = (word0 != 0x0000 && word0 != 0xFFFF && validate_spi_data(word0));
 
-    // Queue the parsed data
+    if (snm_ok && m_read_enabled && !is_logan_header(word0))
     {
-      std::lock_guard<std::mutex> lock(m_queue_mutex);
-      if (m_queue.size() < MAX_QUEUE)
+      const uint8_t type   = (word0 >> 12) & 0x0F;
+      const uint8_t action = (word0 >> 8)  & 0x0F;
+      const uint8_t value  = (word0 >> 4)  & 0x0F;
+
+      // Queue SNM message for presenter
       {
-        m_queue.push({type, action, value});
+        std::lock_guard<std::mutex> lock(m_queue_mutex);
+        if (m_queue.size() < MAX_QUEUE)
+        {
+          m_queue.push({type, action, value});
+        }
       }
     }
+    else if (is_logan_header(word0))
+    {
+      // For visibility while debugging, print LOGAN header when detected.
+#if SNM_DEBUG_SPI_DUMP
+      std::printf("LOGAN HEADER: 0x%04X\n", static_cast<unsigned>(word0));
+#endif
+      m_logan_rx_state = LOGAN_RX_STATE::EXPECT_PAYLOAD;
+
+      // If more bytes are available in this same transfer, consume them now
+      if (transfer_size >= 4)
+      {
+        const uint16_t payload = (static_cast<uint16_t>(rx_buffer_static[2]) << 8) | rx_buffer_static[3];
+#if SNM_DEBUG_SPI_DUMP
+        std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(payload));
+#endif
+        m_logan_rx_state = LOGAN_RX_STATE::EXPECT_CHECKSUM;
+      }
+      if (transfer_size >= 6)
+      {
+        const uint16_t csum = (static_cast<uint16_t>(rx_buffer_static[4]) << 8) | rx_buffer_static[5];
+#if SNM_DEBUG_SPI_DUMP
+        std::printf("LOGAN CHECKSUM: 0x%04X\n", static_cast<unsigned>(csum));
+#endif
+        m_logan_rx_state = LOGAN_RX_STATE::NONE;
+      }
+    }
+    // else: unknown/non-SNM 16-bit word; ignore
   }
 
   {
     std::lock_guard<std::mutex> lock(m_tx_mutex);
+    // Keep last header while logic analyzer is running so SNM control packets can be responded to.
     if (!lab().m_Logic_Analyzer.is_running())
     {
       m_tx_buffer[0] = 0x00;
       m_tx_buffer[1] = 0x00;
     }
   }
+
+  // LOGAN state persists across transfers when transfer_size < 4
 }
 
 bool

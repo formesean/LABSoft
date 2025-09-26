@@ -48,6 +48,10 @@ class LAB_Software_Navigation : public LAB_Module
     void service_once       ();
 
     bool validate_spi_data (uint16_t spi_data) noexcept;
+    bool is_logan_header   (uint16_t word) noexcept;
+
+    enum class LOGAN_RX_STATE : uint8_t { NONE = 0, EXPECT_PAYLOAD, EXPECT_CHECKSUM };
+    LOGAN_RX_STATE m_logan_rx_state { LOGAN_RX_STATE::NONE };
 
     std::atomic<bool> m_read_enabled {true};
 
