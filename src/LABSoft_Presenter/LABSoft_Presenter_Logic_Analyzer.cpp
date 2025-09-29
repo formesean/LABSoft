@@ -75,18 +75,16 @@ cb_run_stop (Fl_Light_Button* w,
   if (w->value () == 0)
   {
     lab ().m_Logic_Analyzer.stop ();
+    lab().m_Software_Navigation.set_tx_logan_stop();
   }
   else
   {
-    lab ().m_Software_Navigation.set_tx_logan_triggers ();
+    // lab().m_Software_Navigation.set_tx_logan_triggers ();
 
-    Fl::add_timeout(0.005, [](void* p){
-      auto* presenter = static_cast<LABSoft_Presenter_Logic_Analyzer*>(p);
-      presenter->lab().m_Software_Navigation.set_tx_logan_config(
-        presenter->lab().m_Logic_Analyzer.samples(),
-        presenter->lab().m_Logic_Analyzer.sampling_rate()
-      );
-    }, this);
+    lab().m_Software_Navigation.set_tx_logan_config(
+      lab().m_Logic_Analyzer.samples(),
+      lab().m_Logic_Analyzer.sampling_rate()
+    );
 
     (void) lab ().m_Software_Navigation.update_spi_data ();
 
@@ -192,17 +190,8 @@ cb_trigger_condition (Fl_Menu_Button* w,
   lab ().m_Logic_Analyzer.trigger_condition (channel, trig_cnd);
   lab ().m_Software_Navigation.set_tx_logan_triggers ();
 
-  // Reflect single-active-trigger policy by updating all channel labels
   gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
     update_gui_trigger_modes ();
-
-  Fl::add_timeout(0.005, [](void* p){
-    auto* presenter = static_cast<LABSoft_Presenter_Logic_Analyzer*>(p);
-    presenter->lab().m_Software_Navigation.set_tx_logan_config(
-      presenter->lab().m_Logic_Analyzer.samples(),
-      presenter->lab().m_Logic_Analyzer.sampling_rate()
-    );
-  }, this);
 }
 
 void LABSoft_Presenter_Logic_Analyzer::

@@ -24,6 +24,8 @@ class LAB_Software_Navigation : public LAB_Module
     std::queue<std::array<uint8_t, 3> >  m_queue;
     std::mutex                          m_queue_mutex;
     std::atomic<bool>                   m_stop_sent {false};
+    std::atomic<bool>                   m_logan_start_sent {false};
+    std::atomic<bool>                   m_logan_stop_sent  {false};
 
   public:
     LAB_Software_Navigation                (LAB &lab);
@@ -35,6 +37,7 @@ class LAB_Software_Navigation : public LAB_Module
 
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
     void set_tx_logan_triggers             ();
+    void set_tx_logan_stop                 ();
 
     // SNM attach handshake
     void set_snm_attached                  (bool attached);

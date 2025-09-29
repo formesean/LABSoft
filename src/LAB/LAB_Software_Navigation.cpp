@@ -66,7 +66,7 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   else if (samples >= 10) samples_nibble = 0x3;
   else if (samples >= 5)  samples_nibble = 0x2;
   else if (samples >= 2)  samples_nibble = 0x1;
-  else if (samples >= 0)  samples_nibble = 0x0;
+  else                    samples_nibble = 0x0;
 
   uint8_t rate_nibble = 0;
   if (sampling_rate >= 100) rate_nibble = 0x7;
@@ -76,19 +76,25 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   else if (sampling_rate >= 5)   rate_nibble = 0x3;
   else if (sampling_rate >= 2)   rate_nibble = 0x2;
   else if (sampling_rate >= 1)   rate_nibble = 0x1;
-  else if (sampling_rate >= 0)   rate_nibble = 0x0;
-
-  // first nibble = checksum
-  // second nibble = sampling_rate
-  // third nibble = samples
-  // fourth nibble = type
+  else                           rate_nibble = 0x0;
 
   const uint8_t type      = 0x6;
   const uint8_t checksum  = (type ^ samples_nibble ^ rate_nibble) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | samples_nibble);
+  const uint8_t b1 = static_cast<uint8_t>((rate_nibble << 4) | checksum);
 
-  std::lock_guard<std::mutex> lock(m_tx_mutex);
-  m_tx_buffer[0] = static_cast<uint8_t>((type << 4) | samples_nibble);
-  m_tx_buffer[1] = static_cast<uint8_t>((rate_nibble << 4) | checksum);
+  bool expected = false;
+  if (m_logan_start_sent.compare_exchange_strong(expected, true))
+  {
+    // One-shot immediate send for LOGAN START
+    send_immediate_tx_blocking(b0, b1);
+
+    // Allow STOP to be sent later, and avoid repeating START in service loop
+    m_logan_stop_sent.store(false);
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = 0x00;
+    m_tx_buffer[1] = 0x00;
+  }
 }
 
 void
@@ -148,9 +154,9 @@ void
 LAB_Software_Navigation::
 send_immediate_tx_blocking(uint8_t b0, uint8_t b1)
 {
-  uint8_t rx[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
-  const uint8_t tx[LABC::PIN::SNM::TRANSFER_SIZE] = {b0, b1};
-  spi_transfer(rx, tx, m_parent_data.TRANSFER_SIZE);
+  uint8_t rx[2] = {0};
+  const uint8_t tx[2] = {b0, b1};
+  spi_transfer(rx, tx, 2);
 }
 
 void
@@ -209,6 +215,30 @@ announce_program_stopping()
     }
 
     send_immediate_tx_blocking(b0, b1);
+  }
+}
+
+void
+LAB_Software_Navigation::
+set_tx_logan_stop()
+{
+  // LOGAN stop header is type=0x6, samples=0x0, rate=0x0
+  constexpr uint8_t type      = 0x6;
+  constexpr uint8_t samples_nibble = 0x0;
+  constexpr uint8_t rate_nibble    = 0x0;
+  const uint8_t checksum  = (type ^ samples_nibble ^ rate_nibble) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | samples_nibble);
+  const uint8_t b1 = static_cast<uint8_t>((rate_nibble << 4) | checksum);
+
+  bool expected = false;
+  if (m_logan_stop_sent.compare_exchange_strong(expected, true))
+  {
+    send_immediate_tx_blocking(b0, b1);
+    // Allow future START after a STOP
+    m_logan_start_sent.store(false);
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = 0x00;
+    m_tx_buffer[1] = 0x00;
   }
 }
 
@@ -349,15 +379,13 @@ service_once()
 
   {
     std::lock_guard<std::mutex> lock(m_tx_mutex);
-    // Keep last header while logic analyzer is running so SNM control packets can be responded to.
-    if (!lab().m_Logic_Analyzer.is_running())
+    // Clear one-shot header after a send to avoid repeating it in subsequent cycles
+    if (tx_buffer_static[0] != 0x00 || tx_buffer_static[1] != 0x00)
     {
       m_tx_buffer[0] = 0x00;
       m_tx_buffer[1] = 0x00;
     }
   }
-
-  // LOGAN state persists across transfers when transfer_size < 4
 }
 
 bool
