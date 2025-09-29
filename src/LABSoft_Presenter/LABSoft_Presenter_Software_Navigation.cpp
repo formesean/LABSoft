@@ -8,8 +8,6 @@
 #include "../LABSoft_GUI/LABSoft_GUI.h"
 #include "../Utility/LABSoft_GUI_Label.h"
 
-#define LOG(msg) fprintf(stdout, "%s\n", msg)
-
 LABSoft_Presenter_Software_Navigation::
 LABSoft_Presenter_Software_Navigation(LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit(_LABSoft_Presenter)
@@ -45,22 +43,18 @@ update_data_cycle()
       // Customizable Key 1
       if (data[1] == 1 && data[2] == 0)
       {
-        LOG("Customizable Key 1 Pressed");
         handle_customizable_macro_key(1);
       }
 
       // Customizable Key 2
       if (data[1] == 2 && data[2] == 0)
       {
-        LOG("Customizable Key 2 Pressed");
         handle_customizable_macro_key(2);
       }
 
       // Back Key
       if (data[1] == 3 && data[2] == 0)
       {
-        LOG("Back Key Pressed");
-
         if (current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET)
         {
           widget_index = -1;
@@ -166,8 +160,6 @@ update_data_cycle()
       // Next Key
       if (data[1] == 4 && data[2] == 0)
       {
-        LOG("Next Key Pressed");
-
         if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
         {
           auto tab_id = get_current_tab_id();
@@ -292,7 +284,6 @@ update_data_cycle()
       // Run Key
       if (data[1] == 5 && data[2] == 0)
       {
-        LOG("Run Key Pressed");
         auto tab_id = get_current_tab_id();
 
         if (tab_id == LABE::SNM::TAB_ID::LABCHECKER_DIGITAL)
@@ -363,7 +354,6 @@ update_data_cycle()
               input->redraw();
             }
 
-            LOG(dir > 0 ? "Similarity threshold increased" : "Similarity threshold decreased");
             return;
           }
         }
@@ -441,7 +431,6 @@ update_data_cycle()
               }
             }
 
-            LOG(dir > 0 ? "Choice Scrolled CW (Scroll)" : "Choice Scrolled CCW (Scroll)");
             return;
           }
           else if (auto* choice = dynamic_cast<Fl_Choice*>(widget))
@@ -471,7 +460,7 @@ update_data_cycle()
                 ++attempts;
               }
             }
-            LOG(dir > 0 ? "Choice Rotated CW" : "Choice Rotated CCW");
+
             return;
           }
           else if (auto* input = dynamic_cast<Fl_Input*>(widget))
@@ -498,7 +487,6 @@ update_data_cycle()
                 }
               }
 
-              LOG(dir > 0 ? "Output count increased" : "Output count decreased");
               return;
             }
           }
@@ -565,7 +553,6 @@ update_data_cycle()
           }
         }
 
-        LOG(dir > 0 ? "Encoder Rotated CW" : "Encoder Rotated CCW");
       }
     }
 
@@ -574,7 +561,6 @@ update_data_cycle()
     {
       if (data[1] == 1 && data[2] == 1) // Pressed
       {
-        LOG("Encoder Switch Pressed");
         if (is_encoder_switch_pressed) return;
         is_encoder_switch_pressed = true;
 
@@ -583,8 +569,6 @@ update_data_cycle()
         if (!widget || !widget->visible() || !widget->active() || !widget->takesevents()) return;
 
         const char* widget_type = typeid(*widget).name();
-        LOG(("Focused Widget Type: " + std::string(widget_type)).c_str());
-        LOG(("Widget Label: " + std::string(widget->label() ? widget->label() : "<no label>")).c_str());
 
         if (auto* lightBtn = dynamic_cast<Fl_Light_Button*>(widget))
         {
@@ -616,7 +600,6 @@ update_data_cycle()
       }
       else if (data[1] == 1 && data[2] == 0) // Released
       {
-        LOG("Encoder Switch Released");
         is_encoder_switch_pressed = false;
       }
     }
