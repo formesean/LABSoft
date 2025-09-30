@@ -38,6 +38,7 @@ class LAB_Software_Navigation : public LAB_Module
     void set_tx_logan_config               (unsigned samples, double sampling_rate);
     void set_tx_logan_triggers             ();
     void set_tx_logan_stop                 ();
+    void reset_logan_rx_state              ();
 
     // SNM attach handshake
     void set_snm_attached                  (bool attached);

@@ -242,6 +242,13 @@ set_tx_logan_stop()
   }
 }
 
+void
+LAB_Software_Navigation::
+reset_logan_rx_state()
+{
+  m_logan_rx_state = LOGAN_RX_STATE::NONE;
+}
+
 bool
 LAB_Software_Navigation::
 is_snm_config_enabled() const
@@ -325,15 +332,51 @@ service_once()
   const uint16_t word0 = (static_cast<uint16_t>(rx_buffer_static[0]) << 8) | rx_buffer_static[1];
   if (m_logan_rx_state == LOGAN_RX_STATE::EXPECT_PAYLOAD)
   {
+    const bool is_logan_hdr = is_logan_header(word0);
+    const bool is_checksum_like = (word0 == 0x0000 || word0 == 0xFFFF);
+    const bool snm_ok = (word0 != 0x0000 && word0 != 0xFFFF && validate_spi_data(word0));
+    const uint8_t type_nibble = (word0 >> 12) & 0x0F;
+    const bool is_software_nav_type = (type_nibble >= 0x1 && type_nibble <= 0x3);
+
+    // While receiving payload, still allow SNM control/event words to be queued
+    if (snm_ok && !is_logan_hdr && is_software_nav_type)
+    {
+      const uint8_t type   = (word0 >> 12) & 0x0F;
+      const uint8_t action = (word0 >> 8)  & 0x0F;
+      const uint8_t value  = (word0 >> 4)  & 0x0F;
+      {
+        std::lock_guard<std::mutex> lock(m_queue_mutex);
+        if (m_queue.size() < MAX_QUEUE)
+        {
+          m_queue.push({type, action, value});
+        }
+      }
+    }
+    else
+    {
+      // Only process LOGAN payload when logic analyzer is actually running
+      if (lab().m_Logic_Analyzer.is_running())
+      {
 #if SNM_DEBUG_SPI_DUMP
-    std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(word0));
+        std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(word0));
 #endif
+      }
+      else
+      {
+        // Reset state if LA is not running to avoid stuck state
+        m_logan_rx_state = LOGAN_RX_STATE::NONE;
+      }
+    }
   }
   else
   {
     const bool snm_ok = (word0 != 0x0000 && word0 != 0xFFFF && validate_spi_data(word0));
 
-    if (snm_ok && m_read_enabled && !is_logan_header(word0))
+    // Treat only specific type ranges as Software Navigation control/events (avoid LOGAN payload confusion)
+    const uint8_t type_nibble = (word0 >> 12) & 0x0F;
+    const bool is_software_nav_type = (type_nibble >= 0x1 && type_nibble <= 0x3);
+
+    if (snm_ok && m_read_enabled && !is_logan_header(word0) && is_software_nav_type)
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
@@ -348,7 +391,7 @@ service_once()
         }
       }
     }
-    else if (is_logan_header(word0))
+    else if (is_logan_header(word0) && lab().m_Logic_Analyzer.is_running())
     {
       // For visibility while debugging, print LOGAN header when detected.
 #if SNM_DEBUG_SPI_DUMP
