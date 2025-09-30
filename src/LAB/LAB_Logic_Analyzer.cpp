@@ -877,6 +877,19 @@ update_data_samples ()
 {
   if (is_running ())
   {
+    // Prefer externally streamed LOGAN blocks when available
+    if (m_parent_data.trigger_frame_ready)
+    {
+      parse_raw_sample_buffer ();
+      m_parent_data.trigger_frame_ready = false;
+      if (m_parent_data.single)
+      {
+        m_parent_data.single = false;
+        stop ();
+      }
+      return;
+    }
+
     switch (m_parent_data.trigger_mode)
     {
       case (LABE::LOGAN::TRIG::MODE::NONE):

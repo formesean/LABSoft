@@ -26,6 +26,11 @@ class LAB_Software_Navigation : public LAB_Module
     std::atomic<bool>                   m_stop_sent {false};
     std::atomic<bool>                   m_logan_start_sent {false};
     std::atomic<bool>                   m_logan_stop_sent  {false};
+    // LOGAN RX aggregation state (master side)
+    unsigned                            m_logan_expected_samples {0};
+    unsigned                            m_logan_samples_written  {0};
+    unsigned                            m_logan_words_remaining  {0};
+    uint16_t                            m_logan_checksum_accum   {0};
 
   public:
     LAB_Software_Navigation                (LAB &lab);
@@ -39,6 +44,7 @@ class LAB_Software_Navigation : public LAB_Module
     void set_tx_logan_triggers             ();
     void set_tx_logan_stop                 ();
     void reset_logan_rx_state              ();
+    void publish_completed_logan_block     ();
 
     // SNM attach handshake
     void set_snm_attached                  (bool attached);

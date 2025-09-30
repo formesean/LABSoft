@@ -33,6 +33,12 @@ void
 LABSoft_Presenter_Software_Navigation::
 update_data_cycle()
 {
+  // If Logic Analyzer is running, publish any completed streamed LOGAN block
+  if (lab().m_Logic_Analyzer.is_running())
+  {
+    lab().m_Software_Navigation.publish_completed_logan_block();
+  }
+
   auto process_one = [&](const std::array<uint8_t, 3>& data)
   {
     if (data[0] == 0 && data[1] == 0 && data[2] == 0) return;

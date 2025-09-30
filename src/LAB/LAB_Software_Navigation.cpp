@@ -99,6 +99,24 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
 
 void
 LAB_Software_Navigation::
+publish_completed_logan_block()
+{
+  // When expected samples have been written, mark trigger frame ready
+  if (m_logan_expected_samples > 0 && m_logan_samples_written >= m_logan_expected_samples)
+  {
+    auto &pdata = lab().m_Logic_Analyzer.parent_data();
+    pdata.samples = m_logan_expected_samples;
+    pdata.trigger_frame_ready = true;
+    // Reset counters to allow next block
+    m_logan_expected_samples = 0;
+    m_logan_samples_written  = 0;
+    m_logan_words_remaining  = 0;
+    m_logan_checksum_accum   = 0;
+  }
+}
+
+void
+LAB_Software_Navigation::
 set_tx_logan_triggers()
 {
   auto enc = [](LABE::LOGAN::TRIG::CND c) -> uint8_t {
@@ -354,12 +372,48 @@ service_once()
     }
     else
     {
-      // Only process LOGAN payload when logic analyzer is actually running
+      // Treat word0 as part of LOGAN stream when LA is running.
       if (lab().m_Logic_Analyzer.is_running())
       {
+        // If we still expect payload words, unpack and store into channel 1 bit
+        if (m_logan_words_remaining > 0)
+        {
 #if SNM_DEBUG_SPI_DUMP
-        std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(word0));
+          std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(word0));
 #endif
+          auto &pdata = lab().m_Logic_Analyzer.parent_data();
+          for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
+          {
+            const uint8_t nibble = static_cast<uint8_t>((word0 >> (i * 4)) & 0x0F);
+            const unsigned sample_index = m_logan_samples_written++;
+            if (sample_index < pdata.raw_data_buffer.size())
+            {
+              const unsigned bit = (LABC::PIN::LOGAN[0]);
+              // Build fresh 32-bit snapshot for this sample index
+              pdata.raw_data_buffer[sample_index] = 0;
+              pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
+              pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
+            }
+          }
+          m_logan_checksum_accum ^= word0;
+          if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+
+          if (m_logan_words_remaining == 0)
+          {
+            // Next word will be checksum; nothing else here
+          }
+        }
+        else
+        {
+          // Expecting checksum word now; verify and finish block
+#if SNM_DEBUG_SPI_DUMP
+          std::printf("LOGAN CHECKSUM: 0x%04X\n", static_cast<unsigned>(word0));
+#endif
+          // Optional: verify checksum
+          // if (m_logan_checksum_accum != word0) { /* handle mismatch */ }
+          m_logan_rx_state = LOGAN_RX_STATE::NONE;
+          publish_completed_logan_block();
+        }
       }
       else
       {
@@ -391,13 +445,38 @@ service_once()
         }
       }
     }
-    else if (is_logan_header(word0) && lab().m_Logic_Analyzer.is_running())
+    else if (is_logan_header(word0))
     {
       // For visibility while debugging, print LOGAN header when detected.
 #if SNM_DEBUG_SPI_DUMP
       std::printf("LOGAN HEADER: 0x%04X\n", static_cast<unsigned>(word0));
 #endif
       m_logan_rx_state = LOGAN_RX_STATE::EXPECT_PAYLOAD;
+
+      // Decode samples/rate nibbles to determine expected payload words
+      const uint8_t samples_nibble = (word0 >> 8) & 0x0F;
+      const uint8_t rate_nibble    = (word0 >> 4) & 0x0F;
+      // Map to sample count as per slave mapping
+      auto map_samples = [](uint8_t n) -> unsigned {
+        switch (n & 0x0F)
+        {
+          case 0xA: return 2000;
+          case 0x9: return 1000;
+          case 0x8: return 500;
+          case 0x7: return 200;
+          case 0x6: return 100;
+          case 0x5: return 50;
+          case 0x4: return 20;
+          case 0x3: return 10;
+          case 0x2: return 5;
+          case 0x1: return 2;
+          default:  return 500;
+        }
+      };
+      m_logan_expected_samples = map_samples(samples_nibble);
+      m_logan_samples_written  = 0;
+      m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
+      m_logan_checksum_accum   = 0;
 
       // If more bytes are available in this same transfer, consume them now
       if (transfer_size >= 4)
@@ -406,7 +485,31 @@ service_once()
 #if SNM_DEBUG_SPI_DUMP
         std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(payload));
 #endif
-        m_logan_rx_state = LOGAN_RX_STATE::EXPECT_CHECKSUM;
+        // Consume first payload word immediately
+        if (m_logan_words_remaining > 0)
+        {
+          // Unpack up to 4 nibbles -> bits into raw_data_buffer
+          auto &pdata = lab().m_Logic_Analyzer.parent_data();
+          for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
+          {
+            const uint8_t nibble = static_cast<uint8_t>((payload >> (i * 4)) & 0x0F);
+            // Store nibble LSB as 1-bit sample into raw_data_buffer as packed bits of channel 0
+            // Here we store into bit position of first channel GPIO to match parse_raw_sample_buffer
+            const unsigned sample_index = m_logan_samples_written++;
+            if (sample_index < pdata.raw_data_buffer.size())
+            {
+              const unsigned bit = (LABC::PIN::LOGAN[0]);
+              // Build fresh 32-bit snapshot for this sample index
+              pdata.raw_data_buffer[sample_index] = 0;
+              // Clear then set bit according to nibble LSB
+              pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
+              pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
+            }
+          }
+          m_logan_checksum_accum ^= payload;
+          if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+        }
+        // Keep state as EXPECT_PAYLOAD; checksum handling is done in the payload branch
       }
       if (transfer_size >= 6)
       {
@@ -414,7 +517,10 @@ service_once()
 #if SNM_DEBUG_SPI_DUMP
         std::printf("LOGAN CHECKSUM: 0x%04X\n", static_cast<unsigned>(csum));
 #endif
+        // Optionally verify checksum (slave uses XOR of payload words)
+        // m_logan_checksum_accum should match csum
         m_logan_rx_state = LOGAN_RX_STATE::NONE;
+        publish_completed_logan_block();
       }
     }
     // else: unknown/non-SNM 16-bit word; ignore
