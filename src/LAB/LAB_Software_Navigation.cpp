@@ -78,10 +78,44 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   else if (sampling_rate >= 1)   rate_nibble = 0x1;
   else                           rate_nibble = 0x0;
 
-  const uint8_t type      = 0x6;
-  const uint8_t checksum  = (type ^ samples_nibble ^ rate_nibble) & 0x0F;
-  const uint8_t b0 = static_cast<uint8_t>((type << 4) | samples_nibble);
-  const uint8_t b1 = static_cast<uint8_t>((rate_nibble << 4) | checksum);
+  // Determine single active trigger channel (1..4) and trigger mode nibble
+  auto enc_trig_cnd = [](LABE::LOGAN::TRIG::CND c) -> uint8_t {
+    switch (c)
+    {
+      case LABE::LOGAN::TRIG::CND::IGNORE:       return 0x0;
+      case LABE::LOGAN::TRIG::CND::LOW:          return 0x1;
+      case LABE::LOGAN::TRIG::CND::HIGH:         return 0x2;
+      case LABE::LOGAN::TRIG::CND::RISING_EDGE:  return 0x3;
+      case LABE::LOGAN::TRIG::CND::FALLING_EDGE: return 0x4;
+      case LABE::LOGAN::TRIG::CND::EITHER_EDGE:  return 0x5;
+      default:                                   return 0x0;
+    }
+  };
+
+  uint8_t trig_chan_nibble = 0x0; // 0 means no channel has a trigger
+  uint8_t trig_mode_nibble = 0x0;
+  {
+    const auto &pdata = lab().m_Logic_Analyzer.parent_data();
+    for (unsigned i = 0; i < LABC::LOGAN::NUMBER_OF_CHANNELS; ++i)
+    {
+      const auto cnd = pdata.channel_data[i].trigger_condition;
+      if (cnd != LABE::LOGAN::TRIG::CND::IGNORE)
+      {
+        trig_chan_nibble = static_cast<uint8_t>((i + 1) & 0x07); // 1..4
+        trig_mode_nibble = enc_trig_cnd(cnd) & 0x0F;
+        break; // only one channel can have a trigger
+      }
+    }
+  }
+
+  // New header layout (no checksum):
+  // [15:12] type nibble with MSB=1 and low 3 bits = trigger channel (0..4)
+  // [11:8]  trigger mode nibble
+  // [7:4]   samples nibble
+  // [3:0]   rate nibble
+  const uint8_t type_nibble = static_cast<uint8_t>(0x8 | (trig_chan_nibble & 0x07));
+  const uint8_t b0 = static_cast<uint8_t>((type_nibble << 4) | (trig_mode_nibble & 0x0F));
+  const uint8_t b1 = static_cast<uint8_t>(((samples_nibble & 0x0F) << 4) | (rate_nibble & 0x0F));
 
   bool expected = false;
   if (m_logan_start_sent.compare_exchange_strong(expected, true))
@@ -240,13 +274,9 @@ void
 LAB_Software_Navigation::
 set_tx_logan_stop()
 {
-  // LOGAN stop header is type=0x6, samples=0x0, rate=0x0
-  constexpr uint8_t type      = 0x6;
-  constexpr uint8_t samples_nibble = 0x0;
-  constexpr uint8_t rate_nibble    = 0x0;
-  const uint8_t checksum  = (type ^ samples_nibble ^ rate_nibble) & 0x0F;
-  const uint8_t b0 = static_cast<uint8_t>((type << 4) | samples_nibble);
-  const uint8_t b1 = static_cast<uint8_t>((rate_nibble << 4) | checksum);
+  // New STOP: MSB=1 header with all fields zero
+  constexpr uint8_t b0 = static_cast<uint8_t>((0x8 << 4) | 0x0);
+  constexpr uint8_t b1 = static_cast<uint8_t>((0x0 << 4) | 0x0);
 
   bool expected = false;
   if (m_logan_stop_sent.compare_exchange_strong(expected, true))
@@ -306,11 +336,10 @@ bool
 LAB_Software_Navigation::
 is_logan_header(uint16_t word) noexcept
 {
-  // Treat any checksum-valid header with type 0x6 as a LOGAN frame marker.
-  // Example observed: 0x6161 (type=0x6, action=0x1, value=0x6, checksum=0x1)
-  if (!validate_spi_data(word)) return false;
+  // New format: treat any word whose top nibble has MSB=1 as a LOGAN header.
+  // Top nibble encodes: 1xxx where low 3 bits carry trigger channel (0..4)
   const uint8_t type = (word >> 12) & 0x0F;
-  return (type == 0x6);
+  return (type & 0x8) != 0;
 }
 
 void
@@ -351,13 +380,11 @@ service_once()
   if (m_logan_rx_state == LOGAN_RX_STATE::EXPECT_PAYLOAD)
   {
     const bool is_logan_hdr = is_logan_header(word0);
-    const bool is_checksum_like = (word0 == 0x0000 || word0 == 0xFFFF);
-    const bool snm_ok = (word0 != 0x0000 && word0 != 0xFFFF && validate_spi_data(word0));
     const uint8_t type_nibble = (word0 >> 12) & 0x0F;
     const bool is_software_nav_type = (type_nibble >= 0x1 && type_nibble <= 0x3);
 
     // While receiving payload, still allow SNM control/event words to be queued
-    if (snm_ok && !is_logan_hdr && is_software_nav_type)
+    if (!is_logan_hdr && is_software_nav_type)
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
@@ -424,13 +451,11 @@ service_once()
   }
   else
   {
-    const bool snm_ok = (word0 != 0x0000 && word0 != 0xFFFF && validate_spi_data(word0));
-
     // Treat only specific type ranges as Software Navigation control/events (avoid LOGAN payload confusion)
     const uint8_t type_nibble = (word0 >> 12) & 0x0F;
     const bool is_software_nav_type = (type_nibble >= 0x1 && type_nibble <= 0x3);
 
-    if (snm_ok && m_read_enabled && !is_logan_header(word0) && is_software_nav_type)
+    if (m_read_enabled && !is_logan_header(word0) && is_software_nav_type)
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
@@ -453,9 +478,9 @@ service_once()
 #endif
       m_logan_rx_state = LOGAN_RX_STATE::EXPECT_PAYLOAD;
 
-      // Decode samples/rate nibbles to determine expected payload words
-      const uint8_t samples_nibble = (word0 >> 8) & 0x0F;
-      const uint8_t rate_nibble    = (word0 >> 4) & 0x0F;
+      // Decode samples/rate nibbles to determine expected payload words (new format)
+      const uint8_t samples_nibble = (word0 >> 4) & 0x0F;
+      const uint8_t rate_nibble    = (word0 >> 0) & 0x0F;
       // Map to sample count as per slave mapping
       auto map_samples = [](uint8_t n) -> unsigned {
         switch (n & 0x0F)
