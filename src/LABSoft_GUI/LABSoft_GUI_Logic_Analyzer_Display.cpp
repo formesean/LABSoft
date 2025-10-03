@@ -807,6 +807,30 @@ clear_all_channels ()
   redraw ();
 }
 
+bool LABSoft_GUI_Logic_Analyzer_Display::
+has_channel (unsigned channel) const
+{
+  return is_chan_present_in_chan_widget_array (channel);
+}
+
+void LABSoft_GUI_Logic_Analyzer_Display::
+remove_channel (unsigned channel)
+{
+  // Find widget with given channel and remove it
+  for (auto it = m_channel_widgets.begin (); it != m_channel_widgets.end (); ++it)
+  {
+    if ((*it)->channel () == static_cast<int>(channel))
+    {
+      ChanWidget* ptr = *it;
+      m_channel_widgets.erase (it);
+      delete ptr;
+      break;
+    }
+  }
+
+  redraw ();
+}
+
 void LABSoft_GUI_Logic_Analyzer_Display::
 update_gui_time_per_division ()
 {

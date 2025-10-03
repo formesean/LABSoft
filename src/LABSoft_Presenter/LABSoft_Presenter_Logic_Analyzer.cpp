@@ -339,10 +339,33 @@ update_gui_mode ()
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
-cb_add_channel_selection (Fl_Menu_* w, void* data)
-{
-  gui ().logic_analyzer_labsoft_gui_logic_analyzer_add_channel_signal_window
-    ->show_as_modal ();
+cb_add_channel_selection(Fl_Button* o, void* data) {
+  LABSoft_GUI_Logic_Analyzer_Display& disp = *gui().logic_analyzer_labsoft_gui_logic_analyzer_display;
+  for (unsigned ch = 0; ch < LABC::LOGAN::NUMBER_OF_CHANNELS; ch++)
+  {
+    if (!disp.has_channel(ch))
+    {
+      char label[20];
+      std::snprintf(label, sizeof(label), "DIO %u", ch);
+      disp.add_channel(ch, label);
+      refresh_samples_menu_limits();
+      return;
+    }
+  }
+}
+
+void LABSoft_Presenter_Logic_Analyzer::
+cb_clear_channels(Fl_Button* o, void* data) {
+  LABSoft_GUI_Logic_Analyzer_Display& disp = *gui().logic_analyzer_labsoft_gui_logic_analyzer_display;
+  for (int ch = static_cast<int>(LABC::LOGAN::NUMBER_OF_CHANNELS) - 1; ch >= 0; ch--)
+  {
+    if (disp.has_channel(static_cast<unsigned>(ch)))
+    {
+      disp.remove_channel(static_cast<unsigned>(ch));
+      refresh_samples_menu_limits();
+      return;
+    }
+  }
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
@@ -389,15 +412,6 @@ cb_add_channel_signal (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, 
   }
 
   // After adding one or more channels, recompute samples limits
-  refresh_samples_menu_limits ();
-}
-
-void LABSoft_Presenter_Logic_Analyzer::
-cb_clear_channels (Fl_Menu_* w, void* data)
-{
-  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->clear_all_channels ();
-
-  // With zero active channels, default to full range
   refresh_samples_menu_limits ();
 }
 

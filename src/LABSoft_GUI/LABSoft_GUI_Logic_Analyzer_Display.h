@@ -230,6 +230,8 @@ class LABSoft_GUI_Logic_Analyzer_Display : public Fl_Group
     void update_display               ();
 
     unsigned active_channel_count     () const;
+    bool     has_channel              (unsigned channel) const;
+    void     remove_channel           (unsigned channel);
 };
 
 #endif

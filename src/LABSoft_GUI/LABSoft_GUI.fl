@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {322 299 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {294 299 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -1626,7 +1626,7 @@ class LABSoft_GUI {open
           label {Logic Analyzer} open
           xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
-          Fl_Group logic_analyzer_fl_group_display {open
+          Fl_Group logic_analyzer_fl_group_display {
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
           } {
             Fl_Button logic_analyzer_fl_button_record_config {
@@ -1649,7 +1649,7 @@ class LABSoft_GUI {open
             }
             Fl_Choice logic_analyzer_fl_choice_display_mode {
               label {Display Mode}
-              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_mode (o, v);} open selected
+              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_mode (o, v);} open
               xywh {280 95 120 30} down_box BORDER_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 12
               class LABSoft_GUI_Fl_Choice_With_Scroll
             } {
@@ -1690,28 +1690,18 @@ class LABSoft_GUI {open
               }
             }
           }
-          Fl_Group logic_analyzer_fl_group_add_remove_channels {
+          Fl_Group logic_analyzer_fl_group_add_remove_channels {open
             xywh {20 150 180 50} box ROUNDED_FRAME color 52
           } {
-            Fl_Menu_Button logic_analyzer_fl_menu_button_add_channel {
+            Fl_Button logic_analyzer_fl_menu_button_add_channel {
               label {+}
-              xywh {40 165 60 20} box GTK_UP_BOX color 54 selection_color 229 labelsize 12 textsize 12
-            } {
-              MenuItem {} {
-                label Signal
-                callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_add_channel_selection (o, v);}
-                xywh {52 174 36 21} labelsize 12
-              }
+              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_add_channel_selection(o, v);}
+              xywh {40 165 60 20} box GTK_UP_BOX color 7 selection_color 229 labelsize 12
             }
-            Fl_Menu_Button logic_analyzer_fl_menu_button_remove_channel {
+            Fl_Button logic_analyzer_fl_menu_button_remove_channel {
               label {-}
-              xywh {120 165 60 20} box GTK_UP_BOX color 54 selection_color 229 labelsize 12 textsize 12
-            } {
-              MenuItem {} {
-                label Clear
-                callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_clear_channels (o, v);}
-                xywh {15 15 36 21} labelsize 12
-              }
+              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_clear_channels(o, v);} selected
+              xywh {120 165 60 20} box GTK_UP_BOX color 7 selection_color 229 labelsize 12
             }
           }
           Fl_Group logic_analyzer_fl_group_horizontal {

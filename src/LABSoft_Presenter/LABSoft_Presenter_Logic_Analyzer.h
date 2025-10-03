@@ -46,12 +46,10 @@ class LABSoft_Presenter_Logic_Analyzer : public LABSoft_Presenter_Unit
     void update_gui_horizontal    ();
     void update_gui_mode          ();
 
-    void cb_add_channel_selection (Fl_Menu_* w, void* data);
-    void cb_add_channel_signal    (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, void* data);
-    void cb_clear_channels        (Fl_Menu_* w, void* data);
-
-    // Samples/menu helpers
-    void refresh_samples_menu_limits ();
+    void cb_add_channel_selection     (Fl_Button* o, void* data);
+    void cb_clear_channels            (Fl_Button* o, void* data);
+    void cb_add_channel_signal        (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, void* data);
+    void refresh_samples_menu_limits  ();
 };
 
 #endif
