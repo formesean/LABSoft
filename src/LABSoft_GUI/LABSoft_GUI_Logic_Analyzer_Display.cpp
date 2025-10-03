@@ -890,4 +890,10 @@ update_display ()
   redraw ();
 }
 
+unsigned LABSoft_GUI_Logic_Analyzer_Display::
+active_channel_count () const
+{
+  return static_cast<unsigned>(m_channel_widgets.size ());
+}
+
 // EOF

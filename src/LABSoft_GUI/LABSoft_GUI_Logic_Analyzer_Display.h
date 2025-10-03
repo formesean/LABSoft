@@ -228,6 +228,8 @@ class LABSoft_GUI_Logic_Analyzer_Display : public Fl_Group
     void update_gui_time_per_division ();
     void update_gui_trigger_modes     ();
     void update_display               ();
+
+    unsigned active_channel_count     () const;
 };
 
 #endif
