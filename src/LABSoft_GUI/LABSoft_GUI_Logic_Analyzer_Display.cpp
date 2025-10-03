@@ -865,12 +865,12 @@ update_gui_trigger_modes ()
 
     LABE::LOGAN::TRIG::CND cnd = m_parent_data->channel_data[ch].trigger_condition;
 
-    const char* new_label = "X";
+    const char* new_label = "x";
     switch (cnd)
     {
       case (LABE::LOGAN::TRIG::CND::IGNORE):
       {
-        new_label = "X";
+        new_label = "x";
         break;
       }
       case (LABE::LOGAN::TRIG::CND::LOW):

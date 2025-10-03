@@ -318,6 +318,66 @@ update_data_cycle()
       int dir = (data[1] == 1) ? +1 : -1;
       Fl_Widget* widget = previous_focused_widget;
 
+      // Special handling: when focused on Logic Analyzer per-channel trigger
+      // (Fl_Menu_Button inside a channel widget), rotate to change trigger value
+      // Only when encoder switch is pressed. If not pressed, do nothing at all.
+      if (widget && get_current_tab_id() == LABE::SNM::TAB_ID::LOGIC_ANALYZER)
+      {
+        if (auto* menu_btn = dynamic_cast<Fl_Menu_Button*>(widget))
+        {
+          if (!is_encoder_switch_pressed)
+          {
+            return; // ignore bare rotation while trigger is focused
+          }
+
+          // Debounce rotation while pressed to avoid oversensitive changes
+          auto now = std::chrono::steady_clock::now();
+          if (now - last_nav_time < nav_debounce_delay)
+          {
+            return;
+          }
+          last_nav_time = now;
+          // parent hierarchy: Fl_Menu_Button -> m_fl_group_channel_info (Fl_Group)
+          // -> LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget
+          Fl_Group* info_group = dynamic_cast<Fl_Group*>(menu_btn->parent());
+          if (info_group)
+          {
+            auto* chan_widget = dynamic_cast<LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget*>(info_group->parent());
+            if (chan_widget)
+            {
+              int channel = chan_widget->channel();
+              if (channel >= 0)
+              {
+                using CND = LABE::LOGAN::TRIG::CND;
+
+                // Current condition from model
+                const auto &pdata = lab().m_Logic_Analyzer.parent_data();
+                CND current = pdata.channel_data[static_cast<unsigned>(channel)].trigger_condition;
+
+                // Ordered list matching menu order
+                static const CND order[] = {
+                  CND::IGNORE, CND::LOW, CND::HIGH, CND::RISING_EDGE, CND::FALLING_EDGE, CND::EITHER_EDGE
+                };
+
+                int idx = 0, n = static_cast<int>(sizeof(order) / sizeof(order[0]));
+                for (int i = 0; i < n; ++i) { if (order[i] == current) { idx = i; break; } }
+                int next_idx = (idx + dir + n) % n;
+                CND next = order[next_idx];
+
+                // Apply change to backend and update GUI
+                lab().m_Logic_Analyzer.trigger_condition(static_cast<unsigned>(channel), next);
+                lab().m_Software_Navigation.set_tx_logan_triggers();
+                gui().logic_analyzer_labsoft_gui_logic_analyzer_display->update_gui_trigger_modes();
+
+                // Keep current highlight on the trigger widget
+                highlight_widget(menu_btn);
+                return;
+              }
+            }
+          }
+        }
+      }
+
       if (is_encoder_switch_pressed && widget)
       {
         if (auto* input = dynamic_cast<Fl_Input*>(widget))
@@ -934,6 +994,92 @@ handle_customizable_macro_key(int key_id)
             }
           }
         }
+        return;
+      }
+    }
+  }
+
+  // --- Logic Analyzer tab override ---
+  if (tab_id == TAB_ID::LOGIC_ANALYZER)
+  {
+    switch (key_id)
+    {
+      case 1: // previous channel trigger
+      case 2: // next channel trigger
+      {
+        auto* display_group = gui().logic_analyzer_fl_group_display;
+        auto* display = gui().logic_analyzer_labsoft_gui_logic_analyzer_display;
+        if (!display_group || !display) return;
+
+        // Collect trigger menu buttons within the Logic Analyzer display
+        std::vector<Fl_Widget*> all_widgets = get_widgets_in_group(static_cast<Fl_Group*>(display));
+        std::vector<Fl_Menu_Button*> trigger_buttons;
+        trigger_buttons.reserve(all_widgets.size());
+        for (auto* w : all_widgets)
+        {
+          if (auto* mb = dynamic_cast<Fl_Menu_Button*>(w))
+          {
+            trigger_buttons.push_back(mb);
+          }
+        }
+
+        if (trigger_buttons.empty()) return;
+
+        static int trigger_focus_index = -1;
+
+        bool already_on_trigger = false;
+        if (current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET && previous_focused_widget)
+        {
+          for (int i = 0; i < static_cast<int>(trigger_buttons.size()); ++i)
+          {
+            if (trigger_buttons[i] == previous_focused_widget)
+            {
+              trigger_focus_index = i;
+              already_on_trigger = true;
+              break;
+            }
+          }
+        }
+
+        if (!already_on_trigger)
+        {
+          clear_widget_focus();
+          clear_group_focus();
+          clear_tab_focus();
+
+          // Keep focus context within the Logic Analyzer display, but do not
+          // highlight the entire group; we only highlight the trigger widget.
+          previous_focused_group = display_group;
+          current_groups_in_tab = { display_group };
+          group_index = 0;
+
+          current_widgets_in_group = all_widgets;
+
+          // Initialize index based on key direction
+          if (key_id == 1) trigger_focus_index = static_cast<int>(trigger_buttons.size()) - 1;
+          else trigger_focus_index = 0;
+        }
+        else
+        {
+          int dir = (key_id == 2) ? +1 : -1;
+          int n = static_cast<int>(trigger_buttons.size());
+          trigger_focus_index = (trigger_focus_index + dir + n) % n;
+        }
+
+        // Map selected trigger button to widget_index within current_widgets_in_group
+        widget_index = -1;
+        for (int i = 0; i < static_cast<int>(current_widgets_in_group.size()); ++i)
+        {
+          if (current_widgets_in_group[i] == trigger_buttons[trigger_focus_index])
+          {
+            widget_index = i;
+            break;
+          }
+        }
+
+        current_focus_level = LABE::SNM::FOCUS_LEVEL::WIDGET;
+        Fl::focus(nullptr);
+        highlight_widget(trigger_buttons[trigger_focus_index]);
         return;
       }
     }
