@@ -332,6 +332,19 @@ validate_spi_data(uint16_t spi_data) noexcept
   return checksum == ((type ^ action ^ value) & 0x0F);
 }
 
+// Treat only checksum-valid words with type in [1..3] as Software Navigation (SNM) events
+static inline bool is_snm_event(uint16_t word) noexcept
+{
+  const uint8_t type = static_cast<uint8_t>((word >> 12) & 0x0F);
+  if ((type & 0x8) != 0) return false; // exclude LOGAN headers
+  // Validate checksum against SNM packet format
+  const uint8_t action   = static_cast<uint8_t>((word >> 8)  & 0x0F);
+  const uint8_t value    = static_cast<uint8_t>((word >> 4)  & 0x0F);
+  const uint8_t checksum = static_cast<uint8_t>( word        & 0x0F);
+  const bool checksum_ok = (checksum == ((type ^ action ^ value) & 0x0F));
+  return checksum_ok && (type >= 0x1 && type <= 0x3);
+}
+
 bool
 LAB_Software_Navigation::
 is_logan_header(uint16_t word) noexcept
@@ -381,10 +394,10 @@ service_once()
   {
     const bool is_logan_hdr = is_logan_header(word0);
     const uint8_t type_nibble = (word0 >> 12) & 0x0F;
-    const bool is_software_nav_type = (type_nibble >= 0x1 && type_nibble <= 0x3);
+    (void)type_nibble;
 
     // While receiving payload, still allow SNM control/event words to be queued
-    if (!is_logan_hdr && is_software_nav_type)
+    if (!is_logan_hdr && is_snm_event(word0))
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
@@ -451,11 +464,8 @@ service_once()
   }
   else
   {
-    // Treat only specific type ranges as Software Navigation control/events (avoid LOGAN payload confusion)
-    const uint8_t type_nibble = (word0 >> 12) & 0x0F;
-    const bool is_software_nav_type = (type_nibble >= 0x1 && type_nibble <= 0x3);
-
-    if (m_read_enabled && !is_logan_header(word0) && is_software_nav_type)
+    // Treat only checksum-valid SNM words as control/events (avoid LOGAN payload confusion)
+    if (m_read_enabled && is_snm_event(word0))
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
