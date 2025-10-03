@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {294 299 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {310 299 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -1700,11 +1700,11 @@ class LABSoft_GUI {open
             }
             Fl_Button logic_analyzer_fl_menu_button_remove_channel {
               label {-}
-              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_clear_channels(o, v);} selected
+              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_clear_channels(o, v);}
               xywh {120 165 60 20} box GTK_UP_BOX color 7 selection_color 229 labelsize 12
             }
           }
-          Fl_Group logic_analyzer_fl_group_horizontal {
+          Fl_Group logic_analyzer_fl_group_horizontal {open
             xywh {940 70 260 130} box ROUNDED_FRAME color 52
           } {
             Fl_Input_Choice logic_analyzer_fl_input_choice_horizontal_offset {
@@ -1998,7 +1998,7 @@ class LABSoft_GUI {open
             }
             Fl_Input_Choice logic_analyzer_fl_input_choice_sampling_rate {
               label {Sampling Rate}
-              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_sampling_rate (o, v);}
+              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_sampling_rate (o, v);} open
               xywh {1080 157 100 25} box FLAT_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 12
               code0 {logic_analyzer_fl_input_choice_sampling_rate->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
               code1 {logic_analyzer_fl_input_choice_sampling_rate->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
@@ -2011,7 +2011,11 @@ class LABSoft_GUI {open
                 xywh {120 120 36 21} labelsize 12
               }
               MenuItem {} {
-                label {50 Hz}
+                label {60 Hz}
+                xywh {110 110 36 21} labelsize 12
+              }
+              MenuItem {} {
+                label {50 Hz} selected
                 xywh {110 110 36 21} labelsize 12
               }
               MenuItem {} {

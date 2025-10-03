@@ -144,21 +144,18 @@ cb_samples (Fl_Input_Choice*  w,
 
   if (lbl.is_valid ())
   {
-    // Dynamic limit based on active channel count
     unsigned active = gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->active_channel_count ();
     if (active == 0) { active = 1; }
 
-    const unsigned max_samples_hw = LABC::LOGAN::MAX_NUMBER_OF_SAMPLES; // 2000
+    const unsigned max_samples_hw = LABC::LOGAN::MAX_NUMBER_OF_SAMPLES;
     unsigned limit = max_samples_hw / active;
 
-    // Allowed discrete menu values (descending order)
     static const unsigned allowed[] = {2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2};
 
     double requested = std::round (lbl.actual_value ());
     unsigned target;
     if (requested > limit)
     {
-      // Snap down to nearest allowed <= limit
       target = allowed[sizeof(allowed)/sizeof(allowed[0]) - 1];
       for (unsigned v : allowed)
       {
@@ -418,17 +415,15 @@ cb_add_channel_signal (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, 
 void LABSoft_Presenter_Logic_Analyzer::
 refresh_samples_menu_limits ()
 {
-  // Determine active channels from display widgets
   unsigned active = gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->active_channel_count ();
   if (active == 0)
   {
-    active = 1; // default to 1 to keep menu usable before any add
+    active = 1;
   }
 
-  const unsigned max_samples_hw = LABC::LOGAN::MAX_NUMBER_OF_SAMPLES; // 2000
-  unsigned limit = max_samples_hw / active; // integer division
+  const unsigned max_samples_hw = LABC::LOGAN::MAX_NUMBER_OF_SAMPLES;
+  unsigned limit = max_samples_hw / active;
 
-  // Allowed discrete menu values (must be descending, match GUI menu)
   static const unsigned allowed[] = {2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2};
 
   // Enable items <= limit, disable items > limit; also clamp current value if needed
@@ -444,7 +439,6 @@ refresh_samples_menu_limits ()
     return;
   }
 
-  // Iterate over menu items until null label
   for (int i = 0; items[i].text != nullptr; i++)
   {
     const char* label = items[i].text;
@@ -459,7 +453,6 @@ refresh_samples_menu_limits ()
     }
   }
 
-  // If current samples value exceeds limit, snap down to nearest allowed <= limit
   unsigned current = lab ().m_Logic_Analyzer.samples ();
   if (current > limit)
   {

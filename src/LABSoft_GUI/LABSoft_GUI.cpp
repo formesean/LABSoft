@@ -795,6 +795,7 @@ void LABSoft_GUI::cb_logic_analyzer_fl_input_choice_sampling_rate(LABSoft_GUI_Fl
 
 Fl_Menu_Item LABSoft_GUI::menu_logic_analyzer_fl_input_choice_sampling_rate[] = {
  {"100 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"60 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"50 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"20 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"10 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
