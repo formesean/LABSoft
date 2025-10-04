@@ -76,7 +76,6 @@ cb_run_stop (Fl_Light_Button* w,
   {
     lab ().m_Logic_Analyzer.stop ();
     lab().m_Software_Navigation.set_tx_logan_stop();
-    lab().m_Software_Navigation.reset_logan_rx_state();
   }
   else
   {

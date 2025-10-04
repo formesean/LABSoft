@@ -276,12 +276,7 @@ set_tx_logan_stop()
     m_tx_buffer[0] = 0x00;
     m_tx_buffer[1] = 0x00;
   }
-}
 
-void
-LAB_Software_Navigation::
-reset_logan_rx_state()
-{
   m_logan_rx_state = LOGAN_RX_STATE::NONE;
   m_logan_expected_samples = 0;
   m_logan_samples_written  = 0;
