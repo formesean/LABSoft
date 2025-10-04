@@ -687,6 +687,7 @@ perform_frequency_domain_analysis()
 
   if (!freq_instructor.empty() && !freq_student.empty())
   {
+    // Existing cross-correlation analysis
     auto result = checker.signal_analysis(freq_instructor, freq_student);
 
     if (gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold)
@@ -695,6 +696,15 @@ perform_frequency_domain_analysis()
       std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
       gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
     }
+    
+    // New magnitude-based error similarity analysis
+    double magnitude_similarity = checker.compute_magnitude_error_similarity(freq_instructor, freq_student);
+    
+    // Print both similarity measures to terminal
+    std::printf("=== FREQUENCY DOMAIN ANALYSIS ===\n");
+    std::printf("Similarity Result (Cross-correlation): %.2f%%\n", result.percentage);
+    std::printf("Similarity Result (MSE): %.2f%%\n", magnitude_similarity);
+    std::printf("==================================\n");
   }
 }
 
@@ -786,6 +796,16 @@ cb_run_checker_acc(Fl_Button* w, void* data)
 
   osc.channel_enable_disable(1, true);
   prepare_student_data();
+
+  // Print student signals to terminal
+  std::printf("<samples>");
+  for (size_t i = 0; i < time_student.size(); ++i)
+  {
+    std::printf("%.6f", time_student[i]);
+    if (i < time_student.size() - 1)
+      std::printf(",");
+  }
+  std::printf("</samples>\n");
 
   LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
   if (!time_student_pixels.empty())

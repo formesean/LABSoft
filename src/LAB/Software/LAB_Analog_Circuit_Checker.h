@@ -44,6 +44,7 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
 
     struct CorrelationResult
     {
+      double lag;
       double coefficient;
       double percentage;
     };
@@ -90,6 +91,9 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     CorrelationResult                 signal_analysis (const std::vector<double> &instructor,
                                                        const std::vector<double> &student);
     std::vector<std::complex<double>> compute_fft     (const std::vector<double> &data);
+  
+    double compute_magnitude_error_similarity(const std::vector<double>& freq_instructor, 
+                                             const std::vector<double>& freq_student);
 
     // Getters
     const std::vector<ChannelData> &get_channel_data            () const { return m_channel_data; }
