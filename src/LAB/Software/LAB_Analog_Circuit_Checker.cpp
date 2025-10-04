@@ -281,26 +281,119 @@ cross_correlation(const std::vector<double> &x,
 {
   CorrelationResult result{0.0, 0.0};
 
-  const size_t N = std::min(x.size(), y.size());
-  if (N == 0) return result;
+  if (x.empty() || y.empty()) return result;
 
-  double numerator = 0.0;
-  double denom_x = 0.0;
-  double denom_y = 0.0;
-
-  for (size_t n = 0; n < N; n++)
+  // Use actual signal length or 2000, whichever is smaller
+  const size_t min_len = std::min(std::min(x.size(), y.size()), static_cast<size_t>(2000));
+  
+  if (min_len == 0) return result;
+  
+  // Calculate means to remove DC components
+  double x_mean = 0.0;
+  double y_mean = 0.0;
+  for (size_t i = 0; i < min_len; i++)
   {
-    const double xv = x[n];
-    const double yv = y[n];
-    numerator += xv * yv;
-    denom_x += xv * xv;
-    denom_y += yv * yv;
+    x_mean += x[i];
+    y_mean += y[i];
   }
-
-  if (denom_x == 0.0 || denom_y == 0.0) return result;
-
-  result.coefficient = numerator / std::sqrt(denom_x * denom_y);
-  result.percentage = result.coefficient * 100.0;
+  x_mean /= min_len;
+  y_mean /= min_len;
+  
+  // Create DC-removed versions of the signals
+  std::vector<double> x_ac(min_len);
+  std::vector<double> y_ac(min_len);
+  for (size_t i = 0; i < min_len; i++)
+  {
+    x_ac[i] = x[i] - x_mean;
+    y_ac[i] = y[i] - y_mean;
+  }
+  
+  // Calculate signal norms for proper normalization (using DC-removed signals)
+  double x_norm = 0.0;
+  double y_norm = 0.0;
+  for (size_t i = 0; i < min_len; i++)
+  {
+    x_norm += x_ac[i] * x_ac[i];
+    y_norm += y_ac[i] * y_ac[i];
+  }
+  x_norm = std::sqrt(x_norm);
+  y_norm = std::sqrt(y_norm);
+  
+  if (x_norm == 0.0 || y_norm == 0.0) return result;
+  
+  // full cross correlation with bidirectional shifting
+  const size_t max_shift = min_len - 1;
+  double method1_max_correlation = -1.0; // Best correlation from Method 1
+  double method2_max_correlation = -1.0; // Best correlation from Method 2
+  
+  // METHOD 1: Shift student signal (y) relative to static teacher signal (x)
+  for (int shift_offset = -static_cast<int>(max_shift); shift_offset <= static_cast<int>(max_shift); shift_offset++)
+  {
+    double correlation = 0.0;
+    size_t valid_samples = 0;
+    
+    // cross correlation calculation - shifting student signal
+    for (size_t i = 0; i < min_len; i++)
+    {
+      const int y_idx = static_cast<int>(i) + shift_offset;
+      
+      if (y_idx >= 0 && y_idx < static_cast<int>(min_len))
+      {
+        correlation += x_ac[i] * y_ac[y_idx];
+        valid_samples++;
+      }
+    }
+    
+    // Normalize the correlation for this shift
+    if (valid_samples > 0)
+    {
+      double normalized_correlation = correlation / (x_norm * y_norm);
+      
+      // Track the maximum normalized correlation for Method 1
+      if (normalized_correlation > method1_max_correlation)
+      {
+        method1_max_correlation = normalized_correlation;
+      }
+    }
+  }
+  
+  // METHOD 2: Shift teacher signal (x) relative to static student signal (y)
+  for (int shift_offset = -static_cast<int>(max_shift); shift_offset <= static_cast<int>(max_shift); shift_offset++)
+  {
+    double correlation = 0.0;
+    size_t valid_samples = 0;
+    
+    // cross correlation calculation - shifting teacher signal
+    for (size_t i = 0; i < min_len; i++)
+    {
+      const int x_idx = static_cast<int>(i) + shift_offset;
+      
+      if (x_idx >= 0 && x_idx < static_cast<int>(min_len))
+      {
+        correlation += x_ac[x_idx] * y_ac[i];
+        valid_samples++;
+      }
+    }
+    
+    // Normalize the correlation for this shift
+    if (valid_samples > 0)
+    {
+      double normalized_correlation = correlation / (x_norm * y_norm);
+      
+      // Track the maximum normalized correlation for Method 2
+      if (normalized_correlation > method2_max_correlation)
+      {
+        method2_max_correlation = normalized_correlation;
+      }
+    }
+  }
+  
+  // Select the BEST correlation from both methods
+  double final_correlation = std::max(method1_max_correlation, method2_max_correlation);
+  
+  result.coefficient = final_correlation;
+  result.percentage = final_correlation * 100;
+  
   return result;
 }
 
@@ -346,6 +439,52 @@ compute_fft(const std::vector<double> &data)
   return data_freq;
 }
 
+double LAB_Analog_Circuit_Checker::
+compute_magnitude_error_similarity(const std::vector<double>& freq_instructor, 
+                                   const std::vector<double>& freq_student)
+{
+  if (freq_instructor.empty() || freq_student.empty()) 
+    return 0.0;
+    
+  // Use the smaller size to avoid out-of-bounds access
+  const size_t min_size = std::min(freq_instructor.size(), freq_student.size());
+  
+  if (min_size == 0) 
+    return 0.0;
+    
+  // Calculate Mean Squared Error (MSE)
+  double mse = 0.0;
+  double sum_instructor_squared = 0.0;
+  
+  for (size_t i = 0; i < min_size; ++i)
+  {
+    double error = freq_instructor[i] - freq_student[i];
+    mse += error * error;
+    sum_instructor_squared += freq_instructor[i] * freq_instructor[i];
+  }
+  
+  mse /= min_size;
+  sum_instructor_squared /= min_size;
+  
+  // Calculate similarity as percentage (100% - normalized error percentage)
+  // Avoid division by zero
+  if (sum_instructor_squared < 1e-12) 
+    return 0.0;
+    
+  double normalized_error = std::sqrt(mse / sum_instructor_squared);
+  double similarity_percentage = std::max(0.0, (1.0 - normalized_error) * 100.0);
+  
+  return similarity_percentage;
+  /*
+  Normalized Error	Similarity %	Meaning
+  0.0	              100%	        Perfect match - signals identical
+  0.1	              90%	          Very similar - small differences
+  0.2	              80%	          Good match - moderate differences
+  0.5	              50%	          Moderately similar - significant differences
+  0.8	              20%	          Poor match - large differences
+  1.0 or higher	    0%	          No similarity - completely different
+  */
+}
 
 LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
 signal_analysis(const std::vector<double> &instructor,
