@@ -16,11 +16,11 @@ class LABSoft_Presenter_Logic_Analyzer : public LABSoft_Presenter_Unit
 {
   private:
     std::thread* m_thread_update_display;
-  
+
   private:
     void init             ();
     void init_gui_values  ();
-    
+
   public:
     LABSoft_Presenter_Logic_Analyzer (LABSoft_Presenter& _LABSoft_Presenter);
 
@@ -33,7 +33,7 @@ class LABSoft_Presenter_Logic_Analyzer : public LABSoft_Presenter_Unit
     void cb_time_per_division     (Fl_Input_Choice* w, void* data);
     void cb_samples               (Fl_Input_Choice* w, void* data);
     void cb_sampling_rate         (Fl_Input_Choice* w, void* data);
-    
+
     // Trigger
     void cb_trigger_mode          (Fl_Choice* w, void* data);
     void cb_trigger_condition     (Fl_Menu_Button* w, void *data);
@@ -46,9 +46,10 @@ class LABSoft_Presenter_Logic_Analyzer : public LABSoft_Presenter_Unit
     void update_gui_horizontal    ();
     void update_gui_mode          ();
 
-    void cb_add_channel_selection (Fl_Menu_* w, void* data);
-    void cb_add_channel_signal    (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, void* data);
-    void cb_clear_channels        (Fl_Menu_* w, void* data);
+    void cb_add_channel_selection     (Fl_Button* o, void* data);
+    void cb_clear_channels            (Fl_Button* o, void* data);
+    void cb_add_channel_signal        (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, void* data);
+    void refresh_samples_menu_limits  ();
 };
 
 #endif

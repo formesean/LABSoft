@@ -299,6 +299,7 @@ struct LAB_Parent_Data_Software_Navigation
   uint8_t SCLK_PIN      = LABC::PIN::SNM::SCLK_PIN;
 
   uint8_t TRANSFER_SIZE = LABC::PIN::SNM::TRANSFER_SIZE;
+  bool    SNM_ATTACHED  = true;
 };
 
 // DMA Data

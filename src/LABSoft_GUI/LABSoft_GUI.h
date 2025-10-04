@@ -20,7 +20,6 @@ class LABSoft_Presenter;
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Output.H>
-#include <FL/Fl_Menu_Button.H>
 #include "LABSoft_GUI_Logic_Analyzer_Display.h"
 #include "LABSoft_GUI_LABChecker_Digital_Output_Table.h"
 #include <FL/Fl_Choice.H>
@@ -281,17 +280,15 @@ private:
   static Fl_Menu_Item menu_logic_analyzer_fl_choice_trigger_mode[];
 public:
   Fl_Group *logic_analyzer_fl_group_add_remove_channels;
-  Fl_Menu_Button *logic_analyzer_fl_menu_button_add_channel;
-  static Fl_Menu_Item menu_logic_analyzer_fl_menu_button_add_channel[];
+  Fl_Button *logic_analyzer_fl_menu_button_add_channel;
 private:
-  inline void cb_Signal_i(Fl_Menu_*, void*);
-  static void cb_Signal(Fl_Menu_*, void*);
+  inline void cb_logic_analyzer_fl_menu_button_add_channel_i(Fl_Button*, void*);
+  static void cb_logic_analyzer_fl_menu_button_add_channel(Fl_Button*, void*);
 public:
-  Fl_Menu_Button *logic_analyzer_fl_menu_button_remove_channel;
-  static Fl_Menu_Item menu_logic_analyzer_fl_menu_button_remove_channel[];
+  Fl_Button *logic_analyzer_fl_menu_button_remove_channel;
 private:
-  inline void cb_Clear_i(Fl_Menu_*, void*);
-  static void cb_Clear(Fl_Menu_*, void*);
+  inline void cb_logic_analyzer_fl_menu_button_remove_channel_i(Fl_Button*, void*);
+  static void cb_logic_analyzer_fl_menu_button_remove_channel(Fl_Button*, void*);
 public:
   Fl_Group *logic_analyzer_fl_group_horizontal;
   LABSoft_GUI_Fl_Input_Choice_With_Scroll *logic_analyzer_fl_input_choice_horizontal_offset;

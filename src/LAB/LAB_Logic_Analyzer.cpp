@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
+#include <cstdio>
 
 #include "LAB.h"
 #include "../Utility/LAB_Utility_Functions.h"
@@ -762,59 +763,56 @@ cache_trigger_condition (unsigned               channel,
 {
   LABE::LOGAN::TRIG::CND prev_cnd = m_parent_data.channel_data[channel].trigger_condition;
 
-  if (condition != prev_cnd)
+  if (condition == prev_cnd)
   {
-    // 1. Delete old condition from trigger cache.
-    if (prev_cnd != LABE::LOGAN::TRIG::CND::IGNORE)
+    return;
+  }
+
+  // 1) Remove channel from both caches to avoid duplicates
+  {
+    std::vector<unsigned>::iterator it = std::find (
+      m_parent_data.trigger_cache_level.begin (),
+      m_parent_data.trigger_cache_level.end (),
+      channel
+    );
+    if (it != m_parent_data.trigger_cache_level.end ())
     {
-      std::vector<unsigned>* vec;
+      m_parent_data.trigger_cache_level.erase (it);
+    }
+  }
+  {
+    std::vector<unsigned>::iterator it = std::find (
+      m_parent_data.trigger_cache_edge.begin (),
+      m_parent_data.trigger_cache_edge.end (),
+      channel
+    );
+    if (it != m_parent_data.trigger_cache_edge.end ())
+    {
+      m_parent_data.trigger_cache_edge.erase (it);
+    }
+  }
 
-      switch (prev_cnd)
-      {
-        case (LABE::LOGAN::TRIG::CND::HIGH):
-        case (LABE::LOGAN::TRIG::CND::LOW):
-        {
-          vec = &m_parent_data.trigger_cache_level;
-          break;
-        }
-
-        case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
-        {
-          vec = &m_parent_data.trigger_cache_edge;
-          break;
-        }
-
-        std::vector<unsigned>::iterator it = std::find (vec->begin (), vec->end (), channel);
-
-        if (it != vec->end ())
-        {
-          vec->erase (it);
-        }
-      }
+  // 2) Add channel to the appropriate cache for the NEW condition
+  switch (condition)
+  {
+    case (LABE::LOGAN::TRIG::CND::HIGH):
+    case (LABE::LOGAN::TRIG::CND::LOW):
+    {
+      m_parent_data.trigger_cache_level.emplace_back (channel);
+      break;
     }
 
-    // 2. Add new condition to trigger cache.
-    if (condition != LABE::LOGAN::TRIG::CND::IGNORE)
+    case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
+    case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
+    case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
     {
-      switch (prev_cnd)
-      {
-        case (LABE::LOGAN::TRIG::CND::HIGH):
-        case (LABE::LOGAN::TRIG::CND::LOW):
-        {
-          m_parent_data.trigger_cache_level.emplace_back (channel);
-          break;
-        }
+      m_parent_data.trigger_cache_edge.emplace_back (channel);
+      break;
+    }
 
-        case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
-        case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
-        {
-          m_parent_data.trigger_cache_level.emplace_back (channel);
-          break;
-        }
-      }
+    case (LABE::LOGAN::TRIG::CND::IGNORE):
+    {
+      break;
     }
   }
 }
@@ -879,6 +877,19 @@ update_data_samples ()
 {
   if (is_running ())
   {
+    // Prefer externally streamed LOGAN blocks when available
+    if (m_parent_data.trigger_frame_ready)
+    {
+      parse_raw_sample_buffer ();
+      m_parent_data.trigger_frame_ready = false;
+      if (m_parent_data.single)
+      {
+        m_parent_data.single = false;
+        stop ();
+      }
+      return;
+    }
+
     switch (m_parent_data.trigger_mode)
     {
       case (LABE::LOGAN::TRIG::MODE::NONE):
@@ -1051,7 +1062,23 @@ time_per_division () const
 void LAB_Logic_Analyzer::
 samples (unsigned value)
 {
+  // Guard against out-of-range values
+  if (!LABF::is_within_range(
+        static_cast<double>(value),
+        static_cast<double>(LABC::LOGAN::MIN_SAMPLES),
+        static_cast<double>(LABC::LOGAN::MAX_SAMPLES),
+        LABC::LABSOFT::EPSILON))
+  {
+    return;
+  }
 
+  // Update cached sample count and DMA transfer lengths
+  set_samples (value);
+
+  // Keep horizontal timing consistent with the new sample count
+  set_time_per_division (
+    calc_time_per_division (value, m_parent_data.sampling_rate)
+  );
 }
 
 unsigned LAB_Logic_Analyzer::
@@ -1066,6 +1093,25 @@ sampling_rate (double value)
   if (LABF::is_within_range (value, LABC::LOGAN::MIN_SAMPLING_RATE,
     LABC::LOGAN::MAX_SAMPLING_RATE, LABC::LABSOFT::EPSILON))
   {
+    const unsigned min_samples = LABC::LOGAN::MIN_SAMPLES;
+    const unsigned max_samples = LABC::LOGAN::MAX_SAMPLES;
+    const double   target_window_seconds = 5.0;
+
+    unsigned recommended_samples = static_cast<unsigned>(value * target_window_seconds);
+
+    if (recommended_samples < min_samples)
+    {
+      recommended_samples = min_samples;
+    }
+    else if (recommended_samples > max_samples)
+    {
+      recommended_samples = max_samples;
+    }
+
+    if (recommended_samples != m_parent_data.samples)
+    {set_samples (recommended_samples);
+    }
+
     set_time_per_division (m_parent_data.samples, value);
     set_sampling_rate     (value);
   }
@@ -1095,20 +1141,39 @@ trigger_mode (LABE::LOGAN::TRIG::MODE value)
 void LAB_Logic_Analyzer::
 trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
 {
-  // 1. Delete the old trigger condition of the channel and cache the new one.
+  // Enforce single active trigger channel: if setting a non-IGNORE condition
+  // on this channel, clear all other channels to IGNORE first.
+  if (condition != LABE::LOGAN::TRIG::CND::IGNORE)
+  {
+    for (unsigned c = 0; c < m_parent_data.channel_data.size (); c++)
+    {
+      if (c == channel)
+      {
+        continue;
+      }
+
+      if (m_parent_data.channel_data[c].trigger_condition != LABE::LOGAN::TRIG::CND::IGNORE)
+      {
+        // Update caches and stored state
+        cache_trigger_condition (c, LABE::LOGAN::TRIG::CND::IGNORE);
+        m_parent_data.channel_data[c].trigger_condition = LABE::LOGAN::TRIG::CND::IGNORE;
+
+        // Clear GPIO event detects for that channel
+        unsigned other_gpio_pin = LABC::PIN::LOGAN[c];
+        m_LAB.rpi ().gpio.clear_all_event_detect (other_gpio_pin);
+      }
+    }
+  }
+
+  // 1. Update caches for this channel
   cache_trigger_condition (channel, condition);
 
-  // 2. Store the channel's new trigger condition to channel_data.
+  // 2. Store the channel's new trigger condition
   m_parent_data.channel_data[channel].trigger_condition = condition;
 
-  // 3. Get the BCM GPIO pin of the channel.
+  // 3. Clear and set GPIO event detect for this channel
   unsigned gpio_pin = LABC::PIN::LOGAN[channel];
-
-  // 4. Clear all event detect conditions of the GPIO pin.
-  //    In LAB, a pin/channel should only have one trigger condition.
   m_LAB.rpi ().gpio.clear_all_event_detect (gpio_pin);
-
-  // 5. Set the trigger condition of the pin/channel.
   set_trigger_condition (gpio_pin, condition);
 }
 

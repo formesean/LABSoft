@@ -7,6 +7,13 @@
 #include "../LABSoft_GUI/LABSoft_GUI.h"
 // #include "../Utility/LAB_Constants.h"
 
+static void labsoft_nav_tick_timer(void* data)
+{
+  auto* self = static_cast<LABSoft_Presenter*>(data);
+  self->lab().m_Software_Navigation.tick();
+  Fl::repeat_timeout(0.002, labsoft_nav_tick_timer, data);
+}
+
 LABSoft_Presenter::
 LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
   : m_LAB                     (_LAB),
@@ -30,6 +37,16 @@ LABSoft_Presenter (LAB& _LAB, LABSoft_GUI& _LABSoft_GUI)
   load_presenter_to_gui ();
 
   Fl::add_timeout (LABC::LABSOFT::DISPLAY_UPDATE_RATE, update_display, this);
+
+  Fl::add_timeout(0.002, labsoft_nav_tick_timer, this);
+
+  if (lab().m_Software_Navigation.is_snm_config_enabled())
+  {
+    Fl::add_timeout(0.0, [](void* data){
+      auto* self = static_cast<LABSoft_Presenter*>(data);
+      self->lab().m_Software_Navigation.set_snm_attached(true);
+    }, this);
+  }
 }
 
 void LABSoft_Presenter::

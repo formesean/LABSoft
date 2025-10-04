@@ -1,5 +1,6 @@
 #include "LAB_Software_Navigation.h"
 #include "LAB.h"
+#include <cstdio>
 
 LAB_Software_Navigation::
 LAB_Software_Navigation(LAB &lab)
@@ -11,6 +12,7 @@ LAB_Software_Navigation(LAB &lab)
 LAB_Software_Navigation::
 ~LAB_Software_Navigation()
 {
+  announce_program_stopping();
   rpi().aux.spi(0).disable();
 }
 
@@ -34,36 +36,277 @@ std::array<uint8_t, 3>
 LAB_Software_Navigation::
 update_spi_data()
 {
-  spi_transfer();
-
-  const uint16_t spi_data = (static_cast<uint16_t>(m_rx_buffer[0]) << 8) |
-                             static_cast<uint16_t>(m_rx_buffer[1]);
-
-  if (spi_data == 0x0000 || spi_data == 0xFFFF)
-    return {0, 0, 0};
-
-  if (!validate_spi_data(spi_data))
-    return {0, 0, 0};
-
-  const uint8_t type   = (spi_data >> 12) & 0x0F;
-  const uint8_t action = (spi_data >> 8)  & 0x0F;
-  const uint8_t value  = (spi_data >> 4)  & 0x0F;
-
-  return { type, action, value};
+  std::array<uint8_t, 3> result = {0, 0, 0};
+  try_dequeue(result);
+  return result;
 }
 
 void
 LAB_Software_Navigation::
-spi_transfer()
+tick()
 {
+  service_once();
+}
+
+void
+LAB_Software_Navigation::
+set_tx_logan_config(unsigned samples, double sampling_rate)
+{
+  uint8_t samples_nibble = 0;
+  if (samples >= 2000) samples_nibble = 0xA;
+  else if (samples >= 1000) samples_nibble = 0x9;
+  else if (samples >= 500) samples_nibble = 0x8;
+  else if (samples >= 200) samples_nibble = 0x7;
+  else if (samples >= 100) samples_nibble = 0x6;
+  else if (samples >= 50) samples_nibble = 0x5;
+  else if (samples >= 20) samples_nibble = 0x4;
+  else if (samples >= 10) samples_nibble = 0x3;
+  else if (samples >= 5)  samples_nibble = 0x2;
+  else if (samples >= 2)  samples_nibble = 0x1;
+  else                    samples_nibble = 0x0;
+
+  uint8_t rate_nibble = 0;
+  if (sampling_rate >= 100) rate_nibble = 0x8;
+  else if (sampling_rate >= 60)  rate_nibble = 0x7;
+  else if (sampling_rate >= 50)  rate_nibble = 0x6;
+  else if (sampling_rate >= 20)  rate_nibble = 0x5;
+  else if (sampling_rate >= 10)  rate_nibble = 0x4;
+  else if (sampling_rate >= 5)   rate_nibble = 0x3;
+  else if (sampling_rate >= 2)   rate_nibble = 0x2;
+  else if (sampling_rate >= 1)   rate_nibble = 0x1;
+  else                           rate_nibble = 0x0;
+
+  // Determine single active trigger channel (1..4) and trigger mode nibble
+  auto enc_trig_cnd = [](LABE::LOGAN::TRIG::CND c) -> uint8_t {
+    switch (c)
+    {
+      case LABE::LOGAN::TRIG::CND::IGNORE:       return 0x0;
+      case LABE::LOGAN::TRIG::CND::LOW:          return 0x1;
+      case LABE::LOGAN::TRIG::CND::HIGH:         return 0x2;
+      case LABE::LOGAN::TRIG::CND::RISING_EDGE:  return 0x3;
+      case LABE::LOGAN::TRIG::CND::FALLING_EDGE: return 0x4;
+      case LABE::LOGAN::TRIG::CND::EITHER_EDGE:  return 0x5;
+      default:                                   return 0x0;
+    }
+  };
+
+  uint8_t trig_chan_nibble = 0x0;
+  uint8_t trig_mode_nibble = 0x0;
+  {
+    const auto &pdata = lab().m_Logic_Analyzer.parent_data();
+    for (unsigned i = 0; i < LABC::LOGAN::NUMBER_OF_CHANNELS; ++i)
+    {
+      const auto cnd = pdata.channel_data[i].trigger_condition;
+      if (cnd != LABE::LOGAN::TRIG::CND::IGNORE)
+      {
+        trig_chan_nibble = static_cast<uint8_t>((i + 1) & 0x07); // 1..4
+        trig_mode_nibble = enc_trig_cnd(cnd) & 0x0F;
+        break; // only one channel can have a trigger
+      }
+    }
+  }
+
+  // [15:12] type nibble with MSB=1 and low 3 bits = trigger channel (0..4)
+  // [11:8]  trigger mode nibble
+  // [7:4]   samples nibble
+  // [3:0]   rate nibble
+  const uint8_t type_nibble = static_cast<uint8_t>(0x8 | (trig_chan_nibble & 0x07));
+  const uint8_t b0 = static_cast<uint8_t>((type_nibble << 4) | (trig_mode_nibble & 0x0F));
+  const uint8_t b1 = static_cast<uint8_t>(((samples_nibble & 0x0F) << 4) | (rate_nibble & 0x0F));
+
+  bool expected = false;
+  if (m_logan_start_sent.compare_exchange_strong(expected, true))
+  {
+    send_immediate_tx_blocking(b0, b1);
+
+    m_logan_stop_sent.store(false);
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = 0x00;
+    m_tx_buffer[1] = 0x00;
+  }
+}
+
+void
+LAB_Software_Navigation::
+publish_completed_logan_block()
+{
+  if (m_logan_frame_expected_samples > 0)
+  {
+    auto &pdata = lab().m_Logic_Analyzer.parent_data();
+    pdata.samples = m_logan_frame_expected_samples;
+    pdata.trigger_frame_ready = true;
+    m_logan_expected_samples = 0;
+    m_logan_samples_written  = 0;
+    m_logan_words_remaining  = 0;
+    m_logan_checksum_accum   = 0;
+    m_logan_frame_expected_samples = 0;
+  }
+}
+
+void
+LAB_Software_Navigation::
+set_tx_logan_triggers()
+{
+  auto enc = [](LABE::LOGAN::TRIG::CND c) -> uint8_t {
+    switch (c)
+    {
+      case LABE::LOGAN::TRIG::CND::IGNORE:          return 0x0;
+      case LABE::LOGAN::TRIG::CND::LOW:             return 0x1;
+      case LABE::LOGAN::TRIG::CND::HIGH:            return 0x2;
+      case LABE::LOGAN::TRIG::CND::RISING_EDGE:     return 0x3;
+      case LABE::LOGAN::TRIG::CND::FALLING_EDGE:    return 0x4;
+      case LABE::LOGAN::TRIG::CND::EITHER_EDGE:     return 0x5;
+      default:                                      return 0x0;
+    }
+  };
+
+  const auto &pdata = lab().m_Logic_Analyzer.parent_data();
+
+  uint8_t m1 = 0, m2 = 0, m3 = 0, m4 = 0;
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 0) m1 = enc(pdata.channel_data[0].trigger_condition);
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 1) m2 = enc(pdata.channel_data[1].trigger_condition);
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 2) m3 = enc(pdata.channel_data[2].trigger_condition);
+  if (LABC::LOGAN::NUMBER_OF_CHANNELS > 3) m4 = enc(pdata.channel_data[3].trigger_condition);
+
+  const uint16_t payload =
+      (static_cast<uint16_t>(m4) << 12) |
+      (static_cast<uint16_t>(m3) <<  8) |
+      (static_cast<uint16_t>(m2) <<  4) |
+      (static_cast<uint16_t>(m1) <<  0);
+
+  std::lock_guard<std::mutex> lock(m_tx_mutex);
+  m_tx_buffer[0] = static_cast<uint8_t>((payload >> 8) & 0xFF);
+  m_tx_buffer[1] = static_cast<uint8_t>(payload & 0xFF);
+}
+
+void
+LAB_Software_Navigation::
+set_tx_header(uint8_t type, uint8_t action, uint8_t value)
+{
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | action);
+  const uint8_t b1 = static_cast<uint8_t>((value << 4) | checksum);
+  std::lock_guard<std::mutex> lock(m_tx_mutex);
+  m_tx_buffer[0] = b0;
+  m_tx_buffer[1] = b1;
+}
+
+void
+LAB_Software_Navigation::
+send_immediate_tx_blocking(uint8_t b0, uint8_t b1)
+{
+  uint8_t rx[2] = {0};
+  const uint8_t tx[2] = {b0, b1};
+  spi_transfer(rx, tx, 2);
+}
+
+void
+LAB_Software_Navigation::
+set_snm_attached(bool attached)
+{
+  m_snm_attached = attached;
+  if (attached)
+  {
+    announce_snm_attached();
+  }
+}
+
+void
+LAB_Software_Navigation::
+announce_snm_attached()
+{
+  // type=0xA, action=0x1 means "ANNOUNCE", value=0x1 means "SNM attached"
+  constexpr uint8_t type = 0xA;
+  constexpr uint8_t action = 0x1;
+  constexpr uint8_t value = 0x1;
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | action);
+  const uint8_t b1 = static_cast<uint8_t>((value << 4) | checksum);
+
+  {
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = b0;
+    m_tx_buffer[1] = b1;
+  }
+
+  send_immediate_tx_blocking(b0, b1);
+}
+
+void
+LAB_Software_Navigation::
+announce_program_stopping()
+{
+  // type=0xA, action=0x1 means "ANNOUNCE", value=0x0 means "program stopping"
+  constexpr uint8_t type = 0xA;
+  constexpr uint8_t action = 0x1;
+  constexpr uint8_t value = 0x0;
+  const uint8_t checksum = (type ^ action ^ value) & 0x0F;
+  const uint8_t b0 = static_cast<uint8_t>((type << 4) | action);
+  const uint8_t b1 = static_cast<uint8_t>((value << 4) | checksum);
+
+  bool expected = false;
+  if (m_stop_sent.compare_exchange_strong(expected, true))
+  {
+    m_read_enabled = false;
+
+    {
+      std::lock_guard<std::mutex> lock(m_tx_mutex);
+      m_tx_buffer[0] = b0;
+      m_tx_buffer[1] = b1;
+    }
+
+    send_immediate_tx_blocking(b0, b1);
+  }
+}
+
+void
+LAB_Software_Navigation::
+set_tx_logan_stop()
+{
+  constexpr uint8_t b0 = static_cast<uint8_t>((0x8 << 4) | 0x0);
+  constexpr uint8_t b1 = static_cast<uint8_t>((0x0 << 4) | 0x0);
+
+  bool expected = false;
+  if (m_logan_stop_sent.compare_exchange_strong(expected, true))
+  {
+    send_immediate_tx_blocking(b0, b1);
+
+    m_logan_start_sent.store(false);
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    m_tx_buffer[0] = 0x00;
+    m_tx_buffer[1] = 0x00;
+  }
+
+  m_logan_rx_state = LOGAN_RX_STATE::NONE;
+  m_logan_expected_samples = 0;
+  m_logan_samples_written  = 0;
+  m_logan_words_remaining  = 0;
+  m_logan_checksum_accum   = 0;
+  m_logan_frame_expected_samples = 0;
+  m_logan_current_channel = 0;
+  m_logan_channels_received_mask = 0;
+}
+
+bool
+LAB_Software_Navigation::
+is_snm_config_enabled() const
+{
+  return m_parent_data.SNM_ATTACHED;
+}
+
+void
+LAB_Software_Navigation::
+spi_transfer(uint8_t* rx, const uint8_t* tx, unsigned n)
+{
+  if (n == 0) return;
+  std::lock_guard<std::mutex> spi_lock(m_spi_mutex);
+  rpi().aux.spi(0).clear_fifos();
   rpi().gpio.write(m_parent_data.CS_PIN, false);
-
   rpi().aux.spi(0).xfer(
-    reinterpret_cast<char *>(m_rx_buffer.data()),
-    reinterpret_cast<char *>(m_tx_buffer.data()),
-    m_parent_data.TRANSFER_SIZE
+    reinterpret_cast<char *>(rx),
+    reinterpret_cast<char *>(const_cast<uint8_t*>(tx)),
+    n
   );
-
   rpi().gpio.write(m_parent_data.CS_PIN, true);
 }
 
@@ -77,6 +320,265 @@ validate_spi_data(uint16_t spi_data) noexcept
   const uint8_t checksum =  spi_data        & 0x0F;
 
   return checksum == ((type ^ action ^ value) & 0x0F);
+}
+
+static inline bool is_snm_event(uint16_t word) noexcept
+{
+  const uint8_t type = static_cast<uint8_t>((word >> 12) & 0x0F);
+  if ((type & 0x8) != 0) return false;
+
+  const uint8_t action   = static_cast<uint8_t>((word >> 8)  & 0x0F);
+  const uint8_t value    = static_cast<uint8_t>((word >> 4)  & 0x0F);
+  const uint8_t checksum = static_cast<uint8_t>( word        & 0x0F);
+  const bool checksum_ok = (checksum == ((type ^ action ^ value) & 0x0F));
+  return checksum_ok && ((type >= 0x1 && type <= 0x3) || type == 0xA);
+}
+
+bool
+LAB_Software_Navigation::
+is_logan_header(uint16_t word) noexcept
+{
+  const uint8_t type = (word >> 12) & 0x0F;
+  return (type & 0x8) != 0;
+}
+
+void
+LAB_Software_Navigation::
+service_once()
+{
+  const unsigned transfer_size = m_parent_data.TRANSFER_SIZE;
+  if (!m_read_enabled) return;
+
+  uint8_t rx_buffer_static[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
+  uint8_t tx_buffer_static[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
+
+  {
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+    tx_buffer_static[0] = m_tx_buffer[0];
+    tx_buffer_static[1] = m_tx_buffer[1];
+  }
+
+  spi_transfer(rx_buffer_static, tx_buffer_static, transfer_size);
+  if (!m_read_enabled) return;
+
+  const uint16_t word0 = (static_cast<uint16_t>(rx_buffer_static[0]) << 8) | rx_buffer_static[1];
+  if (m_logan_rx_state == LOGAN_RX_STATE::EXPECT_PAYLOAD)
+  {
+    const bool is_logan_hdr = is_logan_header(word0);
+    const uint8_t type_nibble = static_cast<uint8_t>((word0 >> 12) & 0x0F);
+
+    if (!is_logan_hdr && is_snm_event(word0))
+    {
+      const uint8_t type   = (word0 >> 12) & 0x0F;
+      const uint8_t action = (word0 >> 8)  & 0x0F;
+      const uint8_t value  = (word0 >> 4)  & 0x0F;
+      {
+        std::lock_guard<std::mutex> lock(m_queue_mutex);
+        if (m_queue.size() < MAX_QUEUE)
+        {
+          m_queue.push({type, action, value});
+        }
+      }
+    }
+    else
+    {
+      if (lab().m_Logic_Analyzer.is_running())
+      {
+        if (m_logan_words_remaining > 0)
+        {
+          auto &pdata = lab().m_Logic_Analyzer.parent_data();
+          for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
+          {
+            const uint8_t nibble = static_cast<uint8_t>((word0 >> (i * 4)) & 0x0F);
+            const unsigned sample_index = m_logan_samples_written++;
+            if (sample_index < pdata.raw_data_buffer.size())
+            {
+              unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
+                                      ? (m_logan_current_channel - 1)
+                                      : 0u;
+              const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
+
+              pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
+              pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
+            }
+          }
+          m_logan_checksum_accum ^= word0;
+          if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+
+          if (m_logan_words_remaining == 0)
+          {
+
+          }
+        }
+        else
+        {
+          if (m_logan_current_channel >= 1 && m_logan_current_channel <= 4)
+          {
+            m_logan_channels_received_mask |= static_cast<uint8_t>(1u << (m_logan_current_channel - 1));
+          }
+
+          if ((m_logan_channels_received_mask & 0x0F) == 0x0F)
+          {
+            m_logan_rx_state = LOGAN_RX_STATE::NONE;
+            publish_completed_logan_block();
+            m_logan_channels_received_mask = 0;
+            m_logan_current_channel = 0;
+            m_logan_frame_expected_samples = 0;
+          }
+          else
+          {
+            m_logan_rx_state = LOGAN_RX_STATE::NONE;
+          }
+        }
+      }
+      else
+      {
+        m_logan_rx_state = LOGAN_RX_STATE::NONE;
+        m_logan_channels_received_mask = 0;
+        m_logan_current_channel = 0;
+        m_logan_frame_expected_samples = 0;
+      }
+    }
+  }
+  else
+  {
+    if (m_read_enabled && is_snm_event(word0))
+    {
+      const uint8_t type   = (word0 >> 12) & 0x0F;
+      const uint8_t action = (word0 >> 8)  & 0x0F;
+      const uint8_t value  = (word0 >> 4)  & 0x0F;
+
+      {
+        std::lock_guard<std::mutex> lock(m_queue_mutex);
+        if (m_queue.size() < MAX_QUEUE)
+        {
+          m_queue.push({type, action, value});
+        }
+      }
+    }
+    else if (is_logan_header(word0))
+    {
+      m_logan_rx_state = LOGAN_RX_STATE::EXPECT_PAYLOAD;
+
+      const uint8_t type_nibble_hdr = static_cast<uint8_t>((word0 >> 12) & 0x0F);
+      const uint8_t trig_mode_nibble = static_cast<uint8_t>((word0 >> 8) & 0x0F);
+      const uint8_t samples_nibble = static_cast<uint8_t>((word0 >> 4) & 0x0F);
+      const uint8_t rate_nibble    = static_cast<uint8_t>((word0 >> 0) & 0x0F);
+      (void)trig_mode_nibble;
+
+      const uint8_t chan_num = static_cast<uint8_t>(type_nibble_hdr & 0x07);
+      if (chan_num >= 1 && chan_num <= 4)
+      {
+        m_logan_current_channel = chan_num;
+      }
+      else
+      {
+        m_logan_current_channel = 1;
+      }
+      auto map_samples = [](uint8_t n) -> unsigned {
+        switch (n & 0x0F)
+        {
+          case 0xA: return 2000;
+          case 0x9: return 1000;
+          case 0x8: return 500;
+          case 0x7: return 200;
+          case 0x6: return 100;
+          case 0x5: return 50;
+          case 0x4: return 20;
+          case 0x3: return 10;
+          case 0x2: return 5;
+          case 0x1: return 2;
+          default:  return 500;
+        }
+      };
+      const unsigned samples_for_channel = map_samples(samples_nibble);
+
+      if (m_logan_channels_received_mask == 0)
+      {
+        m_logan_frame_expected_samples = samples_for_channel;
+
+        auto &pdata = lab().m_Logic_Analyzer.parent_data();
+        const size_t to_clear = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pdata.raw_data_buffer.size());
+        for (size_t i = 0; i < to_clear; ++i) pdata.raw_data_buffer[i] = 0u;
+      }
+      m_logan_expected_samples = samples_for_channel;
+      m_logan_samples_written  = 0;
+      m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
+      m_logan_checksum_accum   = 0;
+
+      if (transfer_size >= 4)
+      {
+        const uint16_t payload = (static_cast<uint16_t>(rx_buffer_static[2]) << 8) | rx_buffer_static[3];
+
+        if (m_logan_words_remaining > 0)
+        {
+          auto &pdata = lab().m_Logic_Analyzer.parent_data();
+          for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
+          {
+            const uint8_t nibble = static_cast<uint8_t>((payload >> (i * 4)) & 0x0F);
+            const unsigned sample_index = m_logan_samples_written++;
+            if (sample_index < pdata.raw_data_buffer.size())
+            {
+              unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
+                                      ? (m_logan_current_channel - 1)
+                                      : 0u;
+              const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
+              // Only update this channel bit
+              pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
+              pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
+            }
+          }
+          m_logan_checksum_accum ^= payload;
+          if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+        }
+      }
+      if (transfer_size >= 6)
+      {
+        const uint16_t csum = (static_cast<uint16_t>(rx_buffer_static[4]) << 8) | rx_buffer_static[5];
+
+        if (m_logan_current_channel >= 1 && m_logan_current_channel <= 4)
+        {
+          m_logan_channels_received_mask |= static_cast<uint8_t>(1u << (m_logan_current_channel - 1));
+        }
+        if ((m_logan_channels_received_mask & 0x0F) == 0x0F)
+        {
+          m_logan_rx_state = LOGAN_RX_STATE::NONE;
+          publish_completed_logan_block();
+          m_logan_channels_received_mask = 0;
+          m_logan_current_channel = 0;
+          m_logan_frame_expected_samples = 0;
+        }
+        else
+        {
+          m_logan_rx_state = LOGAN_RX_STATE::NONE;
+        }
+      }
+    }
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(m_tx_mutex);
+
+    if (tx_buffer_static[0] != 0x00 || tx_buffer_static[1] != 0x00)
+    {
+      m_tx_buffer[0] = 0x00;
+      m_tx_buffer[1] = 0x00;
+    }
+  }
+}
+
+bool
+LAB_Software_Navigation::
+try_dequeue(std::array<uint8_t, 3>& out)
+{
+  std::lock_guard<std::mutex> lock(m_queue_mutex);
+  if (!m_queue.empty())
+  {
+    out = m_queue.front();
+    m_queue.pop();
+    return true;
+  }
+  return false;
 }
 
 // EOF

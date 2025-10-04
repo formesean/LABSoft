@@ -1,6 +1,7 @@
 #include "LABSoft_Presenter_Logic_Analyzer.h"
 
 #include <cmath>
+#include <cstdlib>
 
 #include "../LAB/LAB.h"
 #include "LABSoft_Presenter.h"
@@ -9,22 +10,27 @@
 #include "../Utility/LABSoft_GUI_Label.h"
 #include "../Utility/LABSoft_GUI_Label_Values.h"
 
-LABSoft_Presenter_Logic_Analyzer:: 
+LABSoft_Presenter_Logic_Analyzer::
 LABSoft_Presenter_Logic_Analyzer (LABSoft_Presenter& _LABSoft_Presenter)
   : LABSoft_Presenter_Unit (_LABSoft_Presenter)
 {
   init ();
   init_gui_values ();
+  refresh_samples_menu_limits ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 init ()
 {
   gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
     load_parent_data (lab ().m_Logic_Analyzer.parent_data ());
+
+  // Sync trigger labels with current trigger conditions
+  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
+    update_gui_trigger_modes ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 init_gui_values ()
 {
   LAB_Logic_Analyzer& logan = lab ().m_Logic_Analyzer;
@@ -58,23 +64,35 @@ init_gui_values ()
   {
     gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->add_channel (chan);
   }
+
+  refresh_samples_menu_limits ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_run_stop (Fl_Light_Button* w,
              void*            data)
 {
   if (w->value () == 0)
   {
     lab ().m_Logic_Analyzer.stop ();
+    lab().m_Software_Navigation.set_tx_logan_stop();
   }
-  else 
+  else
   {
+    // lab().m_Software_Navigation.set_tx_logan_triggers ();
+
+    lab().m_Software_Navigation.set_tx_logan_config(
+      lab().m_Logic_Analyzer.samples(),
+      lab().m_Logic_Analyzer.sampling_rate()
+    );
+
+    (void) lab ().m_Software_Navigation.update_spi_data ();
+
     lab ().m_Logic_Analyzer.run ();
   }
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_single (Fl_Button* w,
            void*      data)
 {
@@ -83,7 +101,7 @@ cb_single (Fl_Button* w,
   lab ().m_Logic_Analyzer.single ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_horizontal_offset (Fl_Input_Choice *w,
                       void            *data)
 {
@@ -98,7 +116,7 @@ cb_horizontal_offset (Fl_Input_Choice *w,
   update_gui_horizontal ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_time_per_division (Fl_Input_Choice *w,
                       void            *data)
 {
@@ -113,25 +131,54 @@ cb_time_per_division (Fl_Input_Choice *w,
   update_gui_horizontal ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_samples (Fl_Input_Choice*  w,
             void*             data)
 {
   LABSoft_GUI_Label lbl (
-    w->value (), 
-    lab ().m_Logic_Analyzer.samples (),
+    w->value (),
+    0.0,
     LABSoft_GUI_Label::UNIT::NONE
   );
 
   if (lbl.is_valid ())
   {
-    lab ().m_Logic_Analyzer.samples (std::round (lbl.actual_value ()));
+    unsigned active = gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->active_channel_count ();
+    if (active == 0) { active = 1; }
+
+    const unsigned max_samples_hw = LABC::LOGAN::MAX_NUMBER_OF_SAMPLES;
+    unsigned limit = max_samples_hw / active;
+
+    static const unsigned allowed[] = {2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2};
+
+    double requested = std::round (lbl.actual_value ());
+    unsigned target;
+    if (requested > limit)
+    {
+      target = allowed[sizeof(allowed)/sizeof(allowed[0]) - 1];
+      for (unsigned v : allowed)
+      {
+        if (v <= limit)
+        {
+          target = v; break;
+        }
+      }
+    }
+    else
+    {
+      target = static_cast<unsigned>(requested);
+    }
+
+    lab ().m_Logic_Analyzer.samples (target);
+    gui ().logic_analyzer_fl_input_choice_samples->value (
+      LABSoft_GUI_Label (target).to_text (LABSoft_GUI_Label::UNIT::NONE).c_str ()
+    );
   }
 
   update_gui_horizontal ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_sampling_rate (Fl_Input_Choice*  w,
                   void*             data)
 {
@@ -140,7 +187,7 @@ cb_sampling_rate (Fl_Input_Choice*  w,
     lab ().m_Logic_Analyzer.sampling_rate (),
     LABSoft_GUI_Label::UNIT::HERTZ
   );
-  
+
   if (lbl.is_valid ())
   {
     lab ().m_Logic_Analyzer.sampling_rate (lbl.actual_value ());
@@ -149,30 +196,34 @@ cb_sampling_rate (Fl_Input_Choice*  w,
   update_gui_horizontal ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
-cb_trigger_mode (Fl_Choice* w, 
+void LABSoft_Presenter_Logic_Analyzer::
+cb_trigger_mode (Fl_Choice* w,
                  void*      data)
 {
   std::string choice (w->text ());
 
-  lab ().m_Logic_Analyzer.trigger_mode 
+  lab ().m_Logic_Analyzer.trigger_mode
     (LABS_GUI_VALUES::LOGAN::TRIG_MODE_s[choice]);
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_trigger_condition (Fl_Menu_Button* w,
                       void*           data)
 {
   ChanWidget* chan    = static_cast<ChanWidget*>(data);
   unsigned    channel = chan->channel ();
 
-  LABE::LOGAN::TRIG::CND trig_cnd = 
+  LABE::LOGAN::TRIG::CND trig_cnd =
     LABS_GUI_VALUES::LOGAN_DISPLAY::TRIG_CND_s.at (std::string (w->text ()));
 
   lab ().m_Logic_Analyzer.trigger_condition (channel, trig_cnd);
+  lab ().m_Software_Navigation.set_tx_logan_triggers ();
+
+  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
+    update_gui_trigger_modes ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 cb_mode (Fl_Choice  *w,
                  void       *data)
 {
@@ -192,7 +243,7 @@ cb_mode (Fl_Choice  *w,
   {
     mode = LABE::LOGAN::MODE::RECORD;
   }
-  else 
+  else
   {
     throw (std::runtime_error ("Invalid display mode input."));
   }
@@ -214,7 +265,7 @@ display_update_cycle ()
   }
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
+void LABSoft_Presenter_Logic_Analyzer::
 update_gui_horizontal ()
 {
   LABSoft_GUI_Label horizontal_offset  (lab ().m_Logic_Analyzer.horizontal_offset ());
@@ -266,7 +317,7 @@ update_gui_mode ()
     gui ().logic_analyzer_fl_button_record->show ();
     gui ().logic_analyzer_fl_button_record_config->show ();
   }
-  else 
+  else
   {
     gui ().logic_analyzer_fl_light_button_run_stop->show ();
     gui ().logic_analyzer_fl_button_single->show ();
@@ -275,19 +326,42 @@ update_gui_mode ()
 
     update_gui_horizontal ();
 
-    gui ().logic_analyzer_labsoft_gui_logic_analyzer_display-> 
+    gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
       update_gui_time_per_division ();
-    
+
     // gui ().logic_analyzer_labsoft_logic_analyzer_display_group_display->
     //   update_gui_upper_left_info ();
   }
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
-cb_add_channel_selection (Fl_Menu_* w, void* data)
-{
-  gui ().logic_analyzer_labsoft_gui_logic_analyzer_add_channel_signal_window
-    ->show_as_modal ();
+void LABSoft_Presenter_Logic_Analyzer::
+cb_add_channel_selection(Fl_Button* o, void* data) {
+  LABSoft_GUI_Logic_Analyzer_Display& disp = *gui().logic_analyzer_labsoft_gui_logic_analyzer_display;
+  for (unsigned ch = 0; ch < LABC::LOGAN::NUMBER_OF_CHANNELS; ch++)
+  {
+    if (!disp.has_channel(ch))
+    {
+      char label[20];
+      std::snprintf(label, sizeof(label), "DIO %u", ch);
+      disp.add_channel(ch, label);
+      refresh_samples_menu_limits();
+      return;
+    }
+  }
+}
+
+void LABSoft_Presenter_Logic_Analyzer::
+cb_clear_channels(Fl_Button* o, void* data) {
+  LABSoft_GUI_Logic_Analyzer_Display& disp = *gui().logic_analyzer_labsoft_gui_logic_analyzer_display;
+  for (int ch = static_cast<int>(LABC::LOGAN::NUMBER_OF_CHANNELS) - 1; ch >= 0; ch--)
+  {
+    if (disp.has_channel(static_cast<unsigned>(ch)))
+    {
+      disp.remove_channel(static_cast<unsigned>(ch));
+      refresh_samples_menu_limits();
+      return;
+    }
+  }
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
@@ -296,7 +370,7 @@ cb_add_channel_signal (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, 
   Fl_Input&         i = *(w->m_name);
   Fl_Multi_Browser& b = *(w->m_multi_browser);
 
-  LABSoft_GUI_Logic_Analyzer_Display& disp = 
+  LABSoft_GUI_Logic_Analyzer_Display& disp =
     *(gui ().logic_analyzer_labsoft_gui_logic_analyzer_display);
 
   char      label[20];
@@ -311,13 +385,13 @@ cb_add_channel_signal (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, 
       {
         std::snprintf (label, sizeof (label), "DIO %d", b.data (line));
       }
-      else 
+      else
       {
         if (added_count == 0)
         {
           std::snprintf (label, sizeof (label), "%s", i.value ());
         }
-        else 
+        else
         {
           std::snprintf (label, sizeof (label), "%s%d", i.value (), added_count + 1);
         }
@@ -332,12 +406,71 @@ cb_add_channel_signal (LABSoft_GUI_Logic_Analyzer_Add_Channel_Signal_Window* w, 
       added_count++;
     }
   }
+
+  // After adding one or more channels, recompute samples limits
+  refresh_samples_menu_limits ();
 }
 
-void LABSoft_Presenter_Logic_Analyzer:: 
-cb_clear_channels (Fl_Menu_* w, void* data)
+void LABSoft_Presenter_Logic_Analyzer::
+refresh_samples_menu_limits ()
 {
-  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->clear_all_channels ();
+  unsigned active = gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->active_channel_count ();
+  if (active == 0)
+  {
+    active = 1;
+  }
+
+  const unsigned max_samples_hw = LABC::LOGAN::MAX_NUMBER_OF_SAMPLES;
+  unsigned limit = max_samples_hw / active;
+
+  static const unsigned allowed[] = {2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2};
+
+  // Enable items <= limit, disable items > limit; also clamp current value if needed
+  Fl_Menu_Button* menubtn = gui ().logic_analyzer_fl_input_choice_samples->menubutton ();
+  if (menubtn == nullptr)
+  {
+    return;
+  }
+
+  Fl_Menu_Item* items = const_cast<Fl_Menu_Item*>(menubtn->menu ());
+  if (items == nullptr)
+  {
+    return;
+  }
+
+  for (int i = 0; items[i].text != nullptr; i++)
+  {
+    const char* label = items[i].text;
+    unsigned val = std::strtoul(label, nullptr, 10);
+    if (val <= limit)
+    {
+      items[i].flags &= ~FL_MENU_INACTIVE;
+    }
+    else
+    {
+      items[i].flags |= FL_MENU_INACTIVE;
+    }
+  }
+
+  unsigned current = lab ().m_Logic_Analyzer.samples ();
+  if (current > limit)
+  {
+    unsigned snapped = allowed[sizeof(allowed)/sizeof(allowed[0]) - 1];
+    for (unsigned v : allowed)
+    {
+      if (v <= limit)
+      {
+        snapped = v;
+        break;
+      }
+    }
+
+    lab ().m_Logic_Analyzer.samples (snapped);
+    gui ().logic_analyzer_fl_input_choice_samples->value (
+      LABSoft_GUI_Label (snapped).to_text (LABSoft_GUI_Label::UNIT::NONE).c_str ()
+    );
+    update_gui_horizontal ();
+  }
 }
 
 // EOF

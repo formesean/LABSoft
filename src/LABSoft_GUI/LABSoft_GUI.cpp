@@ -657,7 +657,7 @@ void LABSoft_GUI::cb_logic_analyzer_fl_choice_display_mode(LABSoft_GUI_Fl_Choice
 Fl_Menu_Item LABSoft_GUI::menu_logic_analyzer_fl_choice_display_mode[] = {
  {"Repeated", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Screen", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
- {"Record", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Record", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
@@ -675,29 +675,19 @@ Fl_Menu_Item LABSoft_GUI::menu_logic_analyzer_fl_choice_trigger_mode[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
-void LABSoft_GUI::cb_Signal_i(Fl_Menu_* o, void* v) {
-  m_LABSoft_Presenter->m_Logic_Analyzer.cb_add_channel_selection (o, v);
+void LABSoft_GUI::cb_logic_analyzer_fl_menu_button_add_channel_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_Logic_Analyzer.cb_add_channel_selection(o, v);
 }
-void LABSoft_GUI::cb_Signal(Fl_Menu_* o, void* v) {
-  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_Signal_i(o,v);
-}
-
-Fl_Menu_Item LABSoft_GUI::menu_logic_analyzer_fl_menu_button_add_channel[] = {
- {"Signal", 0,  (Fl_Callback*)LABSoft_GUI::cb_Signal, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
- {0,0,0,0,0,0,0,0,0}
-};
-
-void LABSoft_GUI::cb_Clear_i(Fl_Menu_* o, void* v) {
-  m_LABSoft_Presenter->m_Logic_Analyzer.cb_clear_channels (o, v);
-}
-void LABSoft_GUI::cb_Clear(Fl_Menu_* o, void* v) {
-  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_Clear_i(o,v);
+void LABSoft_GUI::cb_logic_analyzer_fl_menu_button_add_channel(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_logic_analyzer_fl_menu_button_add_channel_i(o,v);
 }
 
-Fl_Menu_Item LABSoft_GUI::menu_logic_analyzer_fl_menu_button_remove_channel[] = {
- {"Clear", 0,  (Fl_Callback*)LABSoft_GUI::cb_Clear, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
- {0,0,0,0,0,0,0,0,0}
-};
+void LABSoft_GUI::cb_logic_analyzer_fl_menu_button_remove_channel_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_Logic_Analyzer.cb_clear_channels(o, v);
+}
+void LABSoft_GUI::cb_logic_analyzer_fl_menu_button_remove_channel(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_logic_analyzer_fl_menu_button_remove_channel_i(o,v);
+}
 
 void LABSoft_GUI::cb_logic_analyzer_fl_input_choice_horizontal_offset_i(LABSoft_GUI_Fl_Input_Choice_With_Scroll* o, void* v) {
   m_LABSoft_Presenter->m_Logic_Analyzer.cb_horizontal_offset (o, v);
@@ -805,6 +795,7 @@ void LABSoft_GUI::cb_logic_analyzer_fl_input_choice_sampling_rate(LABSoft_GUI_Fl
 
 Fl_Menu_Item LABSoft_GUI::menu_logic_analyzer_fl_input_choice_sampling_rate[] = {
  {"100 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"60 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"50 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"20 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"10 Hz", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
@@ -1776,7 +1767,6 @@ ly board.");
         main_fl_group_logic_analyzer_tab->color(FL_LIGHT3);
         main_fl_group_logic_analyzer_tab->selection_color(FL_LIGHT2);
         main_fl_group_logic_analyzer_tab->labelsize(12);
-        main_fl_group_logic_analyzer_tab->hide();
         { logic_analyzer_fl_group_display = new Fl_Group(20, 70, 400, 70);
           logic_analyzer_fl_group_display->box(FL_ROUNDED_FRAME);
           logic_analyzer_fl_group_display->color(FL_LIGHT2);
@@ -1844,22 +1834,20 @@ ly board.");
         { logic_analyzer_fl_group_add_remove_channels = new Fl_Group(20, 150, 180, 50);
           logic_analyzer_fl_group_add_remove_channels->box(FL_ROUNDED_FRAME);
           logic_analyzer_fl_group_add_remove_channels->color(FL_LIGHT2);
-          { logic_analyzer_fl_menu_button_add_channel = new Fl_Menu_Button(40, 165, 60, 20, "+");
+          { logic_analyzer_fl_menu_button_add_channel = new Fl_Button(40, 165, 60, 20, "+");
             logic_analyzer_fl_menu_button_add_channel->box(FL_GTK_UP_BOX);
-            logic_analyzer_fl_menu_button_add_channel->color(FL_LIGHT3);
+            logic_analyzer_fl_menu_button_add_channel->color(FL_BACKGROUND2_COLOR);
             logic_analyzer_fl_menu_button_add_channel->selection_color((Fl_Color)229);
             logic_analyzer_fl_menu_button_add_channel->labelsize(12);
-            logic_analyzer_fl_menu_button_add_channel->textsize(12);
-            logic_analyzer_fl_menu_button_add_channel->menu(menu_logic_analyzer_fl_menu_button_add_channel);
-          } // Fl_Menu_Button* logic_analyzer_fl_menu_button_add_channel
-          { logic_analyzer_fl_menu_button_remove_channel = new Fl_Menu_Button(120, 165, 60, 20, "-");
+            logic_analyzer_fl_menu_button_add_channel->callback((Fl_Callback*)cb_logic_analyzer_fl_menu_button_add_channel);
+          } // Fl_Button* logic_analyzer_fl_menu_button_add_channel
+          { logic_analyzer_fl_menu_button_remove_channel = new Fl_Button(120, 165, 60, 20, "-");
             logic_analyzer_fl_menu_button_remove_channel->box(FL_GTK_UP_BOX);
-            logic_analyzer_fl_menu_button_remove_channel->color(FL_LIGHT3);
+            logic_analyzer_fl_menu_button_remove_channel->color(FL_BACKGROUND2_COLOR);
             logic_analyzer_fl_menu_button_remove_channel->selection_color((Fl_Color)229);
             logic_analyzer_fl_menu_button_remove_channel->labelsize(12);
-            logic_analyzer_fl_menu_button_remove_channel->textsize(12);
-            logic_analyzer_fl_menu_button_remove_channel->menu(menu_logic_analyzer_fl_menu_button_remove_channel);
-          } // Fl_Menu_Button* logic_analyzer_fl_menu_button_remove_channel
+            logic_analyzer_fl_menu_button_remove_channel->callback((Fl_Callback*)cb_logic_analyzer_fl_menu_button_remove_channel);
+          } // Fl_Button* logic_analyzer_fl_menu_button_remove_channel
           logic_analyzer_fl_group_add_remove_channels->end();
         } // Fl_Group* logic_analyzer_fl_group_add_remove_channels
         { logic_analyzer_fl_group_horizontal = new Fl_Group(940, 70, 260, 130);
@@ -2086,6 +2074,7 @@ ly board.");
         main_fl_group_analog_circuit_checker->color(FL_LIGHT3);
         main_fl_group_analog_circuit_checker->selection_color(FL_LIGHT2);
         main_fl_group_analog_circuit_checker->labelsize(12);
+        main_fl_group_analog_circuit_checker->hide();
         { analog_circuit_checker_labsoft_gui_analog_circuit_checker_display = new LABSoft_GUI_Analog_Circuit_Checker_Display(260, 100, 920, 450);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->box(FL_FLAT_BOX);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->color(FL_GRAY0);
