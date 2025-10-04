@@ -1,9 +1,6 @@
 #include "LAB_Software_Navigation.h"
 #include "LAB.h"
 #include <cstdio>
-#ifndef SNM_DEBUG_SPI_DUMP
-#define SNM_DEBUG_SPI_DUMP 1
-#endif
 
 LAB_Software_Navigation::
 LAB_Software_Navigation(LAB &lab)
@@ -93,7 +90,7 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
     }
   };
 
-  uint8_t trig_chan_nibble = 0x0; // 0 means no channel has a trigger
+  uint8_t trig_chan_nibble = 0x0;
   uint8_t trig_mode_nibble = 0x0;
   {
     const auto &pdata = lab().m_Logic_Analyzer.parent_data();
@@ -109,7 +106,6 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
     }
   }
 
-  // New header layout (no checksum):
   // [15:12] type nibble with MSB=1 and low 3 bits = trigger channel (0..4)
   // [11:8]  trigger mode nibble
   // [7:4]   samples nibble
@@ -121,10 +117,8 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   bool expected = false;
   if (m_logan_start_sent.compare_exchange_strong(expected, true))
   {
-    // One-shot immediate send for LOGAN START
     send_immediate_tx_blocking(b0, b1);
 
-    // Allow STOP to be sent later, and avoid repeating START in service loop
     m_logan_stop_sent.store(false);
     std::lock_guard<std::mutex> lock(m_tx_mutex);
     m_tx_buffer[0] = 0x00;
@@ -136,13 +130,11 @@ void
 LAB_Software_Navigation::
 publish_completed_logan_block()
 {
-  // When expected samples have been written, mark trigger frame ready
   if (m_logan_frame_expected_samples > 0)
   {
     auto &pdata = lab().m_Logic_Analyzer.parent_data();
     pdata.samples = m_logan_frame_expected_samples;
     pdata.trigger_frame_ready = true;
-    // Reset counters to allow next block
     m_logan_expected_samples = 0;
     m_logan_samples_written  = 0;
     m_logan_words_remaining  = 0;
@@ -169,11 +161,6 @@ set_tx_logan_triggers()
   };
 
   const auto &pdata = lab().m_Logic_Analyzer.parent_data();
-
-  // first nibble     = channel 1 and its trigger mode
-  // second nibble    = channel 2 and its trigger mode
-  // third nibble     = channel 3 and its trigger mode
-  // fourth nibble    = channel 4 and its trigger mode
 
   uint8_t m1 = 0, m2 = 0, m3 = 0, m4 = 0;
   if (LABC::LOGAN::NUMBER_OF_CHANNELS > 0) m1 = enc(pdata.channel_data[0].trigger_condition);
@@ -276,7 +263,6 @@ void
 LAB_Software_Navigation::
 set_tx_logan_stop()
 {
-  // New STOP: MSB=1 header with all fields zero
   constexpr uint8_t b0 = static_cast<uint8_t>((0x8 << 4) | 0x0);
   constexpr uint8_t b1 = static_cast<uint8_t>((0x0 << 4) | 0x0);
 
@@ -284,7 +270,7 @@ set_tx_logan_stop()
   if (m_logan_stop_sent.compare_exchange_strong(expected, true))
   {
     send_immediate_tx_blocking(b0, b1);
-    // Allow future START after a STOP
+
     m_logan_start_sent.store(false);
     std::lock_guard<std::mutex> lock(m_tx_mutex);
     m_tx_buffer[0] = 0x00;
@@ -341,12 +327,11 @@ validate_spi_data(uint16_t spi_data) noexcept
   return checksum == ((type ^ action ^ value) & 0x0F);
 }
 
-// Treat only checksum-valid words with type in [1..3] or 0xA as Software Navigation (SNM) events
 static inline bool is_snm_event(uint16_t word) noexcept
 {
   const uint8_t type = static_cast<uint8_t>((word >> 12) & 0x0F);
-  if ((type & 0x8) != 0) return false; // exclude LOGAN headers
-  // Validate checksum against SNM packet format
+  if ((type & 0x8) != 0) return false;
+
   const uint8_t action   = static_cast<uint8_t>((word >> 8)  & 0x0F);
   const uint8_t value    = static_cast<uint8_t>((word >> 4)  & 0x0F);
   const uint8_t checksum = static_cast<uint8_t>( word        & 0x0F);
@@ -358,8 +343,6 @@ bool
 LAB_Software_Navigation::
 is_logan_header(uint16_t word) noexcept
 {
-  // New format: treat any word whose top nibble has MSB=1 as a LOGAN header.
-  // Top nibble encodes: 1xxx where low 3 bits carry trigger channel (0..4)
   const uint8_t type = (word >> 12) & 0x0F;
   return (type & 0x8) != 0;
 }
@@ -374,37 +357,21 @@ service_once()
   uint8_t rx_buffer_static[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
   uint8_t tx_buffer_static[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
 
-  // Prepare current TX bytes
   {
     std::lock_guard<std::mutex> lock(m_tx_mutex);
     tx_buffer_static[0] = m_tx_buffer[0];
     tx_buffer_static[1] = m_tx_buffer[1];
   }
 
-  // Single transfer for fixed small transfer_size
   spi_transfer(rx_buffer_static, tx_buffer_static, transfer_size);
   if (!m_read_enabled) return;
 
-#if SNM_DEBUG_SPI_DUMP
-  if (rx_buffer_static[0] != 0x00 && rx_buffer_static[1] != 0x00)
-  {
-    std::printf("SPI RX (%u):", transfer_size);
-    for (unsigned i = 0; i < transfer_size; ++i)
-    {
-      std::printf(" %02X", static_cast<unsigned>(rx_buffer_static[i]));
-    }
-    std::printf("\n");
-  }
-#endif
-
-  // Parse incoming words with LOGAN state machine precedence
   const uint16_t word0 = (static_cast<uint16_t>(rx_buffer_static[0]) << 8) | rx_buffer_static[1];
   if (m_logan_rx_state == LOGAN_RX_STATE::EXPECT_PAYLOAD)
   {
     const bool is_logan_hdr = is_logan_header(word0);
     const uint8_t type_nibble = static_cast<uint8_t>((word0 >> 12) & 0x0F);
 
-    // While receiving payload, still allow SNM control/event words to be queued
     if (!is_logan_hdr && is_snm_event(word0))
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
@@ -420,15 +387,10 @@ service_once()
     }
     else
     {
-      // Treat word0 as part of LOGAN stream when LA is running.
       if (lab().m_Logic_Analyzer.is_running())
       {
-        // If we still expect payload words, unpack and store into the active channel bit
         if (m_logan_words_remaining > 0)
         {
-#if SNM_DEBUG_SPI_DUMP
-          std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(word0));
-#endif
           auto &pdata = lab().m_Logic_Analyzer.parent_data();
           for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
           {
@@ -436,12 +398,11 @@ service_once()
             const unsigned sample_index = m_logan_samples_written++;
             if (sample_index < pdata.raw_data_buffer.size())
             {
-              // Determine bit for current active channel (1..4)
               unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
                                       ? (m_logan_current_channel - 1)
                                       : 0u;
               const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
-              // Only update this channel bit; preserve other channel bits already stored
+
               pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
               pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
             }
@@ -451,23 +412,16 @@ service_once()
 
           if (m_logan_words_remaining == 0)
           {
-            // Next word will be checksum; nothing else here
+
           }
         }
         else
         {
-          // Expecting checksum word now; verify and finish block for this channel
-#if SNM_DEBUG_SPI_DUMP
-          std::printf("LOGAN CHECKSUM: 0x%04X\n", static_cast<unsigned>(word0));
-#endif
-          // Optional: verify checksum
-          // if (m_logan_checksum_accum != word0) { /* handle mismatch */ }
-          // Mark this channel as received
           if (m_logan_current_channel >= 1 && m_logan_current_channel <= 4)
           {
             m_logan_channels_received_mask |= static_cast<uint8_t>(1u << (m_logan_current_channel - 1));
           }
-          // If all four channels received for this frame, publish and reset frame state
+
           if ((m_logan_channels_received_mask & 0x0F) == 0x0F)
           {
             m_logan_rx_state = LOGAN_RX_STATE::NONE;
@@ -478,14 +432,12 @@ service_once()
           }
           else
           {
-            // Wait for next channel header
             m_logan_rx_state = LOGAN_RX_STATE::NONE;
           }
         }
       }
       else
       {
-        // Reset state if LA is not running to avoid stuck state
         m_logan_rx_state = LOGAN_RX_STATE::NONE;
         m_logan_channels_received_mask = 0;
         m_logan_current_channel = 0;
@@ -495,14 +447,12 @@ service_once()
   }
   else
   {
-    // Treat only checksum-valid SNM words as control/events (avoid LOGAN payload confusion)
     if (m_read_enabled && is_snm_event(word0))
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
       const uint8_t value  = (word0 >> 4)  & 0x0F;
 
-      // Queue SNM message for presenter
       {
         std::lock_guard<std::mutex> lock(m_queue_mutex);
         if (m_queue.size() < MAX_QUEUE)
@@ -513,29 +463,23 @@ service_once()
     }
     else if (is_logan_header(word0))
     {
-      // For visibility while debugging, print LOGAN header when detected.
-#if SNM_DEBUG_SPI_DUMP
-      std::printf("LOGAN HEADER: 0x%04X\n", static_cast<unsigned>(word0));
-#endif
       m_logan_rx_state = LOGAN_RX_STATE::EXPECT_PAYLOAD;
 
-      // Decode header fields
-      const uint8_t type_nibble_hdr = static_cast<uint8_t>((word0 >> 12) & 0x0F); // 1ccc
+      const uint8_t type_nibble_hdr = static_cast<uint8_t>((word0 >> 12) & 0x0F);
       const uint8_t trig_mode_nibble = static_cast<uint8_t>((word0 >> 8) & 0x0F);
       const uint8_t samples_nibble = static_cast<uint8_t>((word0 >> 4) & 0x0F);
       const uint8_t rate_nibble    = static_cast<uint8_t>((word0 >> 0) & 0x0F);
       (void)trig_mode_nibble;
-      // Channel encoded in low 3 bits of type nibble
-      const uint8_t chan_num = static_cast<uint8_t>(type_nibble_hdr & 0x07); // 1..4
+
+      const uint8_t chan_num = static_cast<uint8_t>(type_nibble_hdr & 0x07);
       if (chan_num >= 1 && chan_num <= 4)
       {
         m_logan_current_channel = chan_num;
       }
       else
       {
-        m_logan_current_channel = 1; // fallback
+        m_logan_current_channel = 1;
       }
-      // Map to sample count as per slave mapping
       auto map_samples = [](uint8_t n) -> unsigned {
         switch (n & 0x0F)
         {
@@ -553,11 +497,11 @@ service_once()
         }
       };
       const unsigned samples_for_channel = map_samples(samples_nibble);
-      // On first channel of a frame, record frame expected samples to publish later
+
       if (m_logan_channels_received_mask == 0)
       {
         m_logan_frame_expected_samples = samples_for_channel;
-        // Clear working buffer for a fresh multi-channel frame
+
         auto &pdata = lab().m_Logic_Analyzer.parent_data();
         const size_t to_clear = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pdata.raw_data_buffer.size());
         for (size_t i = 0; i < to_clear; ++i) pdata.raw_data_buffer[i] = 0u;
@@ -567,17 +511,12 @@ service_once()
       m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
       m_logan_checksum_accum   = 0;
 
-      // If more bytes are available in this same transfer, consume them now
       if (transfer_size >= 4)
       {
         const uint16_t payload = (static_cast<uint16_t>(rx_buffer_static[2]) << 8) | rx_buffer_static[3];
-#if SNM_DEBUG_SPI_DUMP
-        std::printf("LOGAN PAYLOAD: 0x%04X\n", static_cast<unsigned>(payload));
-#endif
-        // Consume first payload word immediately (for the active channel)
+
         if (m_logan_words_remaining > 0)
         {
-          // Unpack up to 4 nibbles -> bits into raw_data_buffer
           auto &pdata = lab().m_Logic_Analyzer.parent_data();
           for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
           {
@@ -597,16 +536,11 @@ service_once()
           m_logan_checksum_accum ^= payload;
           if (m_logan_words_remaining > 0) --m_logan_words_remaining;
         }
-        // Keep state as EXPECT_PAYLOAD; checksum handling is done in the payload branch
       }
       if (transfer_size >= 6)
       {
         const uint16_t csum = (static_cast<uint16_t>(rx_buffer_static[4]) << 8) | rx_buffer_static[5];
-#if SNM_DEBUG_SPI_DUMP
-        std::printf("LOGAN CHECKSUM: 0x%04X\n", static_cast<unsigned>(csum));
-#endif
-        // Optionally verify checksum (slave uses XOR of payload words)
-        // m_logan_checksum_accum should match csum
+
         if (m_logan_current_channel >= 1 && m_logan_current_channel <= 4)
         {
           m_logan_channels_received_mask |= static_cast<uint8_t>(1u << (m_logan_current_channel - 1));
@@ -621,16 +555,15 @@ service_once()
         }
         else
         {
-          m_logan_rx_state = LOGAN_RX_STATE::NONE; // wait for next channel header
+          m_logan_rx_state = LOGAN_RX_STATE::NONE;
         }
       }
     }
-    // else: unknown/non-SNM 16-bit word; ignore
   }
 
   {
     std::lock_guard<std::mutex> lock(m_tx_mutex);
-    // Clear one-shot header after a send to avoid repeating it in subsequent cycles
+
     if (tx_buffer_static[0] != 0x00 || tx_buffer_static[1] != 0x00)
     {
       m_tx_buffer[0] = 0x00;
