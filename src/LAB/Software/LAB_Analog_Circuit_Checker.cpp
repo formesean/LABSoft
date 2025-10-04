@@ -279,7 +279,7 @@ LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
 cross_correlation(const std::vector<double> &x,
                   const std::vector<double> &y)
 {
-  CorrelationResult result{0.0, 0.0};
+  CorrelationResult result{0.0, 0.0, 0.0};
 
   if (x.empty() || y.empty()) return result;
 
@@ -323,10 +323,11 @@ cross_correlation(const std::vector<double> &x,
   
   // full cross correlation with bidirectional shifting
   const size_t max_shift = min_len - 1;
-  double method1_max_correlation = -1.0; // Best correlation from Method 1
-  double method2_max_correlation = -1.0; // Best correlation from Method 2
+  double max_correlation = -1.0; 
+  int lag = 0;
   
-  // METHOD 1: Shift student signal (y) relative to static teacher signal (x)
+  
+  // Shift student signal (y) relative to static teacher signal (x)
   for (int shift_offset = -static_cast<int>(max_shift); shift_offset <= static_cast<int>(max_shift); shift_offset++)
   {
     double correlation = 0.0;
@@ -349,50 +350,18 @@ cross_correlation(const std::vector<double> &x,
     {
       double normalized_correlation = correlation / (x_norm * y_norm);
       
-      // Track the maximum normalized correlation for Method 1
-      if (normalized_correlation > method1_max_correlation)
+      // Track the maximum normalized correlation and its lag
+      if (normalized_correlation > max_correlation)
       {
-        method1_max_correlation = normalized_correlation;
+        max_correlation = normalized_correlation;
+        lag = shift_offset; 
       }
     }
   }
   
-  // METHOD 2: Shift teacher signal (x) relative to static student signal (y)
-  for (int shift_offset = -static_cast<int>(max_shift); shift_offset <= static_cast<int>(max_shift); shift_offset++)
-  {
-    double correlation = 0.0;
-    size_t valid_samples = 0;
-    
-    // cross correlation calculation - shifting teacher signal
-    for (size_t i = 0; i < min_len; i++)
-    {
-      const int x_idx = static_cast<int>(i) + shift_offset;
-      
-      if (x_idx >= 0 && x_idx < static_cast<int>(min_len))
-      {
-        correlation += x_ac[x_idx] * y_ac[i];
-        valid_samples++;
-      }
-    }
-    
-    // Normalize the correlation for this shift
-    if (valid_samples > 0)
-    {
-      double normalized_correlation = correlation / (x_norm * y_norm);
-      
-      // Track the maximum normalized correlation for Method 2
-      if (normalized_correlation > method2_max_correlation)
-      {
-        method2_max_correlation = normalized_correlation;
-      }
-    }
-  }
-  
-  // Select the BEST correlation from both methods
-  double final_correlation = std::max(method1_max_correlation, method2_max_correlation);
-  
-  result.coefficient = final_correlation;
-  result.percentage = final_correlation * 100;
+  result.lag = static_cast<double>(lag);
+  result.coefficient = max_correlation;
+  result.percentage = max_correlation * 100;
   
   return result;
 }
@@ -467,7 +436,6 @@ compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
   sum_instructor_squared /= min_size;
   
   // Calculate similarity as percentage (100% - normalized error percentage)
-  // Avoid division by zero
   if (sum_instructor_squared < 1e-12) 
     return 0.0;
     

@@ -44,6 +44,7 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
 
     struct CorrelationResult
     {
+      double lag;
       double coefficient;
       double percentage;
     };
