@@ -341,7 +341,7 @@ validate_spi_data(uint16_t spi_data) noexcept
   return checksum == ((type ^ action ^ value) & 0x0F);
 }
 
-// Treat only checksum-valid words with type in [1..3] as Software Navigation (SNM) events
+// Treat only checksum-valid words with type in [1..3] or 0xA as Software Navigation (SNM) events
 static inline bool is_snm_event(uint16_t word) noexcept
 {
   const uint8_t type = static_cast<uint8_t>((word >> 12) & 0x0F);
@@ -351,7 +351,7 @@ static inline bool is_snm_event(uint16_t word) noexcept
   const uint8_t value    = static_cast<uint8_t>((word >> 4)  & 0x0F);
   const uint8_t checksum = static_cast<uint8_t>( word        & 0x0F);
   const bool checksum_ok = (checksum == ((type ^ action ^ value) & 0x0F));
-  return checksum_ok && (type >= 0x1 && type <= 0x3);
+  return checksum_ok && ((type >= 0x1 && type <= 0x3) || type == 0xA);
 }
 
 bool
