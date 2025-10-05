@@ -834,21 +834,25 @@ cb_toggle_view(Fl_Button* w, void* data)
 {
   if (!w) return;
 
-  const char* LABEL_FREQ = "View Frequency Domain";
-  const char* LABEL_TIME = "View Time Domain";
+  const char* BTN_LABEL_FREQ = "View Frequency Domain";
+  const char* BTN_LABEL_TIME = "View Time Domain";
+  const char* LABEL_TIME = "Time Domain";
+  const char* LABEL_FREQ = "Frequency Domain";
 
   const char* current_cstr = w->label();
   const std::string current_label = current_cstr ? current_cstr : "";
 
-  if (current_label == LABEL_FREQ)
+  if (current_label == BTN_LABEL_FREQ)
   {
-    w->copy_label(LABEL_TIME);
+    w->copy_label(BTN_LABEL_TIME);
     m_view_frequency = true;
+    gui().analog_circuit_checker_domain_label->label(LABEL_FREQ);
   }
   else
   {
-    w->copy_label(LABEL_FREQ);
+    w->copy_label(BTN_LABEL_FREQ);
     m_view_frequency = false;
+    gui().analog_circuit_checker_domain_label->label(LABEL_TIME);
   }
 
   update_gui_analog_circuit_checker();

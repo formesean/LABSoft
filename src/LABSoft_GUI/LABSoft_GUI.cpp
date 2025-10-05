@@ -2149,6 +2149,8 @@ ly board.");
           } // Fl_Button* analog_circuit_checker_fl_button_export_results
           analog_circuit_checker_fl_group_2->end();
         } // Fl_Group* analog_circuit_checker_fl_group_2
+        { analog_circuit_checker_domain_label = new Fl_Text_Display(640, 575, 200, 1, "TIme Domain");
+        } // Fl_Text_Display* analog_circuit_checker_domain_label
         main_fl_group_analog_circuit_checker->end();
       } // Fl_Group* main_fl_group_analog_circuit_checker
       { main_fl_group_labchecker_analog_tab = new Fl_Group(0, 50, 1220, 550, "LABChecker - Analog");
