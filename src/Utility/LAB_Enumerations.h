@@ -15,7 +15,9 @@ namespace LABE
     {
       OSCILLOSCOPE,
       VOLTMETER,
+      OHMMETER,
       FUNCTION_GENERATOR,
+      POWER_SUPPLY,
       LOGIC_ANALYZER,
       DIGITAL_CIRCUIT_CHECKER,
       LABCHECKER_DIGITAL,
@@ -170,20 +172,6 @@ namespace LABE
       WIDGET
     };
 
-    enum class TAB_ID
-    {
-      OSCILLOSCOPE,
-      VOLTMETER,
-      OHMMETER,
-      FUNCTION_GENERATOR,
-      POWER_SUPPLY,
-      LOGIC_ANALYZER,
-      DIGITAL_CIRCUIT_CHECKER,
-      LABCHECKER_DIGITAL,
-      ANALOG_CIRCUIT_CHECKER,
-      LABCHECKER_ANALOG
-    };
-
     enum class ACTION_TYPE
     {
       GOTO,
@@ -191,38 +179,38 @@ namespace LABE
       UNKNOWN
     };
 
-    inline const std::unordered_map<std::string_view, LABE::SNM::TAB_ID> tab_label_to_id =
+    inline const std::unordered_map<std::string_view, LABE::LAB::INSTRUMENT> tab_label_to_id =
     {
-      { "Oscilloscope",            LABE::SNM::TAB_ID::OSCILLOSCOPE },
-      { "Voltmeter",               LABE::SNM::TAB_ID::VOLTMETER },
-      { "Ohmmeter",                LABE::SNM::TAB_ID::OHMMETER },
-      { "Function Generator",      LABE::SNM::TAB_ID::FUNCTION_GENERATOR },
-      { "Power Supply",            LABE::SNM::TAB_ID::POWER_SUPPLY },
-      { "Logic Analyzer",          LABE::SNM::TAB_ID::LOGIC_ANALYZER },
-      { "Digital Circuit Checker", LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER },
-      { "LABChecker - Digital",    LABE::SNM::TAB_ID::LABCHECKER_DIGITAL },
-      { "Analog Circuit Checker",  LABE::SNM::TAB_ID::ANALOG_CIRCUIT_CHECKER },
-      { "LABChecker - Analog",     LABE::SNM::TAB_ID::LABCHECKER_ANALOG }
+      { "Oscilloscope",            LABE::LAB::INSTRUMENT::OSCILLOSCOPE },
+      { "Voltmeter",               LABE::LAB::INSTRUMENT::VOLTMETER },
+      { "Ohmmeter",                LABE::LAB::INSTRUMENT::OHMMETER },
+      { "Function Generator",      LABE::LAB::INSTRUMENT::FUNCTION_GENERATOR },
+      { "Power Supply",            LABE::LAB::INSTRUMENT::POWER_SUPPLY },
+      { "Logic Analyzer",          LABE::LAB::INSTRUMENT::LOGIC_ANALYZER },
+      { "Digital Circuit Checker", LABE::LAB::INSTRUMENT::DIGITAL_CIRCUIT_CHECKER },
+      { "LABChecker - Digital",    LABE::LAB::INSTRUMENT::LABCHECKER_DIGITAL },
+      { "Analog Circuit Checker",  LABE::LAB::INSTRUMENT::ANALOG_CIRCUIT_CHECKER },
+      { "LABChecker - Analog",     LABE::LAB::INSTRUMENT::LABCHECKER_ANALOG }
     };
 
-    inline const std::unordered_map<LABE::SNM::TAB_ID, std::string_view> tab_id_to_label =
+    inline const std::unordered_map<LABE::LAB::INSTRUMENT, std::string_view> tab_id_to_label =
     {
-      { LABE::SNM::TAB_ID::OSCILLOSCOPE,            "Oscilloscope" },
-      { LABE::SNM::TAB_ID::VOLTMETER,               "Voltmeter" },
-      { LABE::SNM::TAB_ID::OHMMETER,                "Ohmmeter" },
-      { LABE::SNM::TAB_ID::FUNCTION_GENERATOR,      "Function Generator" },
-      { LABE::SNM::TAB_ID::POWER_SUPPLY,            "Power Supply" },
-      { LABE::SNM::TAB_ID::LOGIC_ANALYZER,          "Logic Analyzer" },
-      { LABE::SNM::TAB_ID::DIGITAL_CIRCUIT_CHECKER, "Digital Circuit Checker" },
-      { LABE::SNM::TAB_ID::LABCHECKER_DIGITAL,      "LABChecker - Digital" },
-      { LABE::SNM::TAB_ID::ANALOG_CIRCUIT_CHECKER,  "Analog Circuit Checker" },
-      { LABE::SNM::TAB_ID::LABCHECKER_ANALOG,       "LABChecker - Analog" }
+      { LABE::LAB::INSTRUMENT::OSCILLOSCOPE,            "Oscilloscope" },
+      { LABE::LAB::INSTRUMENT::VOLTMETER,               "Voltmeter" },
+      { LABE::LAB::INSTRUMENT::OHMMETER,                "Ohmmeter" },
+      { LABE::LAB::INSTRUMENT::FUNCTION_GENERATOR,      "Function Generator" },
+      { LABE::LAB::INSTRUMENT::POWER_SUPPLY,            "Power Supply" },
+      { LABE::LAB::INSTRUMENT::LOGIC_ANALYZER,          "Logic Analyzer" },
+      { LABE::LAB::INSTRUMENT::DIGITAL_CIRCUIT_CHECKER, "Digital Circuit Checker" },
+      { LABE::LAB::INSTRUMENT::LABCHECKER_DIGITAL,      "LABChecker - Digital" },
+      { LABE::LAB::INSTRUMENT::ANALOG_CIRCUIT_CHECKER,  "Analog Circuit Checker" },
+      { LABE::LAB::INSTRUMENT::LABCHECKER_ANALOG,       "LABChecker - Analog" }
     };
 
     struct MACRO_KEY_CONFIG
     {
       ACTION_TYPE action;
-      std::variant<LABE::SNM::TAB_ID, std::string> target;
+      std::variant<LABE::LAB::INSTRUMENT, std::string> target;
     };
   }
 };
