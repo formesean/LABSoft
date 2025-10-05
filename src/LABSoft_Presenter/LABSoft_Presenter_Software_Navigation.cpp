@@ -867,6 +867,21 @@ initialize_run_key_actions()
         btn->value(!btn->value());
         presenter().m_Digital_Circuit_Checker.cb_run_checker(btn, nullptr);
       }},
+    { "LABChecker - Digital", [this]() {
+        auto* btn = gui().digital_fl_button_create_file;
+        btn->value(!btn->value());
+        presenter().m_LABChecker_Digital.cb_digital_create_file(btn, nullptr);
+      }},
+    { "Analog Circuit Checker", [this]() {
+        auto* btn = gui().analog_circuit_checker_fl_button_run_checker;
+        btn->value(!btn->value());
+        presenter().m_Analog_Circuit_Checker.cb_run_checker_acc(btn, nullptr);
+      }},
+    { "LABChecker - Analog", [this]() {
+      auto* btn = gui().analog_fl_button_capture_signal;
+      btn->value(!btn->value());
+      presenter().m_LABChecker_Analog.cb_capture_signal(btn, nullptr);
+      }},
   };
 }
 
