@@ -899,6 +899,13 @@ void LABSoft_GUI::cb_analog_circuit_checker_fl_button_toggle_view(Fl_Button* o, 
   ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_circuit_checker_fl_button_toggle_view_i(o,v);
 }
 
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_export_results_i(Fl_Button* o, void* v) {
+  m_LABSoft_Presenter->m_Analog_Circuit_Checker.cb_export_result (o, v);
+}
+void LABSoft_GUI::cb_analog_circuit_checker_fl_button_export_results(Fl_Button* o, void* v) {
+  ((LABSoft_GUI*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_analog_circuit_checker_fl_button_export_results_i(o,v);
+}
+
 void LABSoft_GUI::cb_analog_fl_checkbutton_time_domain_i(Fl_Check_Button* o, void* v) {
   m_LABSoft_Presenter->m_LABChecker_Analog.cb_toggle_time_domain(o, v);
 }
@@ -1767,6 +1774,7 @@ ly board.");
         main_fl_group_logic_analyzer_tab->color(FL_LIGHT3);
         main_fl_group_logic_analyzer_tab->selection_color(FL_LIGHT2);
         main_fl_group_logic_analyzer_tab->labelsize(12);
+        main_fl_group_logic_analyzer_tab->hide();
         { logic_analyzer_fl_group_display = new Fl_Group(20, 70, 400, 70);
           logic_analyzer_fl_group_display->box(FL_ROUNDED_FRAME);
           logic_analyzer_fl_group_display->color(FL_LIGHT2);
@@ -2074,7 +2082,6 @@ ly board.");
         main_fl_group_analog_circuit_checker->color(FL_LIGHT3);
         main_fl_group_analog_circuit_checker->selection_color(FL_LIGHT2);
         main_fl_group_analog_circuit_checker->labelsize(12);
-        main_fl_group_analog_circuit_checker->hide();
         { analog_circuit_checker_labsoft_gui_analog_circuit_checker_display = new LABSoft_GUI_Analog_Circuit_Checker_Display(260, 100, 920, 450);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->box(FL_FLAT_BOX);
           analog_circuit_checker_labsoft_gui_analog_circuit_checker_display->color(FL_GRAY0);
@@ -2138,6 +2145,7 @@ ly board.");
             analog_circuit_checker_fl_button_export_results->box(FL_GTK_UP_BOX);
             analog_circuit_checker_fl_button_export_results->color(FL_LIGHT3);
             analog_circuit_checker_fl_button_export_results->labelsize(12);
+            analog_circuit_checker_fl_button_export_results->callback((Fl_Callback*)cb_analog_circuit_checker_fl_button_export_results);
           } // Fl_Button* analog_circuit_checker_fl_button_export_results
           analog_circuit_checker_fl_group_2->end();
         } // Fl_Group* analog_circuit_checker_fl_group_2

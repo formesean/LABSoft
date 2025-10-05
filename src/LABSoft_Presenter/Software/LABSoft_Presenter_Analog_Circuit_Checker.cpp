@@ -667,11 +667,14 @@ perform_time_domain_analysis()
   if (!time_instructor.empty() && !time_student.empty())
   {
     auto result = checker.signal_analysis(time_instructor, time_student);
+    time_domain_result.lag = result.lag;
+    time_domain_result.coefficient = result.coefficient;
+    time_domain_result.percentage = result.percentage;
 
     if (gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold)
     {
       char buf[64];
-      std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
+      std::snprintf(buf, sizeof(buf), "%.2f%%", time_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->value(buf);
     }
   }
@@ -689,20 +692,23 @@ perform_frequency_domain_analysis()
   {
     // Existing cross-correlation analysis
     auto result = checker.signal_analysis(freq_instructor, freq_student);
+    frequency_domain_result.lag = result.lag;
+    frequency_domain_result.coefficient = result.coefficient;
+    frequency_domain_result.percentage = result.percentage;
 
     if (gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold)
     {
       char buf[64];
-      std::snprintf(buf, sizeof(buf), "%.2f%%", result.percentage);
+      std::snprintf(buf, sizeof(buf), "%.2f%%", frequency_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
     }
-    
+
     // New magnitude-based error similarity analysis
     double magnitude_similarity = checker.compute_magnitude_error_similarity(freq_instructor, freq_student);
-    
+
     // Print both similarity measures to terminal
     std::printf("=== FREQUENCY DOMAIN ANALYSIS ===\n");
-    std::printf("Similarity Result (Cross-correlation): %.2f%%\n", result.percentage);
+    std::printf("Similarity Result (Cross-correlation): %.2f%%\n", frequency_domain_result.percentage);
     std::printf("Similarity Result (MSE): %.2f%%\n", magnitude_similarity);
     std::printf("==================================\n");
   }
@@ -847,6 +853,53 @@ cb_toggle_view(Fl_Button* w, void* data)
 
   update_gui_analog_circuit_checker();
   w->redraw();
+}
+
+void LABSoft_Presenter_Analog_Circuit_Checker::
+cb_export_result(Fl_Button* w, void* data)
+{
+  auto &checker = lab().m_Analog_Circuit_Checker;
+
+  if (!checker.is_file_loaded())
+  {
+    fl_message("No file loaded. Please load a .labacc file first.");
+    return;
+  }
+
+  if (time_student.empty())
+  {
+    fl_message("No student data available. Please run the checker first.");
+    return;
+  }
+
+  const std::string &file_path = checker.get_file_path();
+
+  bool success = checker.export_result_file(
+    file_path,
+    time_domain_result.percentage,
+    time_domain_result.lag,
+    frequency_domain_result.percentage,
+    frequency_domain_result.lag,
+    time_student
+  );
+
+  if (success)
+  {
+    std::string result_path = file_path + ".result";
+    std::string message = "Results exported successfully to:\n" + result_path;
+    fl_message(message.c_str());
+    std::printf("\n=== ANALOG CIRCUIT CHECKER - RESULT EXPORTED ===\n");
+    std::printf("File: %s\n", result_path.c_str());
+    std::printf("Time Domain Similarity: %.2f%% (Lag: %.0f samples)\n",
+                time_domain_result.percentage, time_domain_result.lag);
+    std::printf("Frequency Domain Similarity: %.2f%% (Lag: %.0f bins)\n",
+                frequency_domain_result.percentage, frequency_domain_result.lag);
+    std::printf("===============================================\n\n");
+  }
+  else
+  {
+    fl_message("Failed to export results. Please check file permissions.");
+  }
 }
 
 // EOF

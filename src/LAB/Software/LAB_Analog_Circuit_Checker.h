@@ -42,6 +42,7 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
       double period;
     } m_func_gen_data;
 
+  public:
     struct CorrelationResult
     {
       double lag;
@@ -49,6 +50,7 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
       double percentage;
     };
 
+  private:
     void load_data_from_file_acc          ();
     void load_metadata_acc                ();
     void load_channel_data_acc            ();
@@ -91,13 +93,21 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     CorrelationResult                 signal_analysis (const std::vector<double> &instructor,
                                                        const std::vector<double> &student);
     std::vector<std::complex<double>> compute_fft     (const std::vector<double> &data);
-  
-    double compute_magnitude_error_similarity(const std::vector<double>& freq_instructor, 
+
+    double compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
                                              const std::vector<double>& freq_student);
+
+    bool export_result_file(const std::string& file_path,
+                           double time_similarity_percentage,
+                           double time_lag_samples,
+                           double freq_similarity_percentage,
+                           double freq_lag_bins,
+                           const std::vector<double>& student_signal);
 
     // Getters
     const std::vector<ChannelData> &get_channel_data            () const { return m_channel_data; }
     const FunctionGenData          &get_function_generator_data () const { return m_func_gen_data; }
+    const std::string              &get_file_path               () const { return m_file_path; }
 
     // Metadata getters
     unsigned  get_samples                             () const { return m_samples; }
