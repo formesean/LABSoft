@@ -70,11 +70,11 @@ save_config() const
     }
 
     std::string value_str;
-    if (std::holds_alternative<TAB_ID>(config.target))
+    if (std::holds_alternative<LABE::LAB::INSTRUMENT>(config.target))
     {
       for (const auto& [label, id] : tab_label_to_id)
       {
-        if (id == std::get<TAB_ID>(config.target))
+        if (id == std::get<LABE::LAB::INSTRUMENT>(config.target))
         {
           value_str = label;
           break;

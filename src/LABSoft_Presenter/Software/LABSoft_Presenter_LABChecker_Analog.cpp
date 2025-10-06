@@ -17,7 +17,6 @@ LABSoft_Presenter_LABChecker_Analog::LABSoft_Presenter_LABChecker_Analog(LABSoft
     : LABSoft_Presenter_Unit(_LABSoft_Presenter)
 {
   load_gui();
-  init_gui_callbacks();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
@@ -64,33 +63,16 @@ update_display()
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
-init_gui_callbacks()
-{
-  if (gui().analog_fl_button_capture_signal)
-  {
-    gui().analog_fl_button_capture_signal->callback((Fl_Callback *)cb_capture_signal, this);
-  }
-
-  if (gui().analog_fl_checkbutton_time_domain)
-  {
-    gui().analog_fl_checkbutton_time_domain->callback((Fl_Callback*)cb_toggle_time_domain, this);
-  }
-  if (gui().analog_fl_checkbutton_frequency_domain)
-  {
-    gui().analog_fl_checkbutton_frequency_domain->callback((Fl_Callback*)cb_toggle_frequency_domain, this);
-  }
-}
-
-void LABSoft_Presenter_LABChecker_Analog::
 cb_capture_signal(Fl_Button *w,
                   void *data)
 {
-  LABSoft_Presenter_LABChecker_Analog *acc = static_cast<LABSoft_Presenter_LABChecker_Analog *>(data);
+  (void)w;
+  (void)data;
 
-  if (acc->can_capture_signal())
+  if (can_capture_signal())
   {
-    acc->capture_oscilloscope_and_function_generator_data();
-    acc->update_gui_with_captured_data();
+    capture_oscilloscope_and_function_generator_data();
+    update_gui_with_captured_data();
   }
 }
 
@@ -202,19 +184,21 @@ sync_comparison_inputs_enabled()
 void LABSoft_Presenter_LABChecker_Analog::
 cb_toggle_time_domain(Fl_Check_Button *w, void *data)
 {
-  auto *self = static_cast<LABSoft_Presenter_LABChecker_Analog*>(data);
-  if (!self) return;
-  self->sync_comparison_inputs_enabled();
-  self->presenter().m_Software_Navigation.refresh_widget_list();
+  (void)w;
+  (void)data;
+
+  sync_comparison_inputs_enabled();
+  presenter().m_Software_Navigation.refresh_widget_list();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
 cb_toggle_frequency_domain(Fl_Check_Button *w, void *data)
 {
-  auto *self = static_cast<LABSoft_Presenter_LABChecker_Analog*>(data);
-  if (!self) return;
-  self->sync_comparison_inputs_enabled();
-  self->presenter().m_Software_Navigation.refresh_widget_list();
+  (void)w;
+  (void)data;
+
+  sync_comparison_inputs_enabled();
+  presenter().m_Software_Navigation.refresh_widget_list();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::

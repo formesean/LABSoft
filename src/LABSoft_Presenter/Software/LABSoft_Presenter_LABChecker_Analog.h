@@ -20,11 +20,10 @@ public:
   LABSoft_Presenter_LABChecker_Analog(LABSoft_Presenter &_LABSoft_Presenter);
 
   void update_display();
-  void init_gui_callbacks();
-  static void cb_capture_signal(Fl_Button *w, void *data);
+  void cb_capture_signal(Fl_Button *w, void *data);
   void cb_analog_create_file(Fl_Button *w, void *data);
-  static void cb_toggle_time_domain(Fl_Check_Button *w, void *data);
-  static void cb_toggle_frequency_domain(Fl_Check_Button *w, void *data);
+  void cb_toggle_time_domain(Fl_Check_Button *w, void *data);
+  void cb_toggle_frequency_domain(Fl_Check_Button *w, void *data);
 };
 
 #endif

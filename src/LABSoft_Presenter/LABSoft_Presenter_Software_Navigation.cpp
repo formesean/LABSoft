@@ -170,9 +170,9 @@ update_data_cycle()
         {
           auto tab_id = get_current_tab_id();
 
-          if (tab_id == LABE::SNM::TAB_ID::OHMMETER ||
-              tab_id == LABE::SNM::TAB_ID::VOLTMETER ||
-              tab_id == LABE::SNM::TAB_ID::POWER_SUPPLY)
+          if (tab_id == LABE::LAB::INSTRUMENT::OHMMETER ||
+              tab_id == LABE::LAB::INSTRUMENT::VOLTMETER ||
+              tab_id == LABE::LAB::INSTRUMENT::POWER_SUPPLY)
           {
             return;
           }
@@ -239,8 +239,8 @@ update_data_cycle()
         {
           if (current_groups_in_tab.size() <= 1)
           {
-            auto tab_id = get_current_tab_id();
-            auto focusable_map = get_focusable_groups_map();
+          auto tab_id = get_current_tab_id();
+          auto focusable_map = get_focusable_groups_map();
             auto it = focusable_map.find(tab_id);
             current_groups_in_tab = (it != focusable_map.end()) ? it->second : std::vector<Fl_Group*>{};
 
@@ -292,7 +292,7 @@ update_data_cycle()
       {
         auto tab_id = get_current_tab_id();
 
-        if (tab_id == LABE::SNM::TAB_ID::LABCHECKER_DIGITAL)
+        if (tab_id == LABE::LAB::INSTRUMENT::LABCHECKER_DIGITAL)
         {
           auto* table = gui().labchecker_digital_labsoft_gui_labchecker_digital_input_table;
           if (table && previous_focused_widget == table && current_focus_level == LABE::SNM::FOCUS_LEVEL::WIDGET)
@@ -318,27 +318,22 @@ update_data_cycle()
       int dir = (data[1] == 1) ? +1 : -1;
       Fl_Widget* widget = previous_focused_widget;
 
-      // Special handling: when focused on Logic Analyzer per-channel trigger
-      // (Fl_Menu_Button inside a channel widget), rotate to change trigger value
-      // Only when encoder switch is pressed. If not pressed, do nothing at all.
-      if (widget && get_current_tab_id() == LABE::SNM::TAB_ID::LOGIC_ANALYZER)
+      if (widget && get_current_tab_id() == LABE::LAB::INSTRUMENT::LOGIC_ANALYZER)
       {
         if (auto* menu_btn = dynamic_cast<Fl_Menu_Button*>(widget))
         {
           if (!is_encoder_switch_pressed)
           {
-            return; // ignore bare rotation while trigger is focused
+            return;
           }
 
-          // Debounce rotation while pressed to avoid oversensitive changes
           auto now = std::chrono::steady_clock::now();
           if (now - last_nav_time < nav_debounce_delay)
           {
             return;
           }
           last_nav_time = now;
-          // parent hierarchy: Fl_Menu_Button -> m_fl_group_channel_info (Fl_Group)
-          // -> LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget
+
           Fl_Group* info_group = dynamic_cast<Fl_Group*>(menu_btn->parent());
           if (info_group)
           {
@@ -364,12 +359,10 @@ update_data_cycle()
                 int next_idx = (idx + dir + n) % n;
                 CND next = order[next_idx];
 
-                // Apply change to backend and update GUI
                 lab().m_Logic_Analyzer.trigger_condition(static_cast<unsigned>(channel), next);
                 lab().m_Software_Navigation.set_tx_logan_triggers();
                 gui().logic_analyzer_labsoft_gui_logic_analyzer_display->update_gui_trigger_modes();
 
-                // Keep current highlight on the trigger widget
                 highlight_widget(menu_btn);
                 return;
               }
@@ -867,6 +860,21 @@ initialize_run_key_actions()
         btn->value(!btn->value());
         presenter().m_Digital_Circuit_Checker.cb_run_checker(btn, nullptr);
       }},
+    { "LABChecker - Digital", [this]() {
+        auto* btn = gui().digital_fl_button_create_file;
+        btn->value(!btn->value());
+        presenter().m_LABChecker_Digital.cb_digital_create_file(btn, nullptr);
+      }},
+    { "Analog Circuit Checker", [this]() {
+        auto* btn = gui().analog_circuit_checker_fl_button_run_checker;
+        btn->value(!btn->value());
+        presenter().m_Analog_Circuit_Checker.cb_run_checker_acc(btn, nullptr);
+      }},
+    { "LABChecker - Analog", [this]() {
+      auto* btn = gui().analog_fl_button_capture_signal;
+      btn->value(!btn->value());
+      presenter().m_LABChecker_Analog.cb_capture_signal(btn, nullptr);
+      }},
   };
 }
 
@@ -892,14 +900,14 @@ LABSoft_Presenter_Software_Navigation::
 handle_customizable_macro_key(int key_id)
 {
   using LABE::SNM::ACTION_TYPE;
-  using LABE::SNM::TAB_ID;
+  using LABE::LAB::INSTRUMENT;
   using LABE::SNM::tab_label_to_id;
 
   const auto config = lab().m_Shortcuts.get_config(key_id);
   auto tab_id = get_current_tab_id();
 
   // --- Oscilloscope tab override ---
-  if (tab_id == TAB_ID::OSCILLOSCOPE)
+  if (tab_id == INSTRUMENT::OSCILLOSCOPE)
   {
     switch (key_id)
     {
@@ -1000,7 +1008,7 @@ handle_customizable_macro_key(int key_id)
   }
 
   // --- Logic Analyzer tab override ---
-  if (tab_id == TAB_ID::LOGIC_ANALYZER)
+  if (tab_id == INSTRUMENT::LOGIC_ANALYZER)
   {
     switch (key_id)
     {
@@ -1086,7 +1094,7 @@ handle_customizable_macro_key(int key_id)
   }
 
   // --- LABChecker Digital tab override ---
-  if (tab_id == TAB_ID::LABCHECKER_DIGITAL)
+  if (tab_id == INSTRUMENT::LABCHECKER_DIGITAL)
   {
     switch (key_id)
     {
@@ -1218,14 +1226,25 @@ handle_customizable_macro_key(int key_id)
   // --- Configuration File ---
   if (config.action == ACTION_TYPE::GOTO)
   {
-    if (std::holds_alternative<TAB_ID>(config.target))
+    if (std::holds_alternative<LABE::LAB::INSTRUMENT>(config.target))
     {
-      TAB_ID target_tab = std::get<TAB_ID>(config.target);
-      int tab_index = static_cast<int>(target_tab);
-
-      if (tab_index >= 0 && tab_index < tab_count)
+      auto instrument = std::get<LABE::LAB::INSTRUMENT>(config.target);
+      current_tab_index = static_cast<int>(instrument);
+      if (current_tab_index < 0) current_tab_index = 0;
+      if (current_tab_index >= tab_count) current_tab_index = tab_count - 1;
+      gui().main_fl_tabs->value(tab_groups[current_tab_index]);
+      gui().main_fl_tabs->redraw();
+    }
+    else
+    {
+      // Target provided as label string
+      auto label = std::get<std::string>(config.target);
+      auto it = LABE::SNM::tab_label_to_id.find(label);
+      if (it != LABE::SNM::tab_label_to_id.end())
       {
-        current_tab_index = tab_index;
+        current_tab_index = static_cast<int>(it->second);
+        if (current_tab_index < 0) current_tab_index = 0;
+        if (current_tab_index >= tab_count) current_tab_index = tab_count - 1;
         gui().main_fl_tabs->value(tab_groups[current_tab_index]);
         gui().main_fl_tabs->redraw();
       }
@@ -1235,16 +1254,11 @@ handle_customizable_macro_key(int key_id)
   {
     std::string_view target_label;
 
-    if (std::holds_alternative<TAB_ID>(config.target))
+    if (std::holds_alternative<LABE::LAB::INSTRUMENT>(config.target))
     {
-      for (const auto& [label, id] : tab_label_to_id)
-      {
-        if (id == std::get<TAB_ID>(config.target))
-        {
-          target_label = label;
-          break;
-        }
-      }
+      auto instrument = std::get<LABE::LAB::INSTRUMENT>(config.target);
+      auto it2 = LABE::SNM::tab_id_to_label.find(instrument);
+      if (it2 != LABE::SNM::tab_id_to_label.end()) target_label = it2->second;
     }
     else
     {
@@ -1300,7 +1314,7 @@ get_widgets_in_group(Fl_Group* group) const
   return widgets;
 }
 
-LABE::SNM::TAB_ID
+LABE::LAB::INSTRUMENT
 LABSoft_Presenter_Software_Navigation::
 get_current_tab_id() const
 {
@@ -1310,14 +1324,14 @@ get_current_tab_id() const
   if (auto it = tab_label_to_id.find(label); it != tab_label_to_id.end())
     return it->second;
 
-  return LABE::SNM::TAB_ID::OSCILLOSCOPE;
+  return LABE::LAB::INSTRUMENT::OSCILLOSCOPE;
 }
 
-std::unordered_map<LABE::SNM::TAB_ID, std::vector<Fl_Group*>>
+std::unordered_map<LABE::LAB::INSTRUMENT, std::vector<Fl_Group*>>
 LABSoft_Presenter_Software_Navigation::
 get_focusable_groups_map() const
 {
-  using TAB = LABE::SNM::TAB_ID;
+  using TAB = LABE::LAB::INSTRUMENT;
 
   return {
     { TAB::OSCILLOSCOPE, {

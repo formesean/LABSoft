@@ -9,7 +9,6 @@
 #include "../../Utility/LAB_Utility_Functions.h"
 
 using LABE::SNM::ACTION_TYPE;
-using LABE::SNM::TAB_ID;
 using LABE::SNM::tab_id_to_label;
 
 LABSoft_Presenter_Shortcuts::LABSoft_Presenter_Shortcuts(LABSoft_Presenter& _LABSoft_Presenter)
@@ -34,8 +33,8 @@ cb_show_window()
   // -- Set KEY 1 Target --
   {
     std::string label1;
-    if (std::holds_alternative<TAB_ID>(config1.target)) {
-      auto it = LABE::SNM::tab_id_to_label.find(std::get<TAB_ID>(config1.target));
+    if (std::holds_alternative<LABE::LAB::INSTRUMENT>(config1.target)) {
+      auto it = LABE::SNM::tab_id_to_label.find(std::get<LABE::LAB::INSTRUMENT>(config1.target));
       if (it != LABE::SNM::tab_id_to_label.end())
         label1 = std::string(it->second);
     } else {
@@ -60,8 +59,8 @@ cb_show_window()
   // -- Set KEY 2 Target --
   {
     std::string label2;
-    if (std::holds_alternative<TAB_ID>(config2.target)) {
-      auto it = LABE::SNM::tab_id_to_label.find(std::get<TAB_ID>(config2.target));
+    if (std::holds_alternative<LABE::LAB::INSTRUMENT>(config2.target)) {
+      auto it = LABE::SNM::tab_id_to_label.find(std::get<LABE::LAB::INSTRUMENT>(config2.target));
       if (it != LABE::SNM::tab_id_to_label.end())
         label2 = std::string(it->second);
     } else {
