@@ -83,6 +83,7 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
     void cb_load_file_acc   (Fl_Button *w, void *data);
     void cb_run_checker_acc (Fl_Button *w, void *data);
     void cb_toggle_view     (Fl_Button *w, void *data);
+    void cb_export_result   (Fl_Button *w, void *data);
 
     const ACC_Metadata &metadata() const { return m_metadata; }
 
@@ -92,6 +93,14 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
     std::vector<double> freq_student;
     std::vector<std::array<int, 2>> time_instructor_pixels;
     std::vector<std::array<int, 2>> time_student_pixels;
+
+    // Analysis results
+    struct AnalysisResult
+    {
+      double lag;
+      double coefficient;
+      double percentage;
+    } time_domain_result, frequency_domain_result;
 };
 
 #endif

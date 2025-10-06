@@ -389,6 +389,11 @@ private:
   static void cb_analog_circuit_checker_fl_button_toggle_view(Fl_Button*, void*);
 public:
   Fl_Button *analog_circuit_checker_fl_button_export_results;
+private:
+  inline void cb_analog_circuit_checker_fl_button_export_results_i(Fl_Button*, void*);
+  static void cb_analog_circuit_checker_fl_button_export_results(Fl_Button*, void*);
+public:
+  Fl_Text_Display *analog_circuit_checker_domain_label;
   Fl_Group *main_fl_group_labchecker_analog_tab;
   LABSoft_GUI_LABChecker_Analog_Checker_Display *analog_labsoft_gui_analog_checker_display;
   Fl_Group *labchecker_analog_fl_group;

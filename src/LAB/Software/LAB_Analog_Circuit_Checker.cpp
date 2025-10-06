@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <complex>
+#include <string>
 
 #include "../../Utility/pugixml.hpp"
 
@@ -285,9 +286,9 @@ cross_correlation(const std::vector<double> &x,
 
   // Use actual signal length or 2000, whichever is smaller
   const size_t min_len = std::min(std::min(x.size(), y.size()), static_cast<size_t>(2000));
-  
+
   if (min_len == 0) return result;
-  
+
   // Calculate means to remove DC components
   double x_mean = 0.0;
   double y_mean = 0.0;
@@ -298,7 +299,7 @@ cross_correlation(const std::vector<double> &x,
   }
   x_mean /= min_len;
   y_mean /= min_len;
-  
+
   // Create DC-removed versions of the signals
   std::vector<double> x_ac(min_len);
   std::vector<double> y_ac(min_len);
@@ -307,7 +308,7 @@ cross_correlation(const std::vector<double> &x,
     x_ac[i] = x[i] - x_mean;
     y_ac[i] = y[i] - y_mean;
   }
-  
+
   // Calculate signal norms for proper normalization (using DC-removed signals)
   double x_norm = 0.0;
   double y_norm = 0.0;
@@ -318,51 +319,51 @@ cross_correlation(const std::vector<double> &x,
   }
   x_norm = std::sqrt(x_norm);
   y_norm = std::sqrt(y_norm);
-  
+
   if (x_norm == 0.0 || y_norm == 0.0) return result;
-  
+
   // full cross correlation with bidirectional shifting
   const size_t max_shift = min_len - 1;
-  double max_correlation = -1.0; 
+  double max_correlation = -1.0;
   int lag = 0;
-  
-  
+
+
   // Shift student signal (y) relative to static teacher signal (x)
   for (int shift_offset = -static_cast<int>(max_shift); shift_offset <= static_cast<int>(max_shift); shift_offset++)
   {
     double correlation = 0.0;
     size_t valid_samples = 0;
-    
+
     // cross correlation calculation - shifting student signal
     for (size_t i = 0; i < min_len; i++)
     {
       const int y_idx = static_cast<int>(i) + shift_offset;
-      
+
       if (y_idx >= 0 && y_idx < static_cast<int>(min_len))
       {
         correlation += x_ac[i] * y_ac[y_idx];
         valid_samples++;
       }
     }
-    
+
     // Normalize the correlation for this shift
     if (valid_samples > 0)
     {
       double normalized_correlation = correlation / (x_norm * y_norm);
-      
+
       // Track the maximum normalized correlation and its lag
       if (normalized_correlation > max_correlation)
       {
         max_correlation = normalized_correlation;
-        lag = shift_offset; 
+        lag = shift_offset;
       }
     }
   }
-  
+
   result.lag = static_cast<double>(lag);
   result.coefficient = max_correlation;
   result.percentage = max_correlation * 100;
-  
+
   return result;
 }
 
@@ -409,39 +410,39 @@ compute_fft(const std::vector<double> &data)
 }
 
 double LAB_Analog_Circuit_Checker::
-compute_magnitude_error_similarity(const std::vector<double>& freq_instructor, 
+compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
                                    const std::vector<double>& freq_student)
 {
-  if (freq_instructor.empty() || freq_student.empty()) 
+  if (freq_instructor.empty() || freq_student.empty())
     return 0.0;
-    
+
   // Use the smaller size to avoid out-of-bounds access
   const size_t min_size = std::min(freq_instructor.size(), freq_student.size());
-  
-  if (min_size == 0) 
+
+  if (min_size == 0)
     return 0.0;
-    
+
   // Calculate Mean Squared Error (MSE)
   double mse = 0.0;
   double sum_instructor_squared = 0.0;
-  
+
   for (size_t i = 0; i < min_size; ++i)
   {
     double error = freq_instructor[i] - freq_student[i];
     mse += error * error;
     sum_instructor_squared += freq_instructor[i] * freq_instructor[i];
   }
-  
+
   mse /= min_size;
   sum_instructor_squared /= min_size;
-  
+
   // Calculate similarity as percentage (100% - normalized error percentage)
-  if (sum_instructor_squared < 1e-12) 
+  if (sum_instructor_squared < 1e-12)
     return 0.0;
-    
+
   double normalized_error = std::sqrt(mse / sum_instructor_squared);
   double similarity_percentage = std::max(0.0, (1.0 - normalized_error) * 100.0);
-  
+
   return similarity_percentage;
   /*
   Normalized Error	Similarity %	Meaning
@@ -461,4 +462,62 @@ signal_analysis(const std::vector<double> &instructor,
   CorrelationResult result = cross_correlation(instructor, student);
   return result;
 }
+
+bool LAB_Analog_Circuit_Checker::
+export_result_file(const std::string& file_path,
+                   double time_similarity_percentage,
+                   double time_lag_samples,
+                   double freq_similarity_percentage,
+                   double freq_lag_bins,
+                   const std::vector<double>& student_signal)
+{
+  if (!m_is_file_loaded)
+    return false;
+
+  const std::string out_path = file_path + ".result";
+
+  std::string xml;
+  xml.reserve(1024 + (student_signal.size() * 12));
+  xml += "<result>\n";
+  xml += "  <source_file>" + file_path + "</source_file>\n";
+  xml += "  <time_domain>\n";
+  {
+    char buf[128];
+    std::snprintf(buf, sizeof(buf), "%.2f", time_similarity_percentage);
+    xml += "    <similarity_percentage>"; xml += buf; xml += "</similarity_percentage>\n";
+    std::snprintf(buf, sizeof(buf), "%.0f", time_lag_samples);
+    xml += "    <lag_samples>"; xml += buf; xml += "</lag_samples>\n";
+  }
+  xml += "  </time_domain>\n";
+  xml += "  <frequency_domain>\n";
+  {
+    char buf[128];
+    std::snprintf(buf, sizeof(buf), "%.2f", freq_similarity_percentage);
+    xml += "    <similarity_percentage>"; xml += buf; xml += "</similarity_percentage>\n";
+    std::snprintf(buf, sizeof(buf), "%.0f", freq_lag_bins);
+    xml += "    <lag_bins>"; xml += buf; xml += "</lag_bins>\n";
+  }
+  xml += "  </frequency_domain>\n";
+  xml += "  <student_signal>\n";
+  xml += "    <samples>";
+  for (size_t i = 0; i < student_signal.size(); ++i)
+  {
+    char sbuf[64];
+    std::snprintf(sbuf, sizeof(sbuf), "%.6f", student_signal[i]);
+    xml += sbuf;
+    if (i + 1 < student_signal.size()) xml += ",";
+  }
+  xml += "</samples>\n";
+  xml += "  </student_signal>\n";
+  xml += "</result>\n";
+
+  if (FILE* fp = std::fopen(out_path.c_str(), "wb"))
+  {
+    std::fwrite(xml.data(), 1, xml.size(), fp);
+    std::fclose(fp);
+    return true;
+  }
+  return false;
+}
+
 // EOF
