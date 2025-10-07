@@ -334,39 +334,34 @@ update_data_cycle()
           }
           last_nav_time = now;
 
-          Fl_Group* info_group = dynamic_cast<Fl_Group*>(menu_btn->parent());
-          if (info_group)
+          // Cycle the menu selection and invoke the widget's linked callback
+          int n = menu_btn->size();
+          if (n > 0)
           {
-            auto* chan_widget = dynamic_cast<LABSoft_GUI_Logic_Analyzer_Display_Channel_Widget*>(info_group->parent());
-            if (chan_widget)
+            int curr = menu_btn->value();
+            if (curr < 0) curr = -1;
+
+            int next = (curr + dir + n) % n;
+
+            int attempts = 0;
+            while (attempts < n)
             {
-              int channel = chan_widget->channel();
-              if (channel >= 0)
+              const Fl_Menu_Item* item = menu_btn->menu() + next;
+              if (item && item->text && !(item->flags & FL_MENU_INACTIVE))
               {
-                using CND = LABE::LOGAN::TRIG::CND;
-
-                // Current condition from model
-                const auto &pdata = lab().m_Logic_Analyzer.parent_data();
-                CND current = pdata.channel_data[static_cast<unsigned>(channel)].trigger_condition;
-
-                // Ordered list matching menu order
-                static const CND order[] = {
-                  CND::IGNORE, CND::LOW, CND::HIGH, CND::RISING_EDGE, CND::FALLING_EDGE, CND::EITHER_EDGE
-                };
-
-                int idx = 0, n = static_cast<int>(sizeof(order) / sizeof(order[0]));
-                for (int i = 0; i < n; ++i) { if (order[i] == current) { idx = i; break; } }
-                int next_idx = (idx + dir + n) % n;
-                CND next = order[next_idx];
-
-                lab().m_Logic_Analyzer.trigger_condition(static_cast<unsigned>(channel), next);
-                lab().m_Software_Navigation.set_tx_logan_triggers();
-                gui().logic_analyzer_labsoft_gui_logic_analyzer_display->update_gui_trigger_modes();
-
-                highlight_widget(menu_btn);
-                return;
+                menu_btn->value(next);
+                menu_btn->do_callback();
+                refresh_widget_list();
+                menu_btn->redraw();
+                break;
               }
+
+              next = (next + dir + n) % n;
+              ++attempts;
             }
+
+            highlight_widget(menu_btn);
+            return;
           }
         }
       }

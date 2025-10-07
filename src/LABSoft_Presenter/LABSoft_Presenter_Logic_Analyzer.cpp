@@ -200,10 +200,17 @@ void LABSoft_Presenter_Logic_Analyzer::
 cb_trigger_mode (Fl_Choice* w,
                  void*      data)
 {
-  std::string choice (w->text ());
+  int idx = w ? w->value () : -1;
+  LABE::LOGAN::TRIG::MODE mode;
+  switch (idx)
+  {
+    case 0: mode = LABE::LOGAN::TRIG::MODE::NONE;   break;
+    case 1: mode = LABE::LOGAN::TRIG::MODE::NORMAL; break;
+    case 2: mode = LABE::LOGAN::TRIG::MODE::AUTO;   break;
+    default: return; // invalid selection; do nothing
+  }
 
-  lab ().m_Logic_Analyzer.trigger_mode
-    (LABS_GUI_VALUES::LOGAN::TRIG_MODE_s[choice]);
+  lab ().m_Logic_Analyzer.trigger_mode (mode);
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
