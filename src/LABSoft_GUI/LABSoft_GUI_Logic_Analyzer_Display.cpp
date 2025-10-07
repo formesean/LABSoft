@@ -3,6 +3,7 @@
 #include <cmath>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 #include "../Utility/LAB_Defaults.h"
 #include "../Utility/LABSoft_GUI_Label.h"
@@ -211,32 +212,35 @@ cb_fl_menu_button_trigger_mode (Fl_Widget* w, void* data)
 {
   Fl_Menu_Button* menu_button = static_cast<Fl_Menu_Button*>(w);
 
-  const char* new_label;
+  const char* new_label = "x"; // safe default
   const char* text = menu_button->text ();
 
-  if (text == "X Ignore")
+  if (text)
   {
-    new_label = "X";
-  }
-  else if (text == "0 Low")
-  {
-    new_label = "0";
-  }
-  else if (text == "1 High")
-  {
-    new_label = "1";
-  }
-  else if (text == "\342\226\262 Rise")
-  {
-    new_label = "\342\226\262";
-  }
-  else if (text == "\342\226\274 Fall")
-  {
-    new_label = "\342\226\274";
-  }
-  else if (text == "\342\206\225 Edge")
-  {
-    new_label = "\342\206\225";
+    if (std::strcmp(text, "X Ignore") == 0)
+    {
+      new_label = "X";
+    }
+    else if (std::strcmp(text, "0 Low") == 0)
+    {
+      new_label = "0";
+    }
+    else if (std::strcmp(text, "1 High") == 0)
+    {
+      new_label = "1";
+    }
+    else if (std::strcmp(text, "\342\226\262 Rise") == 0)
+    {
+      new_label = "\342\226\262";
+    }
+    else if (std::strcmp(text, "\342\226\274 Fall") == 0)
+    {
+      new_label = "\342\226\274";
+    }
+    else if (std::strcmp(text, "\342\206\225 Edge") == 0)
+    {
+      new_label = "\342\206\225";
+    }
   }
 
   menu_button->copy_label (new_label);

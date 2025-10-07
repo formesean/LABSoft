@@ -551,6 +551,17 @@ parse_trigger_mode ()
       if (!m_thread_find_trigger.joinable ())
       {
         m_parent_data.trigger_enabled = true;
+        // Ensure GPIO event-detect reflects current per-channel conditions
+        init_interrupts ();
+        for (unsigned c = 0; c < m_parent_data.channel_data.size (); ++c)
+        {
+          LABE::LOGAN::TRIG::CND cond = m_parent_data.channel_data[c].trigger_condition;
+          if (cond != LABE::LOGAN::TRIG::CND::IGNORE)
+          {
+            unsigned gpio_pin = LABC::PIN::LOGAN[c];
+            set_trigger_condition (gpio_pin, cond);
+          }
+        }
         m_thread_find_trigger = std::thread (&LAB_Logic_Analyzer::find_trigger_point_loop, this);
       }
 
@@ -562,6 +573,17 @@ parse_trigger_mode ()
       if (!m_thread_find_trigger.joinable ())
       {
         m_parent_data.trigger_enabled = true;
+        // Ensure GPIO event-detect reflects current per-channel conditions
+        init_interrupts ();
+        for (unsigned c = 0; c < m_parent_data.channel_data.size (); ++c)
+        {
+          LABE::LOGAN::TRIG::CND cond = m_parent_data.channel_data[c].trigger_condition;
+          if (cond != LABE::LOGAN::TRIG::CND::IGNORE)
+          {
+            unsigned gpio_pin = LABC::PIN::LOGAN[c];
+            set_trigger_condition (gpio_pin, cond);
+          }
+        }
         m_thread_find_trigger = std::thread (&LAB_Logic_Analyzer::find_trigger_point_loop, this);
       }
 
@@ -1141,6 +1163,14 @@ trigger_mode (LABE::LOGAN::TRIG::MODE value)
 void LAB_Logic_Analyzer::
 trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
 {
+  const bool trigger_thread_active = (m_parent_data.trigger_mode != LABE::LOGAN::TRIG::MODE::NONE) && m_thread_find_trigger.joinable ();
+  if (trigger_thread_active)
+  {
+    // Stop trigger polling thread before reconfiguring GPIO event detects
+    m_parent_data.trigger_enabled = false;
+    m_thread_find_trigger.join ();
+  }
+
   // Enforce single active trigger channel: if setting a non-IGNORE condition
   // on this channel, clear all other channels to IGNORE first.
   if (condition != LABE::LOGAN::TRIG::CND::IGNORE)
@@ -1158,9 +1188,12 @@ trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
         cache_trigger_condition (c, LABE::LOGAN::TRIG::CND::IGNORE);
         m_parent_data.channel_data[c].trigger_condition = LABE::LOGAN::TRIG::CND::IGNORE;
 
-        // Clear GPIO event detects for that channel
-        unsigned other_gpio_pin = LABC::PIN::LOGAN[c];
-        m_LAB.rpi ().gpio.clear_all_event_detect (other_gpio_pin);
+        // Clear GPIO event detects for that channel only if trigger mode engages hardware
+        if (m_parent_data.trigger_mode != LABE::LOGAN::TRIG::MODE::NONE)
+        {
+          unsigned other_gpio_pin = LABC::PIN::LOGAN[c];
+          m_LAB.rpi ().gpio.clear_all_event_detect (other_gpio_pin);
+        }
       }
     }
   }
@@ -1171,10 +1204,11 @@ trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
   // 2. Store the channel's new trigger condition
   m_parent_data.channel_data[channel].trigger_condition = condition;
 
-  // 3. Clear and set GPIO event detect for this channel
-  unsigned gpio_pin = LABC::PIN::LOGAN[channel];
-  m_LAB.rpi ().gpio.clear_all_event_detect (gpio_pin);
-  set_trigger_condition (gpio_pin, condition);
+  // 3. Reapply GPIO event-detect configuration and (re)start thread if needed
+  if (trigger_thread_active)
+  {
+    parse_trigger_mode (); // will re-init interrupts and restart thread
+  }
 }
 
 // EOF

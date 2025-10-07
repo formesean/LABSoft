@@ -211,13 +211,48 @@ cb_trigger_condition (Fl_Menu_Button* w,
                       void*           data)
 {
   ChanWidget* chan    = static_cast<ChanWidget*>(data);
-  unsigned    channel = chan->channel ();
+  int         ch_idx  = chan ? chan->channel () : -1;
+  if (ch_idx < 0)
+  {
+    return;
+  }
 
-  LABE::LOGAN::TRIG::CND trig_cnd =
-    LABS_GUI_VALUES::LOGAN_DISPLAY::TRIG_CND_s.at (std::string (w->text ()));
+  const auto &pdata = lab ().m_Logic_Analyzer.parent_data ();
+  if (static_cast<size_t>(ch_idx) >= pdata.channel_data.size ())
+  {
+    return;
+  }
 
-  lab ().m_Logic_Analyzer.trigger_condition (channel, trig_cnd);
-  lab ().m_Software_Navigation.set_tx_logan_triggers ();
+  LABE::LOGAN::TRIG::CND trig_cnd = LABE::LOGAN::TRIG::CND::IGNORE;
+
+  // Prefer robust index-based mapping from menu selection to enum
+  int idx = w ? w->value () : -1;
+  if (idx >= 0)
+  {
+    switch (idx)
+    {
+      case 0: trig_cnd = LABE::LOGAN::TRIG::CND::IGNORE;       break;
+      case 1: trig_cnd = LABE::LOGAN::TRIG::CND::LOW;          break;
+      case 2: trig_cnd = LABE::LOGAN::TRIG::CND::HIGH;         break;
+      case 3: trig_cnd = LABE::LOGAN::TRIG::CND::RISING_EDGE;  break;
+      case 4: trig_cnd = LABE::LOGAN::TRIG::CND::FALLING_EDGE; break;
+      case 5: trig_cnd = LABE::LOGAN::TRIG::CND::EITHER_EDGE;  break;
+      default: break; // keep default IGNORE
+    }
+  }
+  else
+  {
+    // Fallback: map by string safely without throwing
+    const char* txt = w ? w->text () : nullptr;
+    auto it = LABS_GUI_VALUES::LOGAN_DISPLAY::TRIG_CND_s.find (std::string (txt ? txt : ""));
+    if (it != LABS_GUI_VALUES::LOGAN_DISPLAY::TRIG_CND_s.end ())
+    {
+      trig_cnd = it->second;
+    }
+  }
+
+  lab ().m_Logic_Analyzer.trigger_condition (static_cast<unsigned>(ch_idx), trig_cnd);
+  // lab ().m_Software_Navigation.set_tx_logan_triggers ();
 
   gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
     update_gui_trigger_modes ();
