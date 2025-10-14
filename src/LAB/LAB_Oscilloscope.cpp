@@ -1796,6 +1796,14 @@ double LAB_Oscilloscope::
   return (m_parent_data.sampling_rate_raw_buffer);
 }
 
+void LAB_Oscilloscope::
+    sync_display_metadata_from_current_settings()
+{
+  m_parent_data.horizontal_offset_raw_buffer = m_parent_data.horizontal_offset;
+  m_parent_data.time_per_division_raw_buffer = m_parent_data.time_per_division;
+  m_parent_data.sampling_rate_raw_buffer     = m_parent_data.sampling_rate;
+}
+
 // LAB_Oscilloscope::Measurements
 
 LAB_Oscilloscope::Measurements::

@@ -623,6 +623,41 @@ update_gui_oscilloscope()
     gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level->activate();
     set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level, UnitKind::VOLT, m_metadata.trigger_level);
   }
+
+  // Sync Oscilloscope tab display with imported settings (apply to display widget and refresh caches)
+  if (gui.oscilloscope_labsoft_gui_oscilloscope_display)
+  {
+    // Channel enable/disable and vertical params
+    bool ch0_en = (m_metadata.channels.size() >= 1) ? m_metadata.channels[0].is_enabled : false;
+    bool ch1_en = (m_metadata.channels.size() >= 2) ? m_metadata.channels[1].is_enabled : false;
+
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->channel_enable_disable(0, ch0_en);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->channel_enable_disable(1, ch1_en);
+
+    if (m_metadata.channels.size() >= 1)
+    {
+      const auto &ch0 = m_metadata.channels[0];
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->voltage_per_division(0, ch0.voltage_per_div);
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->vertical_offset(0, ch0.vertical_offset);
+    }
+    if (m_metadata.channels.size() >= 2)
+    {
+      const auto &ch1 = m_metadata.channels[1];
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->voltage_per_division(1, ch1.voltage_per_div);
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->vertical_offset(1, ch1.vertical_offset);
+    }
+
+    // Horizontal/global and trigger
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->horizontal_offset(m_metadata.horizontal_offset);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->time_per_division(m_metadata.time_per_division);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->samples(m_metadata.samples);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->sampling_rate(m_metadata.sampling_rate);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_source(m_metadata.trigger_source);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_level(m_metadata.trigger_level);
+  }
+
+  lab().m_Oscilloscope_Display.update_cached_values();
+  presenter().m_Oscilloscope_Display.update_display();
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
@@ -630,18 +665,18 @@ update_gui_function_generator()
 {
   LABSoft_GUI& gui = m_presenter.gui();
 
-  if (gui.function_generator_fl_input_choice_frequency)
+  // Apply imported settings to the actual Function Generator model (channel 0)
   {
-    set_input_choice_to_value(gui.function_generator_fl_input_choice_frequency,
-                              UnitKind::HERTZ,
-                              m_metadata.function_generator.frequency);
-  }
-
-  if (gui.function_generator_fl_input_choice_period)
-  {
-    set_input_choice_to_value(gui.function_generator_fl_input_choice_period,
-                              UnitKind::SECOND,
-                              m_metadata.function_generator.period);
+    LAB_Function_Generator &gen = lab().m_Function_Generator;
+    // Wave type
+    gen.wave_type(0, static_cast<LABE::FUNC_GEN::WAVE_TYPE>(m_metadata.function_generator.wave_type));
+    // Frequency/Period (set whichever are valid)
+    if (m_metadata.function_generator.frequency > 0.0)
+      gen.frequency(0, m_metadata.function_generator.frequency);
+    if (m_metadata.function_generator.period > 0.0)
+      gen.period(0, m_metadata.function_generator.period);
+    // Ensure GUI fields that mirror frequency/period stay consistent
+    m_presenter.m_Function_Generator.update_gui_frequency_elements();
   }
 
   if (gui.function_generator_fl_choice_wave_type)
@@ -759,7 +794,9 @@ cb_load_file_acc(Fl_Button* w, void* data)
           update_gui_acc_comparison         ();
           update_gui_analog_circuit_checker ();
 
-          // fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
+          lab().m_Oscilloscope.sync_display_metadata_from_current_settings();
+          lab().m_Oscilloscope_Display.update_cached_values();
+          presenter().m_Oscilloscope_Display.update_display();
         }
         else
         {
