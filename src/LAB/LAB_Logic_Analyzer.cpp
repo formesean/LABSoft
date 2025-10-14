@@ -1,12 +1,5 @@
 #include "LAB_Logic_Analyzer.h"
 
-#include <bitset>
-#include <thread>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#include <cstdio>
-
 #include "LAB.h"
 #include "../Utility/LAB_Utility_Functions.h"
 
@@ -14,12 +7,7 @@ LAB_Logic_Analyzer::
 LAB_Logic_Analyzer (LAB& _LAB)
   : LAB_Module (_LAB)
 {
-  // init_pwm (); // or maybe init_pcm () ???
-  init_gpio_pins  ();
-  init_dma        ();
-
-  // m_LAB.rpi ().gpio.set_event_detect (LABC::PIN::LOGIC_ANALYZER[1],
-  //   AP::GPIO::EVENT::RISING_EDGE, true);
+  // Sampling is handled on the slave device; no local DMA/GPIO init on master
 }
 
 LAB_Logic_Analyzer::
@@ -28,122 +16,13 @@ LAB_Logic_Analyzer::
 
 }
 
-void LAB_Logic_Analyzer::
-init_gpio_pins ()
-{
-  for (unsigned chan = 0; chan < (m_parent_data.channel_data.size ()); chan++)
-  {
-    m_LAB.rpi ().gpio.set (LABC::PIN::LOGAN[chan], AP::GPIO::FUNC::INPUT,
-      AP::GPIO::PULL::DOWN);
-  }
-}
+// init_gpio_pins no longer needed on master; slave performs sampling
 
-void LAB_Logic_Analyzer::
-init_dma ()
-{
-  config_dma_cb ();
+// init_dma removed; no DMA on master for LOGAN
 
-  AikaPi::Uncached&            un = m_uncached_memory;
-  LAB_DMA_Data_Logic_Analyzer& dd = *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(un.virt ()));
+// init_interrupts removed; hardware trigger detection not used on master
 
-  m_LAB.rpi ().dma.start (LABC::DMA::CHAN::LOGAN_GPIO_STORE, un.bus (&dd.cbs[0]));
-}
-
-void LAB_Logic_Analyzer::
-init_interrupts ()
-{
-  for (unsigned chan = 0; chan < LABC::LOGAN::NUMBER_OF_CHANNELS; chan++)
-  {
-    m_LAB.rpi ().gpio.clear_all_event_detect (LABC::PIN::LOGAN[chan]);
-  }
-
-  m_LAB.rpi ().gpio.clear_event_detect_status ();
-}
-
-void LAB_Logic_Analyzer::
-config_dma_cb ()
-{
-  m_uncached_memory.map_uncached_mem (LABC::LOGAN::VC_MEM_SIZE);
-
-  LAB_DMA_Data_Logic_Analyzer& uncached_dma_data =
-    *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  LAB_DMA_Data_Logic_Analyzer new_uncached_dma_data  =
-  {
-    .cbs =
-    {
-      // Double buffer
-      // 0
-      {
-        LABC::DMA::TI::LOGAN_STORE,
-        m_LAB.rpi ().gpio.bus  (AP::GPIO::GPLEV0),
-        m_uncached_memory.bus (&uncached_dma_data.rxd[0]),
-        static_cast<uint32_t> (sizeof (uint32_t) * LABC::LOGAN::MAX_NUMBER_OF_SAMPLES),
-        0,
-        m_uncached_memory.bus (&uncached_dma_data.cbs[1]),
-        0
-      },
-      // 1
-      {
-        LABC::DMA::TI::LOGAN_STORE | AP::DMA::TI_DATA::INTEN,
-        m_uncached_memory.bus (&uncached_dma_data.buffer_ok_flag),
-        m_uncached_memory.bus (&uncached_dma_data.status[0]),
-        sizeof (uint32_t),
-        0,
-        m_uncached_memory.bus (&uncached_dma_data.cbs[2]),
-        0
-      },
-      // 2
-      {
-        LABC::DMA::TI::LOGAN_STORE,
-        m_LAB.rpi ().gpio.bus  (AP::GPIO::GPLEV0),
-        m_uncached_memory.bus (&uncached_dma_data.rxd[1]),
-        static_cast<uint32_t> (sizeof (uint32_t) * LABC::LOGAN::MAX_NUMBER_OF_SAMPLES),
-        0,
-        m_uncached_memory.bus (&uncached_dma_data.cbs[3]),
-        0
-      },
-      // 3
-      {
-        LABC::DMA::TI::LOGAN_STORE | AP::DMA::TI_DATA::INTEN,
-        m_uncached_memory.bus (&uncached_dma_data.buffer_ok_flag),
-        m_uncached_memory.bus (&uncached_dma_data.status[1]),
-        sizeof (uint32_t),
-        0,
-        m_uncached_memory.bus (&uncached_dma_data.cbs[0]),
-        0
-      },
-
-      // Single buffer
-      // 4
-      {
-        LABC::DMA::TI::LOGAN_STORE,
-        m_LAB.rpi ().gpio.bus  (AP::GPIO::GPLEV0),
-        m_uncached_memory.bus (&uncached_dma_data.rxd[0]),
-        static_cast<uint32_t> (sizeof (uint32_t) * LABC::LOGAN::MAX_NUMBER_OF_SAMPLES),
-        0,
-        m_uncached_memory.bus (&uncached_dma_data.cbs[5]),
-        0
-      },
-      // 5
-      {
-        LABC::DMA::TI::LOGAN_STORE | AP::DMA::TI_DATA::INTEN,
-        m_uncached_memory.bus (&uncached_dma_data.buffer_ok_flag),
-        m_uncached_memory.bus (&uncached_dma_data.status[0]),
-        sizeof (uint32_t),
-        0,
-        m_uncached_memory.bus (&uncached_dma_data.cbs[4]),
-        0
-      },
-    },
-  };
-
-  std::memcpy (
-    &uncached_dma_data,
-    &new_uncached_dma_data,
-    sizeof (new_uncached_dma_data)
-  );
-}
+// config_dma_cb removed
 
 void LAB_Logic_Analyzer::
 run ()
@@ -154,8 +33,6 @@ run ()
 
   m_parent_data.is_backend_running  = true;
   m_parent_data.is_frontend_running = true;
-
-  m_thread_get_samples = std::thread (&LAB_Logic_Analyzer::get_samples_loop, this);
 
   m_parent_data.status = LABE::LOGAN::STATUS::AUTO;
 }
@@ -169,8 +46,6 @@ stop ()
 
   m_parent_data.is_backend_running  = false;
   m_parent_data.is_frontend_running = false;
-
-  m_thread_get_samples.join ();
 
   m_parent_data.status = LABE::LOGAN::STATUS::STOP;
 }
@@ -192,51 +67,7 @@ is_running () const
   return (m_parent_data.is_backend_running && m_parent_data.is_frontend_running);
 }
 
-void LAB_Logic_Analyzer::
-fill_raw_sample_buffer_from_dma_buffer ()
-{
-  LAB_DMA_Data_Logic_Analyzer& dma_data =
-    *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  switch (mode ())
-  {
-    case (LABE::LOGAN::MODE::SCREEN):
-    {
-      std::memcpy (
-        m_parent_data.raw_data_buffer.data (),
-        const_cast<const void*>(static_cast<volatile void*>(dma_data.rxd[0])),
-        sizeof (uint32_t) * m_parent_data.samples
-      );
-
-      break;
-    }
-
-    case (LABE::LOGAN::MODE::REPEATED):
-    {
-      for (unsigned buff = 0; buff < 2; buff++)
-      {
-        if (dma_data.status[buff])
-        {
-          std::memcpy (
-            m_parent_data.raw_data_buffer.data (),
-            const_cast<const void*>(static_cast<volatile void*>(dma_data.rxd[buff])),
-            sizeof (uint32_t) * m_parent_data.samples
-          );
-        }
-
-        if (dma_data.status[buff ^ 1])
-        {
-          dma_data.status[0] = 0;
-          dma_data.status[1] = 0;
-
-          break;
-        }
-
-        dma_data.status[buff] = 0;
-      }
-    }
-  }
-}
+// fill_raw_sample_buffer_from_dma_buffer removed; data is streamed from slave
 
 void LAB_Logic_Analyzer::
 parse_raw_sample_buffer ()
@@ -264,49 +95,7 @@ parse_raw_sample_buffer ()
   }
 }
 
-void LAB_Logic_Analyzer::
-get_samples_loop ()
-{
-  LAB_DMA_Data_Logic_Analyzer& dma_data =
-    *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  while (m_parent_data.is_backend_running)
-  {
-    // for (int a = 0; a < 2; a++)
-    // {
-    //   for (int b = 0; b < LABC::LOGAN::MAX_NUMBER_OF_SAMPLES; b++)
-    //   {
-    //     dma_data.rxd[a][b] = m_LAB.rpi ().gpio.level ();
-
-    //     if (!m_parent_data.is_backend_running)
-    //     {
-    //       return;
-    //     }
-
-    //     std::this_thread::sleep_for (std::chrono::duration<double,
-    //       std::milli>((m_parent_data.sampling_period)));
-    //   }
-    // }
-
-    // ==========
-
-    for (int a = 0; a < 1; a++)
-    {
-      for (int b = 0; b < LABC::LOGAN::MAX_NUMBER_OF_SAMPLES; b++)
-      {
-        dma_data.rxd[a][b] = m_LAB.rpi ().gpio.level ();
-
-        if (!m_parent_data.is_backend_running)
-        {
-          return;
-        }
-
-        std::this_thread::sleep_for (std::chrono::duration<double,
-          std::milli>((m_parent_data.sampling_period)));
-      }
-    }
-  }
-}
+// get_samples_loop removed; sampling occurs on the slave
 
 LABE::LOGAN::MODE LAB_Logic_Analyzer::
 calc_mode (double time_per_division) const
@@ -335,13 +124,17 @@ set_mode (LABE::LOGAN::MODE mode)
     {
       case (LABE::LOGAN::MODE::REPEATED):
       {
-        dma_buffer_count (LABE::LOGAN::BUFFER_COUNT::DOUBLE);
         break;
       }
 
       case (LABE::LOGAN::MODE::SCREEN):
       {
-        dma_buffer_count (LABE::LOGAN::BUFFER_COUNT::SINGLE);
+        break;
+      }
+
+      case (LABE::LOGAN::MODE::RECORD):
+      {
+        stop ();
         break;
       }
     }
@@ -350,56 +143,14 @@ set_mode (LABE::LOGAN::MODE mode)
   }
 }
 
-void LAB_Logic_Analyzer::
-dma_buffer_count  (LABE::LOGAN::BUFFER_COUNT buffer_count)
-{
-  bool is_running = false;
-
-  LAB_DMA_Data_Logic_Analyzer& dma_data =
-    *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  // 1. Pause PWM pacing if running
-  if (m_LAB.rpi ().dma.is_running (LABC::DMA::CHAN::PWM_PACING))
-  {
-    is_running = true;
-    m_LAB.rpi ().dma.pause (LABC::DMA::CHAN::PWM_PACING);
-  }
-
-  // 2. Assign next control block depending on buffer
-  if (buffer_count == LABE::LOGAN::BUFFER_COUNT::SINGLE)
-  {
-    m_LAB.rpi ().dma.next_cb (LABC::DMA::CHAN::OSC_RX, m_uncached_memory.bus (&dma_data.cbs[4]));
-  }
-  else if (buffer_count == LABE::LOGAN::BUFFER_COUNT::DOUBLE)
-  {
-    m_LAB.rpi ().dma.next_cb (LABC::DMA::CHAN::OSC_RX, m_uncached_memory.bus (&dma_data.cbs[0]));
-  }
-
-  // 3. Abort the current control block
-  m_LAB.rpi ().dma.abort (LABC::DMA::CHAN::OSC_RX);
-
-  // 4. Clean buffer status
-  dma_data.status[0] = 0;
-  dma_data.status[1] = 0;
-
-  // 5. Run DMA channel if it was running
-  if (is_running)
-  {
-    m_LAB.rpi ().dma.run (LABC::DMA::CHAN::PWM_PACING);
-  }
-}
+// dma_buffer_count removed; no DMA on master
 
 void LAB_Logic_Analyzer::
 set_samples (unsigned value)
 {
   m_parent_data.samples = value;
 
-  LAB_DMA_Data_Logic_Analyzer& uncached_dma_data =
-    *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  uncached_dma_data.cbs[0].txfr_len = static_cast<uint32_t>(sizeof (uint32_t) * value);
-  uncached_dma_data.cbs[2].txfr_len = static_cast<uint32_t>(sizeof (uint32_t) * value);
-  uncached_dma_data.cbs[4].txfr_len = static_cast<uint32_t>(sizeof (uint32_t) * value);
+  // DMA lengths no longer updated on master; sampling handled on slave
 }
 
 void LAB_Logic_Analyzer::
@@ -456,255 +207,28 @@ calc_sample_count (double sampling_rate,
 void LAB_Logic_Analyzer::
 set_sampling_rate (double value)
 {
-  // 1. Change the source frequency of the PWM peripheral
-  //m_LAB.rpi ().pwm.frequency (LABC::PWM::DMA_PACING_CHAN, value);
-
-  // // while we are using the PWM pacing of the oscilloscope module
-  // {
-  //   // 2. Set the DMA PWM duty cycle to 50%
-  //   LAB_DMA_Data_Logic_Analyzer& dma_data =
-  //     *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  //   // 2. Set the DMA PWM duty cycle to 50%
-  //   LAB_DMA_Data_Logic_Analyzer& dma_data =
-  //     *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-  //
-  //   dma_data.pwm_duty_cycle = (m_LAB.rpi ().pwm.range (LABC::PWM::DMA_PACING_CHAN)) / 2.0;
-  // }
-
-  // 3. Store the sampling rate
-  //m_parent_data.sampling_rate = value;
-
-  // ==========
-
   m_parent_data.sampling_rate   = value;
   m_parent_data.sampling_period = 1.0 / value;
 }
 
-void LAB_Logic_Analyzer::
-set_trigger_condition (unsigned               gpio_pin,
-                       LABE::LOGAN::TRIG::CND condition)
-{
-  AP::GPIO::EVENT event;
-
-  switch (condition)
-  {
-    case (LABE::LOGAN::TRIG::CND::IGNORE):
-    {
-      return;
-    }
-
-    case (LABE::LOGAN::TRIG::CND::LOW):
-    {
-      event = AP::GPIO::EVENT::LOW;
-      break;
-    }
-
-    case (LABE::LOGAN::TRIG::CND::HIGH):
-    {
-      event = AP::GPIO::EVENT::HIGH;
-      break;
-    }
-
-    case (LABE::LOGAN::TRIG::CND::RISING_EDGE):
-    {
-      event = AP::GPIO::EVENT::RISING_EDGE;
-      break;
-    }
-
-    case (LABE::LOGAN::TRIG::CND::FALLING_EDGE):
-    {
-      event = AP::GPIO::EVENT::FALLING_EDGE;
-      break;
-    }
-
-    case (LABE::LOGAN::TRIG::CND::EITHER_EDGE):
-    {
-      set_trigger_condition (gpio_pin, LABE::LOGAN::TRIG::CND::RISING_EDGE);
-      set_trigger_condition (gpio_pin, LABE::LOGAN::TRIG::CND::FALLING_EDGE);
-
-      return;
-    }
-  }
-
-  m_LAB.rpi ().gpio.set_event_detect (gpio_pin, event, 1);
-}
+// set_trigger_condition not needed on master; triggers handled on slave
 
 void LAB_Logic_Analyzer::
 parse_trigger_mode ()
 {
-  switch (m_parent_data.trigger_mode)
-  {
-    case (LABE::LOGAN::TRIG::MODE::NONE):
-    {
-      if (m_thread_find_trigger.joinable ())
-      {
-        m_parent_data.trigger_enabled = false;
-        m_thread_find_trigger.join ();
-      }
-
-      break;
-    }
-
-    case (LABE::LOGAN::TRIG::MODE::AUTO):
-    {
-      if (!m_thread_find_trigger.joinable ())
-      {
-        m_parent_data.trigger_enabled = true;
-        // Ensure GPIO event-detect reflects current per-channel conditions
-        init_interrupts ();
-        for (unsigned c = 0; c < m_parent_data.channel_data.size (); ++c)
-        {
-          LABE::LOGAN::TRIG::CND cond = m_parent_data.channel_data[c].trigger_condition;
-          if (cond != LABE::LOGAN::TRIG::CND::IGNORE)
-          {
-            unsigned gpio_pin = LABC::PIN::LOGAN[c];
-            set_trigger_condition (gpio_pin, cond);
-          }
-        }
-        m_thread_find_trigger = std::thread (&LAB_Logic_Analyzer::find_trigger_point_loop, this);
-      }
-
-      break;
-    }
-
-    case (LABE::LOGAN::TRIG::MODE::NORMAL):
-    {
-      if (!m_thread_find_trigger.joinable ())
-      {
-        m_parent_data.trigger_enabled = true;
-        // Ensure GPIO event-detect reflects current per-channel conditions
-        init_interrupts ();
-        for (unsigned c = 0; c < m_parent_data.channel_data.size (); ++c)
-        {
-          LABE::LOGAN::TRIG::CND cond = m_parent_data.channel_data[c].trigger_condition;
-          if (cond != LABE::LOGAN::TRIG::CND::IGNORE)
-          {
-            unsigned gpio_pin = LABC::PIN::LOGAN[c];
-            set_trigger_condition (gpio_pin, cond);
-          }
-        }
-        m_thread_find_trigger = std::thread (&LAB_Logic_Analyzer::find_trigger_point_loop, this);
-      }
-
-      break;
-    }
-  }
+  // No-op: slave device handles trigger detection and frames
 }
 
 /**
  * This is the main find trigger loop.
  */
-void LAB_Logic_Analyzer::
-find_trigger_point_loop ()
-{
-  LAB_DMA_Data_Oscilloscope& dma_data = *(static_cast<LAB_DMA_Data_Oscilloscope*>
-    (m_uncached_memory.virt ()));
-
-  LAB_Parent_Data_Logic_Analyzer& pdata = m_parent_data;
-
-  // ===== Cached Variables =====
-
-  uint32_t buff0_cbs_addr[2] = {m_uncached_memory.bus (&dma_data.cbs[0]),
-                                m_uncached_memory.bus (&dma_data.cbs[1])};
-  uint32_t buff1_cbs_addr[2] = {m_uncached_memory.bus (&dma_data.cbs[2]),
-                                m_uncached_memory.bus (&dma_data.cbs[3])};
-
-  // ====================
-
-  m_LAB.rpi ().gpio.clear_event_detect_status ();
-
-  while (pdata.trigger_enabled)
-  {
-    if (!pdata.trigger_found)
-    {
-      // 1. Check if there is a change in any of the bits in the
-      //    GPIO Event Detect Status Register (GPEDS0). If there is,
-      //    this means that a trigger condition on a channel just happened.
-      uint32_t temp_GPSED0 = m_LAB.rpi ().gpio.event_detect_status ();
-
-      if (pdata.trigger_flags != temp_GPSED0)
-      {
-        // 2. Store the memory address where the DMA engine is currently
-        //    writing data on. This to aid in finding the trigger index.
-        unsigned curr_dma_write_mem_addr = *(m_LAB.rpi ().dma.reg
-          (LABC::DMA::CHAN::LOGAN_GPIO_STORE, AP::DMA::DEST_AD));
-
-        // 3. Store the memory address of the current DMA control block
-        //    running in the Logic Analyzer DMA engine.
-        //    This is to know what buffer (0 or 1) is currently being filled.
-        uint32_t curr_conblk_ad = *(m_LAB.rpi ().dma.reg
-          (LABC::DMA::CHAN::LOGAN_GPIO_STORE, AP::DMA::CONBLK_AD));
-
-        // 4. Identify the current buffer index.
-        if (curr_conblk_ad == buff0_cbs_addr[0] || curr_conblk_ad == buff0_cbs_addr[1])
-        {
-          m_parent_data.trigger_buffer_index = 1;
-        }
-        else if (curr_conblk_ad == buff1_cbs_addr[0] || curr_conblk_ad == buff1_cbs_addr[1])
-        {
-          m_parent_data.trigger_buffer_index = 0;
-        }
-
-
-
-        // 4. Check if the triggered channel resulted to an actual trigger event.
-        //    This takes into account the trigger conditions of other channels.
-        if (check_if_triggered (temp_GPSED0))
-        {
-          create_trigger_frame ();
-        }
-      }
-
-      std::this_thread::sleep_for (
-        std::chrono::duration<double, std::milli> (m_parent_data.check_trigger_sleep_period)
-      );
-    }
-  }
-}
+// find_trigger_point_loop removed; trigger detection is slave-side
 
 /**
  * This function checks whether the triggered pin
  * results to an actual trigger event.
  */
-bool LAB_Logic_Analyzer::
-check_if_triggered (uint32_t event_detect_status_register_value)
-{
-  // 1. Check if the changed bit in the Event Detect Status register
-  //    corresponds to a channel that has a edge trigger condition.
-  for (unsigned i = 0; i < m_parent_data.trigger_cache_edge.size (); i++)
-  {
-    unsigned chan     = m_parent_data.trigger_cache_edge[i];
-    unsigned gpio_pin = LABC::PIN::LOGAN[chan];
-
-    if (((event_detect_status_register_value >> gpio_pin) & 0x1) == 1)
-    {
-      // reset event detect status register
-      m_LAB.rpi ().gpio.clear_event_detect_status ();
-
-      return (true);
-    }
-  }
-
-  // 2. Check if the changed bit in the Event Detect Status register
-  //    corresponds to a channel that has an edge trigger condition.
-  {
-    for (unsigned i = 0; i < m_parent_data.trigger_cache_level.size (); i++)
-    {
-      unsigned chan     = m_parent_data.trigger_cache_level[i];
-      unsigned gpio_pin = LABC::PIN::LOGAN[chan];
-
-      if (((event_detect_status_register_value >> gpio_pin) & 0x1) != 1)
-      {
-        return (false);
-      }
-    }
-
-    // reset event detect status register
-    m_LAB.rpi ().gpio.clear_event_detect_status ();
-    return (true);
-  }
-}
+// check_if_triggered removed; slave evaluates triggers
 
 /**
  * This function creates a trigger frame. A trigger frame consists of
@@ -839,60 +363,7 @@ cache_trigger_condition (unsigned               channel,
   }
 }
 
-void LAB_Logic_Analyzer::
-reset_dma_process ()
-{
-  LAB_DMA_Data_Logic_Analyzer& dma_data =
-    *(static_cast<LAB_DMA_Data_Logic_Analyzer*>(m_uncached_memory.virt ()));
-
-  bool is_running = m_LAB.rpi ().dma.is_running (LABC::DMA::CHAN::PWM_PACING);
-
-  // 1. Check if DMA is running. It is, pause it
-  if (is_running)
-  {
-    m_LAB.rpi ().dma.pause (LABC::DMA::CHAN::PWM_PACING);
-  }
-
-  // 2. Reset the DMA engine to the first control block, depending on the buffer
-  switch (mode ())
-  {
-    case (LABE::LOGAN::MODE::REPEATED): // dual buffer
-    {
-      m_LAB.rpi ().dma.next_cb (LABC::DMA::CHAN::OSC_RX,
-        m_uncached_memory.bus (&dma_data.cbs[0]));
-
-      break;
-    }
-
-    case (LABE::LOGAN::MODE::SCREEN): // single buffer
-    {
-      m_LAB.rpi ().dma.next_cb (LABC::DMA::CHAN::OSC_RX,
-        m_uncached_memory.bus (&dma_data.cbs[4]));
-
-      break;
-    }
-  }
-
-  // 3. Abort the current control block
-  m_LAB.rpi ().dma.abort (LABC::DMA::CHAN::OSC_RX);
-
-  // 4. Reset the DMA status flags
-  dma_data.status[0] = 0;
-  dma_data.status[1] = 0;
-
-  // 5. Reset the 2D DMA OSC RX array
-  std::memset (
-    const_cast<void*>(static_cast<volatile void*>(dma_data.rxd)),
-    0,
-    sizeof (dma_data.rxd)
-  );
-
-  // 6. Run DMA if it was running
-  if (is_running)
-  {
-    m_LAB.rpi ().dma.run (LABC::DMA::CHAN::PWM_PACING);
-  }
-}
+// reset_dma_process removed; no DMA on master
 
 void LAB_Logic_Analyzer::
 update_data_samples ()
@@ -912,36 +383,7 @@ update_data_samples ()
       return;
     }
 
-    switch (m_parent_data.trigger_mode)
-    {
-      case (LABE::LOGAN::TRIG::MODE::NONE):
-      {
-        fill_raw_sample_buffer_from_dma_buffer  ();
-        parse_raw_sample_buffer                 ();
-
-        break;
-      }
-
-      case (LABE::LOGAN::TRIG::MODE::NORMAL):
-      {
-        if (m_parent_data.trigger_frame_ready)
-        {
-          parse_raw_sample_buffer ();
-        }
-
-        break;
-      }
-
-      case (LABE::LOGAN::TRIG::MODE::AUTO):
-      {
-        if (m_parent_data.trigger_frame_ready)
-        {
-          parse_raw_sample_buffer ();
-        }
-
-        break;
-      }
-    }
+    // Data arrives from the slave; when ready, parse in the block above
 
     if (m_parent_data.single)
     {
@@ -1163,13 +605,7 @@ trigger_mode (LABE::LOGAN::TRIG::MODE value)
 void LAB_Logic_Analyzer::
 trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
 {
-  const bool trigger_thread_active = (m_parent_data.trigger_mode != LABE::LOGAN::TRIG::MODE::NONE) && m_thread_find_trigger.joinable ();
-  if (trigger_thread_active)
-  {
-    // Stop trigger polling thread before reconfiguring GPIO event detects
-    m_parent_data.trigger_enabled = false;
-    m_thread_find_trigger.join ();
-  }
+  const bool trigger_thread_active = false; // no trigger thread on master
 
   // Enforce single active trigger channel: if setting a non-IGNORE condition
   // on this channel, clear all other channels to IGNORE first.
@@ -1188,12 +624,7 @@ trigger_condition (unsigned channel, LABE::LOGAN::TRIG::CND condition)
         cache_trigger_condition (c, LABE::LOGAN::TRIG::CND::IGNORE);
         m_parent_data.channel_data[c].trigger_condition = LABE::LOGAN::TRIG::CND::IGNORE;
 
-        // Clear GPIO event detects for that channel only if trigger mode engages hardware
-        if (m_parent_data.trigger_mode != LABE::LOGAN::TRIG::MODE::NONE)
-        {
-          unsigned other_gpio_pin = LABC::PIN::LOGAN[c];
-          m_LAB.rpi ().gpio.clear_all_event_detect (other_gpio_pin);
-        }
+        // GPIO event detects are not managed on master
       }
     }
   }
