@@ -654,6 +654,18 @@ update_gui_function_generator()
 {
   LABSoft_GUI& gui = m_presenter.gui();
 
+  {
+    LAB_Function_Generator &gen = lab().m_Function_Generator;
+    gen.wave_type(0, static_cast<LABE::FUNC_GEN::WAVE_TYPE>(m_metadata.function_generator.wave_type));
+
+    if (m_metadata.function_generator.frequency > 0.0)
+      gen.frequency(0, m_metadata.function_generator.frequency);
+    if (m_metadata.function_generator.period > 0.0)
+      gen.period(0, m_metadata.function_generator.period);
+
+    m_presenter.m_Function_Generator.update_gui_frequency_elements();
+  }
+
   if (gui.function_generator_fl_input_choice_frequency && (m_metadata.function_generator.frequency > 0.0))
   {
     LABSoft_GUI_Label lbl(m_metadata.function_generator.frequency, LABSoft_GUI_Label::UNIT::HERTZ);
