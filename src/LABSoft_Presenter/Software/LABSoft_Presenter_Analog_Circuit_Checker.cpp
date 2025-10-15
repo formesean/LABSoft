@@ -20,6 +20,7 @@
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
 #include "../../LABSoft_GUI/LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 #include "../../Utility/LAB_Utility_Functions.h"
+#include "../../Utility/LABSoft_GUI_Label.h"
 
 enum class UnitKind { VOLT, SECOND, HERTZ, SAMPLES };
 
@@ -653,18 +654,16 @@ update_gui_function_generator()
 {
   LABSoft_GUI& gui = m_presenter.gui();
 
-  // Apply imported settings to the actual Function Generator model (channel 0)
+  if (gui.function_generator_fl_input_choice_frequency && (m_metadata.function_generator.frequency > 0.0))
   {
-    LAB_Function_Generator &gen = lab().m_Function_Generator;
-    // Wave type
-    gen.wave_type(0, static_cast<LABE::FUNC_GEN::WAVE_TYPE>(m_metadata.function_generator.wave_type));
-    // Frequency/Period (set whichever are valid)
-    if (m_metadata.function_generator.frequency > 0.0)
-      gen.frequency(0, m_metadata.function_generator.frequency);
-    if (m_metadata.function_generator.period > 0.0)
-      gen.period(0, m_metadata.function_generator.period);
-    // Ensure GUI fields that mirror frequency/period stay consistent
-    m_presenter.m_Function_Generator.update_gui_frequency_elements();
+    LABSoft_GUI_Label lbl(m_metadata.function_generator.frequency, LABSoft_GUI_Label::UNIT::HERTZ);
+    gui.function_generator_fl_input_choice_frequency->value(lbl.to_text().c_str());
+  }
+
+  if (gui.function_generator_fl_input_choice_period && (m_metadata.function_generator.period > 0.0))
+  {
+    LABSoft_GUI_Label lbl(m_metadata.function_generator.period, LABSoft_GUI_Label::UNIT::SECOND);
+    gui.function_generator_fl_input_choice_period->value(lbl.to_text().c_str());
   }
 
   if (gui.function_generator_fl_choice_wave_type)
