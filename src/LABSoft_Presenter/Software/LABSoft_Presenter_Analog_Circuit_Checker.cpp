@@ -296,42 +296,30 @@ prepare_student_data()
   auto *acc_disp_ptr = gui_ptr ? gui_ptr->analog_circuit_checker_labsoft_gui_analog_circuit_checker_display : nullptr;
   if (acc_disp_ptr)
   {
-    LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
+    const unsigned display_width  = acc_disp_ptr->display_width();
+    const unsigned display_height = acc_disp_ptr->display_height();
 
-    const unsigned analog_w = acc_disp_ptr->display_width();
-    const unsigned analog_h = acc_disp_ptr->display_height();
+    const size_t N = time_student.size();
+    time_student_pixels.reserve(N);
 
-    LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui_ptr->oscilloscope_labsoft_gui_oscilloscope_display);
-    const unsigned osc_tab_w = osc_gui_disp.display_width();
-    const unsigned osc_tab_h = osc_gui_disp.display_height();
+    const double voltage_per_division = std::max(1e-9, osc.voltage_per_division(1));
+    const double voltage_range        = voltage_per_division * static_cast<double>(LABC::OSC_DISPLAY::NUMBER_OF_ROWS);
+    const double vertical_offset      = osc.vertical_offset(1);
 
-    const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
-    if (!same_size)
+    for (size_t i = 0; i < N; ++i)
     {
-      osc_disp.display_parameters(
-        analog_w,
-        analog_h,
-        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-      );
-    }
+      const size_t denom = (N > 1) ? (N - 1) : 1;
+      int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width - 1)) / static_cast<double>(denom));
 
-    osc_disp.update_pixel_points();
-    const auto &raw_buf = osc_disp.pixel_points();
+      const double corrected_voltage = time_student[i] + vertical_offset;
+      double normalized_voltage = (corrected_voltage + (voltage_range / 2.0)) / voltage_range;
+      normalized_voltage = clamp01(normalized_voltage);
+      int y = static_cast<int>(display_height * (1.0 - normalized_voltage));
 
-    time_student_pixels.clear();
-    if (raw_buf.size() > 1)
-      time_student_pixels = raw_buf[1];
+      x = std::max(0, std::min(x, static_cast<int>(display_width - 1)));
+      y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
 
-    if (!same_size)
-    {
-      osc_disp.display_parameters(
-        osc_tab_w,
-        osc_tab_h,
-        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-      );
-      osc_disp.update_pixel_points();
+      time_student_pixels.push_back({x, y});
     }
   }
 }
