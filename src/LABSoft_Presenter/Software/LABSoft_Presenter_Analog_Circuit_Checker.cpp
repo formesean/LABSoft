@@ -20,6 +20,7 @@
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
 #include "../../LABSoft_GUI/LABSoft_GUI_Analog_Circuit_Checker_Display.h"
 #include "../../Utility/LAB_Utility_Functions.h"
+#include "../../Utility/LABSoft_GUI_Label.h"
 
 enum class UnitKind { VOLT, SECOND, HERTZ, SAMPLES };
 
@@ -296,42 +297,30 @@ prepare_student_data()
   auto *acc_disp_ptr = gui_ptr ? gui_ptr->analog_circuit_checker_labsoft_gui_analog_circuit_checker_display : nullptr;
   if (acc_disp_ptr)
   {
-    LAB_Oscilloscope_Display &osc_disp = lab().m_Oscilloscope_Display;
+    const unsigned display_width  = acc_disp_ptr->display_width();
+    const unsigned display_height = acc_disp_ptr->display_height();
 
-    const unsigned analog_w = acc_disp_ptr->display_width();
-    const unsigned analog_h = acc_disp_ptr->display_height();
+    const size_t N = time_student.size();
+    time_student_pixels.reserve(N);
 
-    LABSoft_GUI_Oscilloscope_Display &osc_gui_disp = *(gui_ptr->oscilloscope_labsoft_gui_oscilloscope_display);
-    const unsigned osc_tab_w = osc_gui_disp.display_width();
-    const unsigned osc_tab_h = osc_gui_disp.display_height();
+    const double voltage_per_division = std::max(1e-9, osc.voltage_per_division(1));
+    const double voltage_range        = voltage_per_division * static_cast<double>(LABC::OSC_DISPLAY::NUMBER_OF_ROWS);
+    const double vertical_offset      = osc.vertical_offset(1);
 
-    const bool same_size = (analog_w == osc_tab_w) && (analog_h == osc_tab_h);
-    if (!same_size)
+    for (size_t i = 0; i < N; ++i)
     {
-      osc_disp.display_parameters(
-        analog_w,
-        analog_h,
-        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-      );
-    }
+      const size_t denom = (N > 1) ? (N - 1) : 1;
+      int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width - 1)) / static_cast<double>(denom));
 
-    osc_disp.update_pixel_points();
-    const auto &raw_buf = osc_disp.pixel_points();
+      const double corrected_voltage = time_student[i] + vertical_offset;
+      double normalized_voltage = (corrected_voltage + (voltage_range / 2.0)) / voltage_range;
+      normalized_voltage = clamp01(normalized_voltage);
+      int y = static_cast<int>(display_height * (1.0 - normalized_voltage));
 
-    time_student_pixels.clear();
-    if (raw_buf.size() > 1)
-      time_student_pixels = raw_buf[1];
+      x = std::max(0, std::min(x, static_cast<int>(display_width - 1)));
+      y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
 
-    if (!same_size)
-    {
-      osc_disp.display_parameters(
-        osc_tab_w,
-        osc_tab_h,
-        LABC::OSC_DISPLAY::NUMBER_OF_ROWS,
-        LABC::OSC_DISPLAY::NUMBER_OF_COLUMNS
-      );
-      osc_disp.update_pixel_points();
+      time_student_pixels.push_back({x, y});
     }
   }
 }
@@ -623,6 +612,41 @@ update_gui_oscilloscope()
     gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level->activate();
     set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level, UnitKind::VOLT, m_metadata.trigger_level);
   }
+
+  // Sync Oscilloscope tab display with imported settings (apply to display widget and refresh caches)
+  if (gui.oscilloscope_labsoft_gui_oscilloscope_display)
+  {
+    // Channel enable/disable and vertical params
+    bool ch0_en = (m_metadata.channels.size() >= 1) ? m_metadata.channels[0].is_enabled : false;
+    bool ch1_en = (m_metadata.channels.size() >= 2) ? m_metadata.channels[1].is_enabled : false;
+
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->channel_enable_disable(0, ch0_en);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->channel_enable_disable(1, ch1_en);
+
+    if (m_metadata.channels.size() >= 1)
+    {
+      const auto &ch0 = m_metadata.channels[0];
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->voltage_per_division(0, ch0.voltage_per_div);
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->vertical_offset(0, ch0.vertical_offset);
+    }
+    if (m_metadata.channels.size() >= 2)
+    {
+      const auto &ch1 = m_metadata.channels[1];
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->voltage_per_division(1, ch1.voltage_per_div);
+      gui.oscilloscope_labsoft_gui_oscilloscope_display->vertical_offset(1, ch1.vertical_offset);
+    }
+
+    // Horizontal/global and trigger
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->horizontal_offset(m_metadata.horizontal_offset);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->time_per_division(m_metadata.time_per_division);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->samples(m_metadata.samples);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->sampling_rate(m_metadata.sampling_rate);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_source(m_metadata.trigger_source);
+    gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_level(m_metadata.trigger_level);
+  }
+
+  lab().m_Oscilloscope_Display.update_cached_values();
+  presenter().m_Oscilloscope_Display.update_display();
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
@@ -630,18 +654,28 @@ update_gui_function_generator()
 {
   LABSoft_GUI& gui = m_presenter.gui();
 
-  if (gui.function_generator_fl_input_choice_frequency)
   {
-    set_input_choice_to_value(gui.function_generator_fl_input_choice_frequency,
-                              UnitKind::HERTZ,
-                              m_metadata.function_generator.frequency);
+    LAB_Function_Generator &gen = lab().m_Function_Generator;
+    gen.wave_type(0, static_cast<LABE::FUNC_GEN::WAVE_TYPE>(m_metadata.function_generator.wave_type));
+
+    if (m_metadata.function_generator.frequency > 0.0)
+      gen.frequency(0, m_metadata.function_generator.frequency);
+    if (m_metadata.function_generator.period > 0.0)
+      gen.period(0, m_metadata.function_generator.period);
+
+    m_presenter.m_Function_Generator.update_gui_frequency_elements();
   }
 
-  if (gui.function_generator_fl_input_choice_period)
+  if (gui.function_generator_fl_input_choice_frequency && (m_metadata.function_generator.frequency > 0.0))
   {
-    set_input_choice_to_value(gui.function_generator_fl_input_choice_period,
-                              UnitKind::SECOND,
-                              m_metadata.function_generator.period);
+    LABSoft_GUI_Label lbl(m_metadata.function_generator.frequency, LABSoft_GUI_Label::UNIT::HERTZ);
+    gui.function_generator_fl_input_choice_frequency->value(lbl.to_text().c_str());
+  }
+
+  if (gui.function_generator_fl_input_choice_period && (m_metadata.function_generator.period > 0.0))
+  {
+    LABSoft_GUI_Label lbl(m_metadata.function_generator.period, LABSoft_GUI_Label::UNIT::SECOND);
+    gui.function_generator_fl_input_choice_period->value(lbl.to_text().c_str());
   }
 
   if (gui.function_generator_fl_choice_wave_type)
@@ -759,7 +793,9 @@ cb_load_file_acc(Fl_Button* w, void* data)
           update_gui_acc_comparison         ();
           update_gui_analog_circuit_checker ();
 
-          // fl_message("File loaded successfully. Click 'Run Checker' to display data in oscilloscope.");
+          lab().m_Oscilloscope.sync_display_metadata_from_current_settings();
+          lab().m_Oscilloscope_Display.update_cached_values();
+          presenter().m_Oscilloscope_Display.update_display();
         }
         else
         {

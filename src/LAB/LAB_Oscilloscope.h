@@ -14,7 +14,7 @@ class LAB_Oscilloscope : public LAB_Module
     {
       private:
         LAB_Parent_Data_Oscilloscope& m_pdata;
-      
+
       public:
         Calibration (LAB_Parent_Data_Oscilloscope& _LAB_Parent_Data_Oscilloscope);
 
@@ -24,7 +24,7 @@ class LAB_Oscilloscope : public LAB_Module
 
         bool    do_auto_calibration_vertical_offset_corrector ();
         bool    do_auto_calibration_scaling_correctors        ();
-        
+
         void    adc_reference_voltage       (unsigned channel, double value);
         void    vertical_offset_corrector   (unsigned channel, LABE::OSC::SCALING scaling, double value);
         void    scaling_corrector_to_unity  (unsigned channel, LABE::OSC::SCALING scaling, double value);
@@ -40,7 +40,7 @@ class LAB_Oscilloscope : public LAB_Module
     {
       private:
         LAB_Parent_Data_Oscilloscope& m_pdata;
-      
+
       public:
         Measurements (LAB_Parent_Data_Oscilloscope& _LAB_Parent_Data_Oscilloscope);
 
@@ -49,12 +49,12 @@ class LAB_Oscilloscope : public LAB_Module
         double min  (unsigned chan);
         double trms (unsigned chan);
     };
-  
+
   private:
     std::thread                   m_thread_trigger;
     std::thread                   m_find_trigger_timer;
-    AikaPi::Uncached              m_uncached_memory;   
-    LAB_Parent_Data_Oscilloscope  m_parent_data; 
+    AikaPi::Uncached              m_uncached_memory;
+    LAB_Parent_Data_Oscilloscope  m_parent_data;
     Measurements                  m_measurements;
     Calibration                   m_calibration;
 
@@ -70,25 +70,25 @@ class LAB_Oscilloscope : public LAB_Module
     // Master Controls
     void                master_run_stop                 (bool value);
 
-    // State 
+    // State
     void                status                          (LABE::OSC::STATUS _STATUS);
     void                reload_settings                 ();
 
     // Mode
     void                set_mode                        (LABE::OSC::MODE mode);
     void                dma_buffer_count                (LABE::OSC::BUFFER_COUNT buffer_count);
-  
-    // Horizontal 
+
+    // Horizontal
     double              calc_time_per_division          (unsigned samples, double sampling_rate)          const;
     double              calc_sampling_rate              (unsigned samples, double time_per_division)      const;
     void                set_time_per_division           (double value);
     void                set_samples                     (unsigned value);
     void                set_sampling_rate               (double value);
-    
+
     // mode
-    LABE::OSC::MODE     calc_mode                       (double time_per_division);    
-  
-    // trigger 
+    LABE::OSC::MODE     calc_mode                       (double time_per_division);
+
+    // trigger
     void                parse_trigger_mode              ();
     void                trigger_osc_mode_dispatcher     ();
     void                trigger_osc_mode_repeated       ();
@@ -111,16 +111,16 @@ class LAB_Oscilloscope : public LAB_Module
     void                fill_raw_osc_samp_buff_from_dma_buff   ();
     void                parse_raw_osc_samp_buff                ();
 
-     double    
+     double
     conv_raw_osc_samp_to_actual_chan_value      (uint32_t raw_osc_samp,       unsigned channel);
 
-     uint32_t  
+     uint32_t
     extract_raw_osc_chan_samp_from_raw_osc_samp (uint32_t raw_osc_samp,       unsigned channel);
 
-     uint32_t  
+     uint32_t
     reconstruct_adc_data_from_raw_osc_chan_samp (uint32_t raw_osc_chan_samp,  unsigned channel);
 
-     uint32_t  
+     uint32_t
     reconstruct_raw_osc_chan_samp_from_adc_data (uint32_t adc_data);
 
      double
@@ -128,24 +128,24 @@ class LAB_Oscilloscope : public LAB_Module
 
      uint32_t
     conv_raw_osc_samp_to_recon_chan_adc_data    (uint32_t raw_osc_samp,       unsigned channel);
-    
+
     void                reset_dma_process                               ();
     void                reset_uncached_rx_buffer                        ();
     void                record_raw_sample_buffer_metadata               ();
 
-  public:   
+  public:
     LAB_Oscilloscope (LAB& _LAB);
-   ~LAB_Oscilloscope ();   
+   ~LAB_Oscilloscope ();
 
     // master controls
     void                  run                     ();
-    void                  stop                    ();  
+    void                  stop                    ();
     void                  frontend_run_stop       (bool value);
     void                  backend_run_stop        (bool value);
     void                  single                  ();
     void                  do_measurements         (bool value);
 
-    // mode 
+    // mode
     void                  mode                    (LABE::OSC::MODE mode);
     LABE::OSC::MODE       mode                    ();
 
@@ -171,8 +171,8 @@ class LAB_Oscilloscope : public LAB_Module
     void                  sampling_rate           (double value);
     double                sampling_rate           () const;
     unsigned              samples_displayed       () const;
-    
-    // trigger 
+
+    // trigger
     void                  trigger_mode            (LABE::OSC::TRIG::MODE value);
     LABE::OSC::TRIG::MODE trigger_mode            () const;
     void                  trigger_source          (unsigned chan);
@@ -199,9 +199,9 @@ class LAB_Oscilloscope : public LAB_Module
     LABE::OSC::STATUS     status                  () const;
 
     // for display update
-    void                  update_data_samples       (); 
+    void                  update_data_samples       ();
 
-    
+
     // Data
     const LAB_Parent_Data_Oscilloscope&                     parent_data     ();
 
@@ -214,8 +214,10 @@ class LAB_Oscilloscope : public LAB_Module
     double raw_buffer_time_per_division () const;
     double raw_buffer_horizontal_offset () const;
     double raw_buffer_sampling_rate     () const;
-    
+
     const std::array<double, LABC::OSC::NUMBER_OF_SAMPLES>& chan_samples (unsigned channel) const;
+
+    void                  sync_display_metadata_from_current_settings ();
 
   public:
     Measurements& measurements  ();

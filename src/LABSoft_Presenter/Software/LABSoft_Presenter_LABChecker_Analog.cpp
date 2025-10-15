@@ -7,6 +7,7 @@
 #include "../../LAB/LAB.h"
 #include "../../LAB/LAB_Oscilloscope.h"
 #include "../../LAB/LAB_Function_Generator.h"
+#include "../../Utility/LABSoft_GUI_Label.h"
 #include "../../Utility/LABSoft_GUI_Label_Values.h"
 #include "../LABSoft_Presenter.h"
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
@@ -237,6 +238,44 @@ cb_analog_create_file(Fl_Button *w, void *data)
   fg_data.amplitude = fg.amplitude(0);
   fg_data.vertical_offset = fg.vertical_offset(0);
   fg_data.phase = fg.phase(0);
+
+  // Prefer exact values typed in the Function Generator tab over any display/menu rounding
+  if (acc->gui().function_generator_fl_input_choice_frequency)
+  {
+    LABSoft_GUI_Label lbl(
+      acc->gui().function_generator_fl_input_choice_frequency->value(),
+      fg_data.frequency,
+      LABSoft_GUI_Label::UNIT::HERTZ
+    );
+
+    if (lbl.is_valid())
+    {
+      double f = lbl.actual_value();
+      if (f > 0.0)
+      {
+        fg_data.frequency = f;
+        fg_data.period = 1.0 / f;
+      }
+    }
+  }
+  else if (acc->gui().function_generator_fl_input_choice_period)
+  {
+    LABSoft_GUI_Label lbl(
+      acc->gui().function_generator_fl_input_choice_period->value(),
+      fg_data.period,
+      LABSoft_GUI_Label::UNIT::SECOND
+    );
+
+    if (lbl.is_valid())
+    {
+      double p = lbl.actual_value();
+      if (p > 0.0)
+      {
+        fg_data.period = p;
+        fg_data.frequency = 1.0 / p;
+      }
+    }
+  }
 
   // Save dialog
   Fl_Native_File_Chooser chooser;
