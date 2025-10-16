@@ -368,29 +368,31 @@ cache_trigger_condition (unsigned               channel,
 void LAB_Logic_Analyzer::
 update_data_samples ()
 {
-  if (is_running ())
+  // Always parse a completed frame, even if not running (single-shot)
+  if (m_parent_data.trigger_frame_ready)
   {
-    // Prefer externally streamed LOGAN blocks when available
-    if (m_parent_data.trigger_frame_ready)
-    {
-      parse_raw_sample_buffer ();
-      m_parent_data.trigger_frame_ready = false;
-      if (m_parent_data.single)
-      {
-        m_parent_data.single = false;
-        stop ();
-      }
-      return;
-    }
-
-    // Data arrives from the slave; when ready, parse in the block above
+    parse_raw_sample_buffer ();
+    m_parent_data.trigger_frame_ready = false;
 
     if (m_parent_data.single)
     {
       m_parent_data.single = false;
-
       stop ();
     }
+    return;
+  }
+
+  // Below here is only for continuous mode
+  if (!is_running())
+  {
+    return;
+  }
+
+  // Data arrives from the slave; when ready, parse in the block above
+  if (m_parent_data.single)
+  {
+    m_parent_data.single = false;
+    stop ();
   }
 }
 

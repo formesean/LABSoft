@@ -44,8 +44,7 @@ class LAB_Software_Navigation : public LAB_Module
     void tick                              ();
     bool try_dequeue                       (std::array<uint8_t, 3>& out);
 
-    void set_tx_logan_config               (unsigned samples, double sampling_rate);
-    void set_tx_logan_triggers             ();
+    void set_tx_logan_config               (unsigned samples, double sampling_rate, bool continuous);
     void set_tx_logan_stop                 ();
     void publish_completed_logan_block     ();
 

@@ -550,15 +550,7 @@ create_channel_widget (unsigned channel, const char* name)
 void LABSoft_GUI_Logic_Analyzer_Display::
 fill_pixel_points ()
 {
-  // if (m_parent_data->is_backend_running)
-  // {
-  //   fill_pixel_points_backend_running ();
-  // }
-  // else
-  // {
-  //   fill_pixel_points_backend_stopped ();
-  // }
-
+  if (!m_parent_data) { return; }
   fill_pixel_points_backend_running ();
 }
 
@@ -614,7 +606,42 @@ fill_pixel_points_backend_running ()
 void LABSoft_GUI_Logic_Analyzer_Display::
 fill_pixel_points_backend_stopped ()
 {
+  if (!m_parent_data) { return; }
+  LAB_Parent_Data_Logic_Analyzer& pdata = *m_parent_data;
+  if (pdata.samples < 2 || pdata.sampling_rate <= 0.0) { return; }
 
+  const double col_half = (LABC::OSC::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+
+  for (unsigned chan = 0; chan < pdata.channel_data.size (); chan++)
+  {
+    if (!is_chan_present_in_chan_widget_array (chan)) { continue; }
+
+    LAB_Channel_Data_Logic_Analyzer& cdata  = pdata.channel_data[chan];
+    std::vector<std::array<int, 2>>& pp     = m_display_data.pixel_points[chan];
+    pp.clear ();
+
+    auto sample_at_time = [&](double t)->bool {
+      long j = static_cast<long>(std::llround(t * pdata.sampling_rate));
+      if (j < 0) j = 0;
+      if (j >= static_cast<long>(pdata.samples)) j = static_cast<long>(pdata.samples) - 1;
+      return cdata.samples[static_cast<size_t>(j)];
+    };
+
+    bool prev = sample_at_time((0 + col_half) * pdata.time_per_division + pdata.horizontal_offset);
+    pp.emplace_back(std::array<int,2>{
+      x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH,
+      m_graph_base_line_coords[prev]
+    });
+
+    for (int i = 0; i < (m_display_data.graph_width - 1); i++)
+    {
+      double t_next = ((i + 1) + col_half) * pdata.time_per_division + pdata.horizontal_offset;
+      bool   next   = sample_at_time(t_next);
+      int    next_x = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
+      calc_pp_coords(prev, next, next_x, i, pp);
+      prev = next;
+    }
+  }
 }
 
 void LABSoft_GUI_Logic_Analyzer_Display::

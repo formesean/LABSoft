@@ -79,14 +79,15 @@ cb_run_stop (Fl_Light_Button* w,
   }
   else
   {
+    lab ().m_Logic_Analyzer.run ();
+
     lab().m_Software_Navigation.set_tx_logan_config(
       lab().m_Logic_Analyzer.samples(),
-      lab().m_Logic_Analyzer.sampling_rate()
+      lab().m_Logic_Analyzer.sampling_rate(),
+      true
     );
 
     (void) lab ().m_Software_Navigation.update_spi_data ();
-
-    lab ().m_Logic_Analyzer.run ();
   }
 }
 
@@ -97,6 +98,12 @@ cb_single (Fl_Button* w,
   gui ().logic_analyzer_fl_light_button_run_stop->clear ();
 
   lab ().m_Logic_Analyzer.single ();
+
+  lab().m_Software_Navigation.set_tx_logan_config(
+    lab().m_Logic_Analyzer.samples(),
+    lab().m_Logic_Analyzer.sampling_rate(),
+    false
+  );
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
@@ -209,10 +216,11 @@ cb_trigger_mode (Fl_Choice* w,
   }
 
   lab ().m_Logic_Analyzer.trigger_mode (mode);
-  lab().m_Software_Navigation.set_tx_logan_config(
-    lab().m_Logic_Analyzer.samples(),
-    lab().m_Logic_Analyzer.sampling_rate()
-  );
+  // lab().m_Software_Navigation.set_tx_logan_config(
+  //   lab().m_Logic_Analyzer.samples(),
+  //   lab().m_Logic_Analyzer.sampling_rate(),
+  //   true
+  // );
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
@@ -261,10 +269,11 @@ cb_trigger_condition (Fl_Menu_Button* w,
   }
 
   lab ().m_Logic_Analyzer.trigger_condition (static_cast<unsigned>(ch_idx), trig_cnd);
-  lab().m_Software_Navigation.set_tx_logan_config(
-    lab().m_Logic_Analyzer.samples(),
-    lab().m_Logic_Analyzer.sampling_rate()
-  );
+  // lab().m_Software_Navigation.set_tx_logan_config(
+  //   lab().m_Logic_Analyzer.samples(),
+  //   lab().m_Logic_Analyzer.sampling_rate(),
+  //   true
+  // );
 
   gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
     update_gui_trigger_modes ();
@@ -309,6 +318,17 @@ display_update_cycle ()
 
     gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
       update_display ();
+  }
+  else
+  {
+    auto &pd = lab().m_Logic_Analyzer.parent_data();
+    if (pd.trigger_frame_ready)
+    {
+      lab ().m_Logic_Analyzer.update_data_samples ();
+
+      gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
+        update_display ();
+    }
   }
 }
 
