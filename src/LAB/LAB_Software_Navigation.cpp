@@ -114,16 +114,12 @@ set_tx_logan_config(unsigned samples, double sampling_rate)
   const uint8_t b0 = static_cast<uint8_t>((type_nibble << 4) | (trig_mode_nibble & 0x0F));
   const uint8_t b1 = static_cast<uint8_t>(((samples_nibble & 0x0F) << 4) | (rate_nibble & 0x0F));
 
-  bool expected = false;
-  if (m_logan_start_sent.compare_exchange_strong(expected, true))
-  {
-    send_immediate_tx_blocking(b0, b1);
+  send_immediate_tx_blocking(b0, b1);
 
-    m_logan_stop_sent.store(false);
-    std::lock_guard<std::mutex> lock(m_tx_mutex);
-    m_tx_buffer[0] = 0x00;
-    m_tx_buffer[1] = 0x00;
-  }
+  m_logan_stop_sent.store(false);
+  std::lock_guard<std::mutex> lock(m_tx_mutex);
+  m_tx_buffer[0] = 0x00;
+  m_tx_buffer[1] = 0x00;
 }
 
 void
@@ -367,7 +363,54 @@ service_once()
     const bool is_logan_hdr = is_logan_header(word0);
     const uint8_t type_nibble = static_cast<uint8_t>((word0 >> 12) & 0x0F);
 
-    if (!is_logan_hdr && is_snm_event(word0))
+    // Resynchronize if a new LOGAN header arrives mid-payload
+    if (is_logan_hdr)
+    {
+      m_logan_rx_state = LOGAN_RX_STATE::EXPECT_PAYLOAD;
+
+      const uint8_t type_nibble_hdr = static_cast<uint8_t>((word0 >> 12) & 0x0F);
+      const uint8_t samples_nibble = static_cast<uint8_t>((word0 >> 4) & 0x0F);
+      const uint8_t chan_num = static_cast<uint8_t>(type_nibble_hdr & 0x07);
+      if (chan_num >= 1 && chan_num <= 4)
+      {
+        m_logan_current_channel = chan_num;
+      }
+      else
+      {
+        m_logan_current_channel = 1;
+      }
+      auto map_samples = [](uint8_t n) -> unsigned {
+        switch (n & 0x0F)
+        {
+          case 0xA: return 2000;
+          case 0x9: return 1000;
+          case 0x8: return 500;
+          case 0x7: return 200;
+          case 0x6: return 100;
+          case 0x5: return 50;
+          case 0x4: return 20;
+          case 0x3: return 10;
+          case 0x2: return 5;
+          case 0x1: return 2;
+          default:  return 500;
+        }
+      };
+      const unsigned samples_for_channel = map_samples(samples_nibble);
+
+      if (m_logan_channels_received_mask == 0)
+      {
+        m_logan_frame_expected_samples = samples_for_channel;
+
+        auto &pdata = lab().m_Logic_Analyzer.parent_data();
+        const size_t to_clear = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pdata.raw_data_buffer.size());
+        for (size_t i = 0; i < to_clear; ++i) pdata.raw_data_buffer[i] = 0u;
+      }
+      m_logan_expected_samples = samples_for_channel;
+      m_logan_samples_written  = 0;
+      m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
+      m_logan_checksum_accum   = 0;
+    }
+    else if (!is_logan_hdr && is_snm_event(word0))
     {
       const uint8_t type   = (word0 >> 12) & 0x0F;
       const uint8_t action = (word0 >> 8)  & 0x0F;
@@ -389,7 +432,7 @@ service_once()
           auto &pdata = lab().m_Logic_Analyzer.parent_data();
           for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
           {
-            const uint8_t nibble = static_cast<uint8_t>((word0 >> (i * 4)) & 0x0F);
+            const uint8_t nibble = static_cast<uint8_t>((word0 >> ((3 - i) * 4)) & 0x0F);
             const unsigned sample_index = m_logan_samples_written++;
             if (sample_index < pdata.raw_data_buffer.size())
             {
@@ -404,6 +447,88 @@ service_once()
           }
           m_logan_checksum_accum ^= word0;
           if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+
+          // Opportunistically drain a few more words this tick to avoid backlog/flicker
+          if (m_logan_words_remaining > 0)
+          {
+            const unsigned max_extra_reads = 128; // larger burst to drain payload faster
+            for (unsigned r = 0; r < max_extra_reads && m_logan_words_remaining > 0; ++r)
+            {
+              uint8_t rx_extra[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
+              uint8_t tx_extra[LABC::PIN::SNM::TRANSFER_SIZE] = {0};
+              spi_transfer(rx_extra, tx_extra, LABC::PIN::SNM::TRANSFER_SIZE);
+              const uint16_t w = (static_cast<uint16_t>(rx_extra[0]) << 8) | rx_extra[1];
+
+              const bool hdr = is_logan_header(w);
+              if (hdr)
+              {
+                // Resync to next channel as above
+                const uint8_t type_nib_hdr = static_cast<uint8_t>((w >> 12) & 0x0F);
+                const uint8_t samples_nib  = static_cast<uint8_t>((w >> 4) & 0x0F);
+                const uint8_t chnum        = static_cast<uint8_t>(type_nib_hdr & 0x07);
+                m_logan_current_channel = (chnum >= 1 && chnum <= 4) ? chnum : 1;
+                auto map_samples2 = [](uint8_t n) -> unsigned {
+                  switch (n & 0x0F)
+                  {
+                    case 0xA: return 2000;
+                    case 0x9: return 1000;
+                    case 0x8: return 500;
+                    case 0x7: return 200;
+                    case 0x6: return 100;
+                    case 0x5: return 50;
+                    case 0x4: return 20;
+                    case 0x3: return 10;
+                    case 0x2: return 5;
+                    case 0x1: return 2;
+                    default:  return 500;
+                  }
+                };
+                const unsigned samp_ch = map_samples2(samples_nib);
+                if (m_logan_channels_received_mask == 0)
+                {
+                  m_logan_frame_expected_samples = samp_ch;
+                  auto &pd2 = lab().m_Logic_Analyzer.parent_data();
+                  const size_t to_clear2 = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pd2.raw_data_buffer.size());
+                  for (size_t i = 0; i < to_clear2; ++i) pd2.raw_data_buffer[i] = 0u;
+                }
+                m_logan_expected_samples = samp_ch;
+                m_logan_samples_written  = 0;
+                m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
+                m_logan_checksum_accum   = 0;
+                continue;
+              }
+
+              if (!hdr && is_snm_event(w))
+              {
+                const uint8_t t = (w >> 12) & 0x0F;
+                const uint8_t a = (w >> 8)  & 0x0F;
+                const uint8_t v = (w >> 4)  & 0x0F;
+                {
+                  std::lock_guard<std::mutex> ql(m_queue_mutex);
+                  if (m_queue.size() < MAX_QUEUE) m_queue.push({t, a, v});
+                }
+                continue;
+              }
+
+              // payload word
+              for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
+              {
+                const uint8_t nib = static_cast<uint8_t>((w >> ((3 - i) * 4)) & 0x0F);
+                const unsigned sidx = m_logan_samples_written++;
+                if (sidx < pdata.raw_data_buffer.size())
+                {
+                  unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
+                                          ? (m_logan_current_channel - 1)
+                                          : 0u;
+                  const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
+                  pdata.raw_data_buffer[sidx] &= ~(static_cast<uint32_t>(1u) << bit);
+                  pdata.raw_data_buffer[sidx] |= (static_cast<uint32_t>(nib & 0x1u) << bit);
+                }
+              }
+              m_logan_checksum_accum ^= w;
+              if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+            }
+          }
 
           if (m_logan_words_remaining == 0)
           {
@@ -515,7 +640,7 @@ service_once()
           auto &pdata = lab().m_Logic_Analyzer.parent_data();
           for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
           {
-            const uint8_t nibble = static_cast<uint8_t>((payload >> (i * 4)) & 0x0F);
+            const uint8_t nibble = static_cast<uint8_t>((payload >> ((3 - i) * 4)) & 0x0F);
             const unsigned sample_index = m_logan_samples_written++;
             if (sample_index < pdata.raw_data_buffer.size())
             {

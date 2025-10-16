@@ -79,8 +79,6 @@ cb_run_stop (Fl_Light_Button* w,
   }
   else
   {
-    // lab().m_Software_Navigation.set_tx_logan_triggers ();
-
     lab().m_Software_Navigation.set_tx_logan_config(
       lab().m_Logic_Analyzer.samples(),
       lab().m_Logic_Analyzer.sampling_rate()
@@ -211,6 +209,10 @@ cb_trigger_mode (Fl_Choice* w,
   }
 
   lab ().m_Logic_Analyzer.trigger_mode (mode);
+  lab().m_Software_Navigation.set_tx_logan_config(
+    lab().m_Logic_Analyzer.samples(),
+    lab().m_Logic_Analyzer.sampling_rate()
+  );
 }
 
 void LABSoft_Presenter_Logic_Analyzer::
@@ -259,7 +261,10 @@ cb_trigger_condition (Fl_Menu_Button* w,
   }
 
   lab ().m_Logic_Analyzer.trigger_condition (static_cast<unsigned>(ch_idx), trig_cnd);
-  // lab ().m_Software_Navigation.set_tx_logan_triggers ();
+  lab().m_Software_Navigation.set_tx_logan_config(
+    lab().m_Logic_Analyzer.samples(),
+    lab().m_Logic_Analyzer.sampling_rate()
+  );
 
   gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->
     update_gui_trigger_modes ();

@@ -56,20 +56,26 @@ draw_signal ()
 
   fl_color (LOGAN_DISPLAY::GRAPH_LINE_COLOR);
 
+  // Disable anti-aliasing and use solid lines for crisp 1-bit rendering
   fl_line_style (
-    LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+    FL_SOLID,
     LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
-    LOGAN_DISPLAY::GRAPH_LINE_DASHES
+    nullptr
   );
 
   for (unsigned a = 0; a < (pp.size () - 1); a++)
   {
-    fl_line (
-      pp[a][0],
-      pp[a][1] + m_graph_offset,
-      pp[a + 1][0],
-      pp[a + 1][1] + m_graph_offset
-    );
+    int x1 = pp[a][0];
+    int y1 = pp[a][1] + m_graph_offset;
+    int x2 = pp[a + 1][0];
+    int y2 = pp[a + 1][1] + m_graph_offset;
+
+    // Snap to integer pixel rows to avoid subpixel blending
+    y1 = (int)std::round((double)y1);
+    y2 = (int)std::round((double)y2);
+
+    // Draw exactly what calc_pp_coords produced (horizontal or vertical only)
+    fl_line (x1, y1, x2, y2);
   }
 
   fl_line_style (0);
@@ -624,6 +630,25 @@ calc_pp_coords (bool      curr_samp,
       std::array<int, 2> {x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH,
         m_graph_base_line_coords[curr_samp]}
     );
+
+    // Also terminate the first segment explicitly to avoid an initial diagonal
+    if (curr_samp == next_samp)
+    {
+      pp.emplace_back (
+        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+      );
+    }
+    else
+    {
+      // Vertical transition at next_x, then land on the new level
+      pp.emplace_back (
+        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+      );
+
+      pp.emplace_back (
+        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+      );
+    }
   }
   else
   {
