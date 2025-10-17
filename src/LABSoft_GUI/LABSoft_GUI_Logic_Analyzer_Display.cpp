@@ -42,43 +42,32 @@ draw ()
   draw_signal ();
 }
 
-void LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph::
-draw_signal ()
+void
+LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph::
+draw_signal()
 {
   std::vector<std::array<int, 2>>& pp = m_display_data->pixel_points[m_channel];
 
-  if (m_display_data == nullptr || m_channel < 0 || pp.size () == 0)
-  {
+  if (m_display_data == nullptr || m_channel < 0 || pp.size() == 0) {
     return;
   }
 
   // =====
 
-  fl_color (LOGAN_DISPLAY::GRAPH_LINE_COLOR);
+  fl_color(LOGAN_DISPLAY::GRAPH_LINE_COLOR);
 
-  // Disable anti-aliasing and use solid lines for crisp 1-bit rendering
-  fl_line_style (
-    FL_SOLID,
-    LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
-    nullptr
-  );
+  fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                LOGAN_DISPLAY::GRAPH_LINE_DASHES);
 
-  for (unsigned a = 0; a < (pp.size () - 1); a++)
-  {
-    int x1 = pp[a][0];
-    int y1 = pp[a][1] + m_graph_offset;
-    int x2 = pp[a + 1][0];
-    int y2 = pp[a + 1][1] + m_graph_offset;
-
-    // Snap to integer pixel rows to avoid subpixel blending
-    y1 = (int)std::round((double)y1);
-    y2 = (int)std::round((double)y2);
-
-    // Draw exactly what calc_pp_coords produced (horizontal or vertical only)
-    fl_line (x1, y1, x2, y2);
+  for (unsigned a = 0; a < (pp.size() - 1); a++) {
+    fl_line(pp[a][0],
+            pp[a][1] + m_graph_offset,
+            pp[a + 1][0],
+            pp[a + 1][1] + m_graph_offset);
   }
 
-  fl_line_style (0);
+  fl_line_style(0);
 }
 
 void LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph::
