@@ -357,8 +357,6 @@ service_once()
       {
         m_logan_current_channel = 1;
       }
-      std::printf("LOGAN RX HDR ch=%u single=%u\n", (unsigned)m_logan_current_channel, (unsigned)((type_nibble_hdr & 0x8)==0));
-      std::fflush(stdout);
       auto map_samples = [](uint8_t n) -> unsigned {
         switch (n & 0x0F)
         {
@@ -513,8 +511,6 @@ service_once()
         if (m_logan_current_channel >= 1 && m_logan_current_channel <= 4)
         {
           m_logan_channels_received_mask |= static_cast<uint8_t>(1u << (m_logan_current_channel - 1));
-          std::printf("LOGAN RX CH%u DONE mask=0x%02X\n", (unsigned)m_logan_current_channel, (unsigned)m_logan_channels_received_mask);
-          std::fflush(stdout);
         }
 
         if ((m_logan_channels_received_mask & 0x0F) == 0x0F)
@@ -522,25 +518,9 @@ service_once()
           m_logan_rx_state = LOGAN_RX_STATE::NONE;
           if (s_logan_single_frame)
           {
-            std::printf("LOGAN RX COMPLETE (SINGLE)\n");
             s_logan_single_frame = false;
           }
-          // Debug: dump first 32 decoded samples per channel bit to verify render path
-          {
-            auto &pd_dbg = lab().m_Logic_Analyzer.parent_data();
-            const unsigned to_show = std::min(m_logan_frame_expected_samples, 32u);
-            for (unsigned ch = 0; ch < 4; ++ch)
-            {
-              const unsigned bit = (LABC::PIN::LOGAN[ch]);
-              std::printf("LOGAN RX CH%u SAMPLES (first %u): ", ch + 1, (unsigned)to_show);
-              for (unsigned i = 0; i < to_show; ++i)
-              {
-                uint32_t v = pd_dbg.raw_data_buffer[i];
-                std::printf("%u", (unsigned)((v >> bit) & 0x1u));
-              }
-              std::printf("\n");
-            }
-          }
+
           publish_completed_logan_block();
           m_logan_channels_received_mask = 0;
           m_logan_current_channel = 0;
@@ -590,8 +570,6 @@ service_once()
       {
         m_logan_current_channel = 1;
       }
-      std::printf("LOGAN RX HDR ch=%u single=%u\n", (unsigned)m_logan_current_channel, (unsigned)((type_nibble_hdr & 0x8)==0));
-      std::fflush(stdout);
       auto map_samples = [](uint8_t n) -> unsigned {
         switch (n & 0x0F)
         {
@@ -656,33 +634,15 @@ service_once()
         if (m_logan_current_channel >= 1 && m_logan_current_channel <= 4)
         {
           m_logan_channels_received_mask |= static_cast<uint8_t>(1u << (m_logan_current_channel - 1));
-          std::printf("LOGAN RX CH%u DONE mask=0x%02X\n", (unsigned)m_logan_current_channel, (unsigned)m_logan_channels_received_mask);
-          std::fflush(stdout);
         }
         if ((m_logan_channels_received_mask & 0x0F) == 0x0F)
         {
           m_logan_rx_state = LOGAN_RX_STATE::NONE;
           if (s_logan_single_frame)
           {
-            std::printf("LOGAN RX COMPLETE (SINGLE)\n");
             s_logan_single_frame = false;
           }
-          // Debug: dump first 32 decoded samples per channel bit to verify render path
-          {
-            auto &pd_dbg = lab().m_Logic_Analyzer.parent_data();
-            const unsigned to_show = std::min(m_logan_frame_expected_samples, 32u);
-            for (unsigned ch = 0; ch < 4; ++ch)
-            {
-              const unsigned bit = (LABC::PIN::LOGAN[ch]);
-              std::printf("LOGAN RX CH%u SAMPLES (first %u): ", ch + 1, (unsigned)to_show);
-              for (unsigned i = 0; i < to_show; ++i)
-              {
-                uint32_t v = pd_dbg.raw_data_buffer[i];
-                std::printf("%u", (unsigned)((v >> bit) & 0x1u));
-              }
-              std::printf("\n");
-            }
-          }
+
           publish_completed_logan_block();
           m_logan_channels_received_mask = 0;
           m_logan_current_channel = 0;
