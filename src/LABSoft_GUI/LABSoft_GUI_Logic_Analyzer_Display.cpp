@@ -56,15 +56,53 @@ draw_signal()
 
   fl_color(LOGAN_DISPLAY::GRAPH_LINE_COLOR);
 
-  fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
-                LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
-                LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+  if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+  {
+    // Enhanced rendering with different line styles for different segment types
+    for (unsigned a = 0; a < (pp.size() - 1); a++) {
+      int x1 = pp[a][0];
+      int y1 = pp[a][1] + m_graph_offset;
+      int x2 = pp[a + 1][0];
+      int y2 = pp[a + 1][1] + m_graph_offset;
 
-  for (unsigned a = 0; a < (pp.size() - 1); a++) {
-    fl_line(pp[a][0],
-            pp[a][1] + m_graph_offset,
-            pp[a + 1][0],
-            pp[a + 1][1] + m_graph_offset);
+      // Determine segment type based on coordinates
+      bool is_horizontal = (y1 == y2);
+      bool is_vertical = (x1 == x2);
+      bool is_diagonal = !is_horizontal && !is_vertical;
+
+      if (is_horizontal) {
+        // Horizontal segments - use main line style
+        fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                      LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                      LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+      } else if (is_vertical) {
+        // Vertical segments - use main line style
+        fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                      LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                      LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+      } else if (is_diagonal) {
+        // Diagonal segments - use diagonal line style
+        fl_line_style(LOGAN_DISPLAY::DIAGONAL_LINE_STYLE,
+                      LOGAN_DISPLAY::DIAGONAL_LINE_WIDTH,
+                      0);
+      }
+
+      fl_line(x1, y1, x2, y2);
+    }
+  }
+  else
+  {
+    // Original rendering - uniform line style
+    fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                  LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                  LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+
+    for (unsigned a = 0; a < (pp.size() - 1); a++) {
+      fl_line(pp[a][0],
+              pp[a][1] + m_graph_offset,
+              pp[a + 1][0],
+              pp[a + 1][1] + m_graph_offset);
+    }
   }
 
   fl_line_style(0);
@@ -633,6 +671,29 @@ fill_pixel_points_backend_stopped ()
   }
 }
 
+int LABSoft_GUI_Logic_Analyzer_Display::
+calc_optimal_diagonal_length (int x_distance, double time_per_pixel) const
+{
+  if (!LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING) {
+    return 0;
+  }
+
+  // Calculate optimal diagonal length based on timing and distance
+  int base_length = LOGAN_DISPLAY::DIAGONAL_TRANSITION_LENGTH;
+
+  // Adjust based on time per pixel (higher resolution = shorter transitions)
+  if (time_per_pixel > 0) {
+    double timing_factor = std::min(1.0, time_per_pixel * 1000.0); // Scale factor
+    base_length = static_cast<int>(base_length * (1.0 - LOGAN_DISPLAY::DIAGONAL_SMOOTHING_FACTOR * timing_factor));
+  }
+
+  // Ensure minimum and maximum bounds
+  int optimal_length = std::max(LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH,
+                               std::min(base_length, x_distance / 2));
+
+  return optimal_length;
+}
+
 void LABSoft_GUI_Logic_Analyzer_Display::
 calc_pp_coords (bool      curr_samp,
                 bool      next_samp,
@@ -647,7 +708,7 @@ calc_pp_coords (bool      curr_samp,
         m_graph_base_line_coords[curr_samp]}
     );
 
-    // Also terminate the first segment explicitly to avoid an initial diagonal
+    // Handle transition from first point
     if (curr_samp == next_samp)
     {
       pp.emplace_back (
@@ -656,14 +717,47 @@ calc_pp_coords (bool      curr_samp,
     }
     else
     {
-      // Vertical transition at next_x, then land on the new level
-      pp.emplace_back (
-        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
-      );
+      if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+      {
+        // Calculate optimal diagonal transition length
+        int x_distance = next_x - (x() + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH);
+        double time_per_pixel = m_parent_data ? (m_parent_data->time_per_division / m_display_data.graph_width) : 0.0;
+        int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
-      pp.emplace_back (
-        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
-      );
+        if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+        {
+          // Start diagonal transition
+          int diagonal_start_x = next_x - diagonal_length;
+          pp.emplace_back (
+            std::array<int, 2> {diagonal_start_x, m_graph_base_line_coords[curr_samp]}
+          );
+
+          // End diagonal transition
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+        else
+        {
+          // Fallback to vertical transition for very short distances
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+          );
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+      }
+      else
+      {
+        // Original vertical transition behavior
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+        );
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+        );
+      }
     }
   }
   else
@@ -676,13 +770,48 @@ calc_pp_coords (bool      curr_samp,
     }
     else
     {
-      pp.emplace_back (
-        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
-      );
+      if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+      {
+        // Calculate diagonal transition for subsequent points
+        int prev_x = pp.back()[0];
+        int x_distance = next_x - prev_x;
+        double time_per_pixel = m_parent_data ? (m_parent_data->time_per_division / m_display_data.graph_width) : 0.0;
+        int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
-      pp.emplace_back (
-        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
-      );
+        if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+        {
+          // Start diagonal transition from current level
+          int diagonal_start_x = next_x - diagonal_length;
+          pp.emplace_back (
+            std::array<int, 2> {diagonal_start_x, m_graph_base_line_coords[curr_samp]}
+          );
+
+          // End diagonal transition at new level
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+        else
+        {
+          // Fallback to vertical transition for very short distances
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+          );
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+      }
+      else
+      {
+        // Original vertical transition behavior
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+        );
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+        );
+      }
     }
   }
 }

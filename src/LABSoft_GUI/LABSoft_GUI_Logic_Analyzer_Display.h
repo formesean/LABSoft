@@ -78,6 +78,14 @@ namespace LOGAN_DISPLAY
   constexpr int         GRAPH_LINE_WIDTH         = 2;
   constexpr char*       GRAPH_LINE_DASHES = 0;
 
+  // Diagonal rendering configuration
+  constexpr bool        ENABLE_DIAGONAL_RENDERING = true;
+  constexpr int         DIAGONAL_TRANSITION_LENGTH = 8; // pixels for diagonal transition
+  constexpr int         DIAGONAL_LINE_STYLE = FL_SOLID;
+  constexpr int         DIAGONAL_LINE_WIDTH = 1;
+  constexpr double      DIAGONAL_SMOOTHING_FACTOR = 0.3; // 0.0 = sharp, 1.0 = very smooth
+  constexpr int         MIN_DIAGONAL_LENGTH = 2; // minimum pixels for diagonal transition
+
   constexpr unsigned  NUMBER_OF_COLUMNS        = 10;
   constexpr int       BG_COLOR                 = FL_WHITE;
   constexpr int       GROUP_NUMBER_OF_CHANNELS = LABC::LOGAN::NUMBER_OF_CHANNELS;
@@ -204,6 +212,7 @@ class LABSoft_GUI_Logic_Analyzer_Display : public Fl_Group
     void        calc_graph_base_line_coords                 ();
     void        calc_pp_coords                              (bool curr_samp, bool next_samp, int next_x, int curr_index, std::vector<std::array<int, 2>>& pixel_points);
     void        calc_chan_widget_graph_offset_last          ();
+    int         calc_optimal_diagonal_length                (int x_distance, double time_per_pixel) const;
     void        fill_pixel_points                           ();
     void        fill_pixel_points_backend_running           ();
     void        fill_pixel_points_backend_stopped           ();
