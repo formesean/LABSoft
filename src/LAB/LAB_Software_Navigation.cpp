@@ -89,8 +89,8 @@ set_tx_logan_config(unsigned samples, double sampling_rate, bool continuous)
     }
   };
 
-  uint8_t trig_chan_nibble = 0x0;
-  uint8_t trig_mode_nibble = 0x0;
+  uint8_t trig_chan_nibble = 0x1; // Default to channel 1 for immediate mode
+  uint8_t trig_mode_nibble = 0x0; // Default to immediate mode (no trigger)
   {
     const auto &pdata = lab().m_Logic_Analyzer.parent_data();
     for (unsigned i = 0; i < LABC::LOGAN::NUMBER_OF_CHANNELS; ++i)
