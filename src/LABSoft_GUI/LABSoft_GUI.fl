@@ -40,7 +40,7 @@ class LABSoft_GUI {open
   } {
     Fl_Window main_fl_window {
       label {LABSoft (for Educators)} open
-      xywh {286 234 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
+      xywh {294 265 1220 595} type Double color 53 selection_color 53 labelsize 12 visible
     } {
       Fl_Menu_Bar main_fl_menu {
         xywh {0 0 1220 20} box FLAT_BOX color 54 labelsize 12 textsize 12
@@ -1623,8 +1623,8 @@ class LABSoft_GUI {open
           }
         }
         Fl_Group main_fl_group_logic_analyzer_tab {
-          label {Logic Analyzer}
-          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12 hide
+          label {Logic Analyzer} open
+          xywh {0 50 1220 550} color 54 selection_color 52 labelsize 12
         } {
           Fl_Group logic_analyzer_fl_group_display {
             xywh {20 70 400 70} box ROUNDED_FRAME color 52
@@ -1998,7 +1998,7 @@ class LABSoft_GUI {open
             }
             Fl_Input_Choice logic_analyzer_fl_input_choice_sampling_rate {
               label {Sampling Rate}
-              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_sampling_rate (o, v);} open
+              callback {m_LABSoft_Presenter->m_Logic_Analyzer.cb_sampling_rate (o, v);} open selected
               xywh {1080 157 100 25} box FLAT_BOX color 54 selection_color 229 labelsize 12 align 1 textsize 12
               code0 {logic_analyzer_fl_input_choice_sampling_rate->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
               code1 {logic_analyzer_fl_input_choice_sampling_rate->input ()->when (FL_WHEN_RELEASE | FL_WHEN_ENTER_KEY);}
@@ -2009,10 +2009,6 @@ class LABSoft_GUI {open
               MenuItem {} {
                 label {100 Hz}
                 xywh {120 120 36 21} labelsize 12
-              }
-              MenuItem {} {
-                label {60 Hz}
-                xywh {110 110 36 21} labelsize 12
               }
               MenuItem {} {
                 label {50 Hz}
@@ -2200,8 +2196,8 @@ class LABSoft_GUI {open
           } {}
         }
         Fl_Group main_fl_group_analog_circuit_checker {
-          label {Analog Circuit Checker} open
-          xywh {1 50 1220 550} color 54 selection_color 52 labelsize 12
+          label {Analog Circuit Checker}
+          xywh {1 50 1220 550} color 54 selection_color 52 labelsize 12 hide
         } {
           Fl_Group analog_circuit_checker_labsoft_gui_analog_circuit_checker_display {
             xywh {260 100 920 450} box FLAT_BOX color 32
@@ -2257,7 +2253,7 @@ class LABSoft_GUI {open
             }
           }
           Fl_Text_Display analog_circuit_checker_domain_label {
-            label {TIme Domain} selected
+            label {TIme Domain}
             xywh {640 575 200 1}
           }
         }

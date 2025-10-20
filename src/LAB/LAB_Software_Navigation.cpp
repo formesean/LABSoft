@@ -66,8 +66,7 @@ set_tx_logan_config(unsigned samples, double sampling_rate, bool continuous)
   else                    samples_nibble = 0x0;
 
   uint8_t rate_nibble = 0;
-  if (sampling_rate >= 100) rate_nibble = 0x8;
-  else if (sampling_rate >= 60)  rate_nibble = 0x7;
+  if (sampling_rate >= 100) rate_nibble = 0x7;
   else if (sampling_rate >= 50)  rate_nibble = 0x6;
   else if (sampling_rate >= 20)  rate_nibble = 0x5;
   else if (sampling_rate >= 10)  rate_nibble = 0x4;
