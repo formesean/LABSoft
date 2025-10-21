@@ -1,5 +1,8 @@
 #include "LAB_Logic_Analyzer.h"
 
+#include <cstdlib>
+#include <cmath>
+
 #include "LAB.h"
 #include "../Utility/LAB_Utility_Functions.h"
 
@@ -371,9 +374,53 @@ update_data_samples ()
   // Always parse a completed frame, even if not running (single-shot)
   if (m_parent_data.trigger_frame_ready)
   {
+    // Parse and log the completed single-shot frame
     parse_raw_sample_buffer ();
-    m_parent_data.trigger_frame_ready = false;
 
+    // DEBUG PRINT
+    {
+      #ifdef _WIN32
+        std::system("cls");
+      #else
+        std::system("clear");
+      #endif
+
+      const auto &pdata = m_parent_data;
+      double sr = pdata.sampling_rate;
+
+      printf("--- Start of LOGAN Frame ---\n\n");
+      printf("\tTime (s)");
+      for (unsigned ch = 0; ch < pdata.channel_data.size(); ++ch)
+      {
+        printf("\tDIO %u", ch);
+      }
+      printf("\n");
+
+      double window = static_cast<double>(pdata.samples - 1) / sr;
+      double half_window = window / 2.0;
+      const double offset = (1.0 / sr) / 2.0;
+
+      for (size_t idx = 0; idx < pdata.samples; ++idx)
+      {
+        double centered_ts = -half_window + (static_cast<double>(idx) * window) / (pdata.samples - 1);
+        double ts = centered_ts + offset;
+
+        printf("%zu\t", idx + 1);
+
+        if (std::fabs(ts) < (0.5 / sr)) ts = 0.0;
+        printf("%.2f", ts);
+
+        for (unsigned ch = 0; ch < pdata.channel_data.size(); ++ch)
+        {
+          bool s = pdata.channel_data[ch].samples[idx];
+          printf("\t%d", s ? 1 : 0);
+        }
+        printf("\n");
+      }
+      printf("\n--- End of LOGAN Frame ---\n\n");
+    }
+
+    m_parent_data.trigger_frame_ready = false;
     if (m_parent_data.single)
     {
       m_parent_data.single = false;
