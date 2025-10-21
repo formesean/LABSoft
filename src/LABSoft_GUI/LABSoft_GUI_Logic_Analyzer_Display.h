@@ -200,9 +200,10 @@ class LABSoft_GUI_Logic_Analyzer_Display : public Fl_Group
     Fl_Box*                         m_status;
     Fl_Box*                         m_top_info;
 
+    // One label at each grid line: DISPLAY_NUMBER_OF_COLUMNS divisions require N+1 labels
     std::array<
       Fl_Box*,
-      LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS
+      (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS + 1)
     > m_time_per_division_labels;
 
   private:

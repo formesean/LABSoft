@@ -497,7 +497,7 @@ init_child_widgets_time_per_division_labels ()
   double    col_width           = static_cast<double>(disp_internal_width) /
                                   LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
 
-  for (unsigned col = 0; col <= m_time_per_division_labels.size (); col++)
+  for (unsigned col = 0; col < m_time_per_division_labels.size (); col++)
   {
     double x_coord = x () + (LOGAN_DISPLAY::CHANNEL_INFO_WIDTH) +
       (col * col_width);
@@ -598,32 +598,66 @@ fill_pixel_points_backend_running ()
       bool  curr_samp, next_samp;
       int   next_x, i;
 
-      if (pdata.samples >= m_display_data.graph_width)
+      // For triggered single-shot captures, use time-based rendering to respect trigger alignment
+      // Check if we have valid trigger data and timing parameters for alignment
+      // Also check if we're in single-shot mode or have a valid horizontal offset
+      if (pdata.trigger_index > 0 && pdata.sampling_rate > 0.0 && pdata.time_per_division > 0.0 &&
+          (pdata.single || std::abs(pdata.horizontal_offset) > 1e-9))
       {
-        double samp_skipper = (pdata.samples - 1) /
-          static_cast<double>(m_display_data.graph_width - 1);
+        const double col_half = (LABC::OSC::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
 
-        for (i = 0; i < (m_display_data.graph_width - 1); i++)
+        auto sample_at_time = [&](double t)->bool {
+          long j = static_cast<long>(std::llround(t * pdata.sampling_rate));
+          if (j < 0) j = 0;
+          if (j >= static_cast<long>(pdata.samples)) j = static_cast<long>(pdata.samples) - 1;
+          return cdata.samples[static_cast<size_t>(j)];
+        };
+
+        bool prev = sample_at_time((0 + col_half) * pdata.time_per_division + pdata.horizontal_offset);
+        pp.emplace_back(std::array<int,2>{
+          x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH,
+          m_graph_base_line_coords[prev]
+        });
+
+        for (int i = 0; i < (m_display_data.graph_width - 1); i++)
         {
-          curr_samp = cdata.samples[std::round (i * samp_skipper)];
-          next_samp = cdata.samples[std::round ((i + 1) * samp_skipper)];
-          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + i;
-
-          calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
+          double t_next = ((i + 1) + col_half) * pdata.time_per_division + pdata.horizontal_offset;
+          bool   next   = sample_at_time(t_next);
+          int    next_x = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
+          calc_pp_coords(prev, next, next_x, i, pp);
+          prev = next;
         }
       }
       else
       {
-        double pxl_skipper = static_cast<double>(m_display_data.graph_width - 1) /
-          (pdata.samples - 1);
-
-        for (i = 0; i < (pdata.samples - 1); i++)
+        // Original pixel-based rendering for continuous mode or when trigger data is not available
+        if (pdata.samples >= m_display_data.graph_width)
         {
-          curr_samp = cdata.samples[i];
-          next_samp = cdata.samples[i + 1];
-          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + std::round ((i + 1) * pxl_skipper);
+          double samp_skipper = (pdata.samples - 1) /
+            static_cast<double>(m_display_data.graph_width - 1);
 
-          calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
+          for (i = 0; i < (m_display_data.graph_width - 1); i++)
+          {
+            curr_samp = cdata.samples[std::round (i * samp_skipper)];
+            next_samp = cdata.samples[std::round ((i + 1) * samp_skipper)];
+            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + i;
+
+            calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
+          }
+        }
+        else
+        {
+          double pxl_skipper = static_cast<double>(m_display_data.graph_width - 1) /
+            (pdata.samples - 1);
+
+          for (i = 0; i < (pdata.samples - 1); i++)
+          {
+            curr_samp = cdata.samples[i];
+            next_samp = cdata.samples[i + 1];
+            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + std::round ((i + 1) * pxl_skipper);
+
+            calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
+          }
         }
       }
     }
@@ -928,6 +962,8 @@ draw ()
     update_gui_top_info ();
   }
 
+  // Always update time-per-division labels before drawing
+  update_gui_time_per_division();
   update_gui_status ();
 
   draw_box      (FL_FLAT_BOX, LOGAN_DISPLAY::BG_COLOR);
@@ -1008,7 +1044,8 @@ remove_channel (unsigned channel)
 void LABSoft_GUI_Logic_Analyzer_Display::
 update_gui_time_per_division ()
 {
-  double col_half = (LABC::OSC::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+  // Use LOGAN display columns for logic analyzer
+  double col_half = (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
 
   for (unsigned a = 0; a < m_time_per_division_labels.size (); a++)
   {

@@ -131,6 +131,21 @@ publish_completed_logan_block()
     auto &pdata = lab().m_Logic_Analyzer.parent_data();
     pdata.samples = m_logan_frame_expected_samples;
     pdata.trigger_frame_ready = true;
+
+    // Calculate horizontal offset to center trigger at zero-second
+    if (pdata.trigger_index > 0 && pdata.samples > 0 && pdata.sampling_rate > 0)
+    {
+      // Calculate time offset to center the trigger
+      double trigger_time_offset = static_cast<double>(pdata.trigger_index) / pdata.sampling_rate;
+      double half_window_time = static_cast<double>(pdata.samples) / (2.0 * pdata.sampling_rate);
+      pdata.horizontal_offset = half_window_time - trigger_time_offset;
+    }
+    else
+    {
+      // No trigger or invalid data, center at zero
+      pdata.horizontal_offset = 0.0;
+    }
+
     m_logan_expected_samples = 0;
     m_logan_samples_written  = 0;
     m_logan_words_remaining  = 0;
@@ -381,6 +396,12 @@ service_once()
         auto &pdata = lab().m_Logic_Analyzer.parent_data();
         const size_t to_clear = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pdata.raw_data_buffer.size());
         for (size_t i = 0; i < to_clear; ++i) pdata.raw_data_buffer[i] = 0u;
+
+        // For single-shot triggered captures, set trigger index to center (zero-second reference)
+        if (s_logan_single_frame)
+        {
+          pdata.trigger_index = samples_for_channel / 2;
+        }
       }
       m_logan_expected_samples = samples_for_channel;
       m_logan_samples_written  = 0;
@@ -465,6 +486,12 @@ service_once()
                 auto &pd2 = lab().m_Logic_Analyzer.parent_data();
                 const size_t to_clear2 = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pd2.raw_data_buffer.size());
                 for (size_t i = 0; i < to_clear2; ++i) pd2.raw_data_buffer[i] = 0u;
+
+                // For single-shot triggered captures, set trigger index to center (zero-second reference)
+                if (s_logan_single_frame)
+                {
+                  pd2.trigger_index = samp_ch / 2;
+                }
               }
               m_logan_expected_samples = samp_ch;
               m_logan_samples_written  = 0;
@@ -594,6 +621,12 @@ service_once()
         auto &pdata = lab().m_Logic_Analyzer.parent_data();
         const size_t to_clear = std::min(static_cast<size_t>(m_logan_frame_expected_samples), pdata.raw_data_buffer.size());
         for (size_t i = 0; i < to_clear; ++i) pdata.raw_data_buffer[i] = 0u;
+
+        // For single-shot triggered captures, set trigger index to center (zero-second reference)
+        if (s_logan_single_frame)
+        {
+          pdata.trigger_index = samples_for_channel / 2;
+        }
       }
       m_logan_expected_samples = samples_for_channel;
       m_logan_samples_written  = 0;
