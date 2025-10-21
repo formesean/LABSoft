@@ -611,18 +611,18 @@ sampling_rate (double value)
     const double   target_window_seconds = 5.0;
 
     unsigned recommended_samples = static_cast<unsigned>(value * target_window_seconds);
+    static const unsigned sampleOptions[] = {2,5,10,20,50,100,200,500,1000,2000};
+    unsigned clamped_samples = sampleOptions[0];
 
-    if (recommended_samples < min_samples)
+    for (unsigned opt : sampleOptions)
     {
-      recommended_samples = min_samples;
-    }
-    else if (recommended_samples > max_samples)
-    {
-      recommended_samples = max_samples;
+      if (recommended_samples >= opt) clamped_samples = opt;
+      else break;
     }
 
-    if (recommended_samples != m_parent_data.samples)
-    {set_samples (recommended_samples);
+    if (clamped_samples != m_parent_data.samples)
+    {
+      set_samples(clamped_samples);
     }
 
     set_time_per_division (m_parent_data.samples, value);
