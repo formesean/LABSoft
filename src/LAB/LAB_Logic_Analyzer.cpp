@@ -408,7 +408,7 @@ update_data_samples ()
         printf("%zu\t", idx + 1);
 
         if (std::fabs(ts) < (0.5 / sr)) ts = 0.0;
-        printf("%.2f", ts);
+        printf("%.2f\t", ts);
 
         for (unsigned ch = 0; ch < pdata.channel_data.size(); ++ch)
         {
@@ -550,18 +550,8 @@ void LAB_Logic_Analyzer::
 time_per_division (double value)
 {
   if (LABF::is_within_range (value, LABC::LOGAN::MIN_TIME_PER_DIVISION,
-    LABC::LOGAN::MAX_TIME_PER_DIVISION, LABC::LABSOFT::EPSILON))
+      LABC::LOGAN::MAX_TIME_PER_DIVISION, LABC::LABSOFT::EPSILON))
   {
-    double new_sampling_rate = calc_sampling_rate (m_parent_data.samples, value);
-
-    if (value < LABC::LOGAN::MIN_TIME_PER_DIVISION_NO_ZOOM)
-    {
-      unsigned new_sample_count = calc_sample_count (m_parent_data.sampling_rate, value);
-
-      set_samples (new_sample_count);
-    }
-
-    set_sampling_rate     (new_sampling_rate);
     set_time_per_division (value);
   }
 }
