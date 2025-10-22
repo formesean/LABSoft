@@ -549,10 +549,27 @@ horizontal_offset () const
 void LAB_Logic_Analyzer::
 time_per_division (double value)
 {
-  if (LABF::is_within_range (value, LABC::LOGAN::MIN_TIME_PER_DIVISION,
-      LABC::LOGAN::MAX_TIME_PER_DIVISION, LABC::LABSOFT::EPSILON))
+  if (LABF::is_within_range(value, LABC::LOGAN::MIN_TIME_PER_DIVISION,
+                            LABC::LOGAN::MAX_TIME_PER_DIVISION, LABC::LABSOFT::EPSILON))
   {
-    set_time_per_division (value);
+    // 1) Set time per division
+    set_time_per_division(value);
+
+    // 2) Compute and set sampling rate based on current samples
+    double raw_sr = calc_sampling_rate(m_parent_data.samples, value);
+    static const double allowedRates[] = {100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0};
+    double bestRate = allowedRates[0];
+    double minDiff = std::abs(bestRate - raw_sr);
+    for (double opt : allowedRates)
+    {
+      double diff = std::abs(opt - raw_sr);
+      if (diff < minDiff)
+      {
+        minDiff = diff;
+        bestRate = opt;
+      }
+    }
+    set_sampling_rate(bestRate);
   }
 }
 
@@ -593,30 +610,28 @@ samples () const
 void LAB_Logic_Analyzer::
 sampling_rate (double value)
 {
-  if (LABF::is_within_range (value, LABC::LOGAN::MIN_SAMPLING_RATE,
-    LABC::LOGAN::MAX_SAMPLING_RATE, LABC::LABSOFT::EPSILON))
+  if (LABF::is_within_range(value, LABC::LOGAN::MIN_SAMPLING_RATE,
+                            LABC::LOGAN::MAX_SAMPLING_RATE, LABC::LABSOFT::EPSILON))
   {
-    const unsigned min_samples = LABC::LOGAN::MIN_SAMPLES;
-    const unsigned max_samples = LABC::LOGAN::MAX_SAMPLES;
-    const double   target_window_seconds = 5.0;
-
-    unsigned recommended_samples = static_cast<unsigned>(value * target_window_seconds);
-    static const unsigned sampleOptions[] = {2,5,10,20,50,100,200,500,1000,2000};
-    unsigned clamped_samples = sampleOptions[0];
-
-    for (unsigned opt : sampleOptions)
+    // 1) Choose allowed sampling rate closest to value
+    static const double allowedRates[] = {100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0};
+    double bestRate = allowedRates[0];
+    double minDiff = std::abs(bestRate - value);
+    for (double opt : allowedRates)
     {
-      if (recommended_samples >= opt) clamped_samples = opt;
-      else break;
+      double diff = std::abs(opt - value);
+      if (diff < minDiff)
+      {
+        minDiff = diff;
+        bestRate = opt;
+      }
     }
+    // 2) Set sampling rate
+    set_sampling_rate(bestRate);
 
-    if (clamped_samples != m_parent_data.samples)
-    {
-      set_samples(clamped_samples);
-    }
-
-    set_time_per_division (m_parent_data.samples, value);
-    set_sampling_rate     (value);
+    // 3) Adjust time per division based on current samples
+    double new_tdiv = calc_time_per_division(m_parent_data.samples, bestRate);
+    set_time_per_division(new_tdiv);
   }
 }
 
