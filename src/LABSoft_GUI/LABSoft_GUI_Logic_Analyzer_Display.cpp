@@ -604,7 +604,7 @@ fill_pixel_points_backend_running ()
       if (pdata.trigger_index > 0 && pdata.sampling_rate > 0.0 && pdata.time_per_division > 0.0 &&
           (pdata.single || std::abs(pdata.horizontal_offset) > 1e-9))
       {
-        const double col_half = (LABC::OSC::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+        const double col_half = (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
 
         auto sample_at_time = [&](double t)->bool {
           long j = static_cast<long>(std::llround(t * pdata.sampling_rate));
@@ -640,7 +640,7 @@ fill_pixel_points_backend_running ()
           {
             curr_samp = cdata.samples[std::round (i * samp_skipper)];
             next_samp = cdata.samples[std::round ((i + 1) * samp_skipper)];
-            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + i;
+            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
 
             calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
           }
@@ -671,7 +671,7 @@ fill_pixel_points_backend_stopped ()
   LAB_Parent_Data_Logic_Analyzer& pdata = *m_parent_data;
   if (pdata.samples < 2 || pdata.sampling_rate <= 0.0) { return; }
 
-  const double col_half = (LABC::OSC::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+  const double col_half = (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
 
   for (unsigned chan = 0; chan < pdata.channel_data.size (); chan++)
   {
@@ -755,7 +755,13 @@ calc_pp_coords (bool      curr_samp,
       {
         // Calculate optimal diagonal transition length
         int x_distance = next_x - (x() + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH);
-        double time_per_pixel = m_parent_data ? (m_parent_data->time_per_division / m_display_data.graph_width) : 0.0;
+        double time_per_pixel = 0.0;
+        if (m_parent_data && m_display_data.graph_width > 0)
+        {
+          // time_per_division is per grid division; convert to per pixel using LOGAN columns
+          const double total_time_window = m_parent_data->time_per_division * LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+          time_per_pixel = total_time_window / static_cast<double>(m_display_data.graph_width);
+        }
         int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
         if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
@@ -809,7 +815,12 @@ calc_pp_coords (bool      curr_samp,
         // Calculate diagonal transition for subsequent points
         int prev_x = pp.back()[0];
         int x_distance = next_x - prev_x;
-        double time_per_pixel = m_parent_data ? (m_parent_data->time_per_division / m_display_data.graph_width) : 0.0;
+        double time_per_pixel = 0.0;
+        if (m_parent_data && m_display_data.graph_width > 0)
+        {
+          const double total_time_window = m_parent_data->time_per_division * LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+          time_per_pixel = total_time_window / static_cast<double>(m_display_data.graph_width);
+        }
         int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
         if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)

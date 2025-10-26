@@ -35,6 +35,9 @@ class LAB_Software_Navigation : public LAB_Module
     unsigned                            m_logan_frame_expected_samples {0};
     unsigned                            m_logan_current_channel {0}; // 1..4, 0 means unset
     uint8_t                             m_logan_channels_received_mask {0}; // bit0..bit3 for ch1..ch4
+    // Handle partial-first-word packing (remainder samples placed in high nibbles)
+    unsigned                            m_logan_skip_nibbles_first_word {0}; // number of low nibbles to skip in first payload word
+    bool                                m_logan_is_first_payload_word {false};
 
   public:
     LAB_Software_Navigation                (LAB &lab);

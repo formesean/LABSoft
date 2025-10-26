@@ -2,6 +2,25 @@
 #include "LAB.h"
 #include <cstdio>
 
+// Shared mapping from samples nibble to count
+static inline unsigned map_samples_nibble_host(uint8_t n)
+{
+  switch (n & 0x0F)
+  {
+    case 0xA: return 2000;
+    case 0x9: return 1000;
+    case 0x8: return 500;
+    case 0x7: return 200;
+    case 0x6: return 100;
+    case 0x5: return 50;
+    case 0x4: return 20;
+    case 0x3: return 10;
+    case 0x2: return 5;
+    case 0x1: return 2;
+    default:  return 500;
+  }
+}
+
 LAB_Software_Navigation::
 LAB_Software_Navigation(LAB &lab)
   : LAB_Module(lab)
@@ -129,22 +148,8 @@ publish_completed_logan_block()
   if (m_logan_frame_expected_samples > 0)
   {
     auto &pdata = lab().m_Logic_Analyzer.parent_data();
-    pdata.samples = m_logan_frame_expected_samples;
+    // Do not overwrite frontend-selected samples; only mark frame ready
     pdata.trigger_frame_ready = true;
-
-    // Calculate horizontal offset to center trigger at zero-second
-    if (pdata.trigger_index > 0 && pdata.samples > 0 && pdata.sampling_rate > 0)
-    {
-      // Calculate time offset to center the trigger
-      double trigger_time_offset = static_cast<double>(pdata.trigger_index) / pdata.sampling_rate;
-      double half_window_time = static_cast<double>(pdata.samples) / (2.0 * pdata.sampling_rate);
-      pdata.horizontal_offset = half_window_time - trigger_time_offset;
-    }
-    else
-    {
-      // No trigger or invalid data, center at zero
-      pdata.horizontal_offset = 0.0;
-    }
 
     m_logan_expected_samples = 0;
     m_logan_samples_written  = 0;
@@ -338,6 +343,39 @@ service_once()
   // Track whether the current LOGAN frame was initiated as single-shot (MSB=0)
   static bool s_logan_single_frame = false;
 
+  // Helper: consume one payload word with correct nibble ordering and first-word remainder handling
+  auto consume_payload_word = [&](uint16_t word)
+  {
+    auto &pdata = lab().m_Logic_Analyzer.parent_data();
+    unsigned end_i = 3u;
+    if (m_logan_is_first_payload_word)
+    {
+      const unsigned rem = (m_logan_expected_samples % 4);
+      if (rem != 0) end_i = rem - 1u;
+    }
+    for (unsigned i = 0; i <= end_i && m_logan_samples_written < m_logan_expected_samples; ++i)
+    {
+      const uint8_t nibble = static_cast<uint8_t>((word >> ((3 - i) * 4)) & 0x0F);
+      const unsigned sample_index = m_logan_samples_written++;
+      if (sample_index < pdata.raw_data_buffer.size())
+      {
+        unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
+                                ? (m_logan_current_channel - 1)
+                                : 0u;
+        const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
+        pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
+        pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
+      }
+    }
+    m_logan_checksum_accum ^= word;
+    if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+    if (m_logan_is_first_payload_word)
+    {
+      m_logan_is_first_payload_word = false;
+      m_logan_skip_nibbles_first_word = 0;
+    }
+  };
+
   {
     std::lock_guard<std::mutex> lock(m_tx_mutex);
     tx_buffer_static[0] = m_tx_buffer[0];
@@ -371,23 +409,7 @@ service_once()
       {
         m_logan_current_channel = 1;
       }
-      auto map_samples = [](uint8_t n) -> unsigned {
-        switch (n & 0x0F)
-        {
-          case 0xA: return 2000;
-          case 0x9: return 1000;
-          case 0x8: return 500;
-          case 0x7: return 200;
-          case 0x6: return 100;
-          case 0x5: return 50;
-          case 0x4: return 20;
-          case 0x3: return 10;
-          case 0x2: return 5;
-          case 0x1: return 2;
-          default:  return 500;
-        }
-      };
-      const unsigned samples_for_channel = map_samples(samples_nibble);
+      const unsigned samples_for_channel = map_samples_nibble_host(samples_nibble);
 
       if (m_logan_channels_received_mask == 0)
       {
@@ -407,6 +429,26 @@ service_once()
       m_logan_samples_written  = 0;
       m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
       m_logan_checksum_accum   = 0;
+      // Prepare partial-first-word handling
+      {
+        const unsigned remainder = (m_logan_expected_samples % 4);
+        if (remainder == 0)
+        {
+          m_logan_skip_nibbles_first_word = 0;
+          m_logan_is_first_payload_word = false;
+        }
+        else
+        {
+          m_logan_skip_nibbles_first_word = 4 - remainder; // skip low nibbles
+          m_logan_is_first_payload_word = true;
+        }
+      }
+      // Consume the first payload word that arrived in the same transaction, if present
+      if (transfer_size >= 4 && m_logan_words_remaining > 0)
+      {
+        const uint16_t payload_inline = static_cast<uint16_t>((static_cast<uint16_t>(rx_buffer_static[2]) << 8) | rx_buffer_static[3]);
+        consume_payload_word(payload_inline);
+      }
     }
     else if (!is_logan_hdr && is_snm_event(word0))
     {
@@ -425,24 +467,7 @@ service_once()
     {
       if (m_logan_words_remaining > 0)
       {
-        auto &pdata = lab().m_Logic_Analyzer.parent_data();
-        for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
-        {
-          const uint8_t nibble = static_cast<uint8_t>((word0 >> ((3 - i) * 4)) & 0x0F);
-          const unsigned sample_index = m_logan_samples_written++;
-          if (sample_index < pdata.raw_data_buffer.size())
-          {
-            unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
-                                    ? (m_logan_current_channel - 1)
-                                    : 0u;
-            const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
-
-            pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
-            pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
-          }
-        }
-        m_logan_checksum_accum ^= word0;
-        if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+        consume_payload_word(word0);
 
         // Opportunistically drain a few more words this tick to avoid backlog/flicker
         if (m_logan_words_remaining > 0)
@@ -463,23 +488,7 @@ service_once()
               const uint8_t samples_nib  = static_cast<uint8_t>((w >> 4) & 0x0F);
               const uint8_t chnum        = static_cast<uint8_t>(type_nib_hdr & 0x07);
               m_logan_current_channel = (chnum >= 1 && chnum <= 4) ? chnum : 1;
-              auto map_samples2 = [](uint8_t n) -> unsigned {
-                switch (n & 0x0F)
-                {
-                  case 0xA: return 2000;
-                  case 0x9: return 1000;
-                  case 0x8: return 500;
-                  case 0x7: return 200;
-                  case 0x6: return 100;
-                  case 0x5: return 50;
-                  case 0x4: return 20;
-                  case 0x3: return 10;
-                  case 0x2: return 5;
-                  case 0x1: return 2;
-                  default:  return 500;
-                }
-              };
-              const unsigned samp_ch = map_samples2(samples_nib);
+              const unsigned samp_ch = map_samples_nibble_host(samples_nib);
               if (m_logan_channels_received_mask == 0)
               {
                 m_logan_frame_expected_samples = samp_ch;
@@ -497,6 +506,26 @@ service_once()
               m_logan_samples_written  = 0;
               m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
               m_logan_checksum_accum   = 0;
+              // Prepare partial-first-word handling for the new channel
+              {
+                const unsigned rem = (m_logan_expected_samples % 4);
+                if (rem == 0)
+                {
+                  m_logan_skip_nibbles_first_word = 0;
+                  m_logan_is_first_payload_word = false;
+                }
+                else
+                {
+                  m_logan_skip_nibbles_first_word = 4 - rem;
+                  m_logan_is_first_payload_word = true;
+                }
+              }
+              // Consume the first payload word from this same transaction, if present
+              if (LABC::PIN::SNM::TRANSFER_SIZE >= 4 && m_logan_words_remaining > 0)
+              {
+                const uint16_t payload_inline2 = static_cast<uint16_t>((static_cast<uint16_t>(rx_extra[2]) << 8) | rx_extra[3]);
+                consume_payload_word(payload_inline2);
+              }
               continue;
             }
 
@@ -513,22 +542,7 @@ service_once()
             }
 
             // payload word
-            for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
-            {
-              const uint8_t nib = static_cast<uint8_t>((w >> ((3 - i) * 4)) & 0x0F);
-              const unsigned sidx = m_logan_samples_written++;
-              if (sidx < pdata.raw_data_buffer.size())
-              {
-                unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
-                                        ? (m_logan_current_channel - 1)
-                                        : 0u;
-                const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
-                pdata.raw_data_buffer[sidx] &= ~(static_cast<uint32_t>(1u) << bit);
-                pdata.raw_data_buffer[sidx] |= (static_cast<uint32_t>(nib & 0x1u) << bit);
-              }
-            }
-            m_logan_checksum_accum ^= w;
-            if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+            consume_payload_word(w);
           }
         }
       }
@@ -582,10 +596,11 @@ service_once()
       const uint8_t type_nibble_hdr = static_cast<uint8_t>((word0 >> 12) & 0x0F);
       // MSB==0 indicates single-shot header from master
       s_logan_single_frame = ((type_nibble_hdr & 0x8) == 0);
+      // Parse header fields; do not push samples/rate to frontend
       const uint8_t trig_mode_nibble = static_cast<uint8_t>((word0 >> 8) & 0x0F);
       const uint8_t samples_nibble = static_cast<uint8_t>((word0 >> 4) & 0x0F);
       const uint8_t rate_nibble    = static_cast<uint8_t>((word0 >> 0) & 0x0F);
-      (void)trig_mode_nibble;
+      (void)trig_mode_nibble; (void)rate_nibble;
 
       const uint8_t chan_num = static_cast<uint8_t>(type_nibble_hdr & 0x07);
       if (chan_num >= 1 && chan_num <= 4)
@@ -596,23 +611,7 @@ service_once()
       {
         m_logan_current_channel = 1;
       }
-      auto map_samples = [](uint8_t n) -> unsigned {
-        switch (n & 0x0F)
-        {
-          case 0xA: return 2000;
-          case 0x9: return 1000;
-          case 0x8: return 500;
-          case 0x7: return 200;
-          case 0x6: return 100;
-          case 0x5: return 50;
-          case 0x4: return 20;
-          case 0x3: return 10;
-          case 0x2: return 5;
-          case 0x1: return 2;
-          default:  return 500;
-        }
-      };
-      const unsigned samples_for_channel = map_samples(samples_nibble);
+      const unsigned samples_for_channel = map_samples_nibble_host(samples_nibble);
 
       if (m_logan_channels_received_mask == 0)
       {
@@ -632,6 +631,20 @@ service_once()
       m_logan_samples_written  = 0;
       m_logan_words_remaining  = (m_logan_expected_samples + 3) / 4;
       m_logan_checksum_accum   = 0;
+      // Partial-first-word setup
+      {
+        const unsigned remainder = (m_logan_expected_samples % 4);
+        if (remainder == 0)
+        {
+          m_logan_skip_nibbles_first_word = 0;
+          m_logan_is_first_payload_word = false;
+        }
+        else
+        {
+          m_logan_skip_nibbles_first_word = 4 - remainder;
+          m_logan_is_first_payload_word = true;
+        }
+      }
 
       if (transfer_size >= 4)
       {
@@ -639,24 +652,7 @@ service_once()
 
         if (m_logan_words_remaining > 0)
         {
-          auto &pdata = lab().m_Logic_Analyzer.parent_data();
-          for (unsigned i = 0; i < 4 && m_logan_samples_written < m_logan_expected_samples; ++i)
-          {
-            const uint8_t nibble = static_cast<uint8_t>((payload >> ((3 - i) * 4)) & 0x0F);
-            const unsigned sample_index = m_logan_samples_written++;
-            if (sample_index < pdata.raw_data_buffer.size())
-            {
-              unsigned chan_index = (m_logan_current_channel > 0 && m_logan_current_channel <= 4)
-                                      ? (m_logan_current_channel - 1)
-                                      : 0u;
-              const unsigned bit = (LABC::PIN::LOGAN[chan_index]);
-              // Only update this channel bit
-              pdata.raw_data_buffer[sample_index] &= ~(static_cast<uint32_t>(1u) << bit);
-              pdata.raw_data_buffer[sample_index] |= (static_cast<uint32_t>(nibble & 0x1u) << bit);
-            }
-          }
-          m_logan_checksum_accum ^= payload;
-          if (m_logan_words_remaining > 0) --m_logan_words_remaining;
+          consume_payload_word(payload);
         }
       }
       if (transfer_size >= 6)
