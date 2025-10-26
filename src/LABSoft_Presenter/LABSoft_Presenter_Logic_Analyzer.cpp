@@ -134,6 +134,8 @@ cb_time_per_division (Fl_Input_Choice *w,
   lab ().m_Logic_Analyzer.time_per_division (lbl.actual_value ());
 
   update_gui_horizontal ();
+
+  gui ().logic_analyzer_labsoft_gui_logic_analyzer_display->update_display();
 }
 
 void LABSoft_Presenter_Logic_Analyzer::

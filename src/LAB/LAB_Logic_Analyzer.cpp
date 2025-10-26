@@ -96,6 +96,11 @@ parse_raw_sample_buffer ()
   {
     m_parent_data.trigger_frame_ready = false;
   }
+
+  // Snapshot raw-buffer metadata for stopped-mode rendering
+  pdata.samples_raw_buffer              = pdata.samples;
+  pdata.sampling_rate_raw_buffer        = pdata.sampling_rate;
+  pdata.time_per_division_raw_buffer    = pdata.time_per_division;
 }
 
 // get_samples_loop removed; sampling occurs on the slave

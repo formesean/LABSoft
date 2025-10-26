@@ -578,7 +578,15 @@ void LABSoft_GUI_Logic_Analyzer_Display::
 fill_pixel_points ()
 {
   if (!m_parent_data) { return; }
-  fill_pixel_points_backend_running ();
+
+  if (m_parent_data->is_backend_running)
+  {
+    fill_pixel_points_backend_running ();
+  }
+  else
+  {
+    fill_pixel_points_backend_stopped ();
+  }
 }
 
 void LABSoft_GUI_Logic_Analyzer_Display::
@@ -598,66 +606,32 @@ fill_pixel_points_backend_running ()
       bool  curr_samp, next_samp;
       int   next_x, i;
 
-      // For triggered single-shot captures, use time-based rendering to respect trigger alignment
-      // Check if we have valid trigger data and timing parameters for alignment
-      // Also check if we're in single-shot mode or have a valid horizontal offset
-      if (pdata.trigger_index > 0 && pdata.sampling_rate > 0.0 && pdata.time_per_division > 0.0 &&
-          (pdata.single || std::abs(pdata.horizontal_offset) > 1e-9))
+      if (pdata.samples >= m_display_data.graph_width)
       {
-        const double col_half = (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+        double samp_skipper = (pdata.samples - 1) /
+          static_cast<double>(m_display_data.graph_width - 1);
 
-        auto sample_at_time = [&](double t)->bool {
-          long j = static_cast<long>(std::llround(t * pdata.sampling_rate));
-          if (j < 0) j = 0;
-          if (j >= static_cast<long>(pdata.samples)) j = static_cast<long>(pdata.samples) - 1;
-          return cdata.samples[static_cast<size_t>(j)];
-        };
-
-        bool prev = sample_at_time((0 + col_half) * pdata.time_per_division + pdata.horizontal_offset);
-        pp.emplace_back(std::array<int,2>{
-          x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH,
-          m_graph_base_line_coords[prev]
-        });
-
-        for (int i = 0; i < (m_display_data.graph_width - 1); i++)
+        for (i = 0; i < (m_display_data.graph_width - 1); i++)
         {
-          double t_next = ((i + 1) + col_half) * pdata.time_per_division + pdata.horizontal_offset;
-          bool   next   = sample_at_time(t_next);
-          int    next_x = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
-          calc_pp_coords(prev, next, next_x, i, pp);
-          prev = next;
+          curr_samp = cdata.samples[std::round (i * samp_skipper)];
+          next_samp = cdata.samples[std::round ((i + 1) * samp_skipper)];
+          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
+
+          calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
         }
       }
       else
       {
-        // Original pixel-based rendering for continuous mode or when trigger data is not available
-        if (pdata.samples >= m_display_data.graph_width)
+        double pxl_skipper = static_cast<double>(m_display_data.graph_width - 1) /
+          (pdata.samples - 1);
+
+        for (i = 0; i < (pdata.samples - 1); i++)
         {
-          double samp_skipper = (pdata.samples - 1) /
-            static_cast<double>(m_display_data.graph_width - 1);
+          curr_samp = cdata.samples[i];
+          next_samp = cdata.samples[i + 1];
+          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + std::round ((i + 1) * pxl_skipper);
 
-          for (i = 0; i < (m_display_data.graph_width - 1); i++)
-          {
-            curr_samp = cdata.samples[std::round (i * samp_skipper)];
-            next_samp = cdata.samples[std::round ((i + 1) * samp_skipper)];
-            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
-
-            calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
-          }
-        }
-        else
-        {
-          double pxl_skipper = static_cast<double>(m_display_data.graph_width - 1) /
-            (pdata.samples - 1);
-
-          for (i = 0; i < (pdata.samples - 1); i++)
-          {
-            curr_samp = cdata.samples[i];
-            next_samp = cdata.samples[i + 1];
-            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + std::round ((i + 1) * pxl_skipper);
-
-            calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
-          }
+          calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
         }
       }
     }
@@ -667,40 +641,254 @@ fill_pixel_points_backend_running ()
 void LABSoft_GUI_Logic_Analyzer_Display::
 fill_pixel_points_backend_stopped ()
 {
-  if (!m_parent_data) { return; }
   LAB_Parent_Data_Logic_Analyzer& pdata = *m_parent_data;
-  if (pdata.samples < 2 || pdata.sampling_rate <= 0.0) { return; }
 
-  const double col_half = (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+  // Use raw-buffer metadata for stopped-mode rendering (fixed capture)
+  const double sr_capture = (pdata.sampling_rate_raw_buffer > 0.0)
+    ? pdata.sampling_rate_raw_buffer
+    : pdata.sampling_rate;
+  const unsigned samples_capture = (pdata.samples_raw_buffer > 0)
+    ? pdata.samples_raw_buffer
+    : pdata.samples;
 
+  // Compute how many samples to display based on time/div and capture sampling rate
+  const double time_window_seconds = pdata.time_per_division * LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  unsigned samples_to_display = 1;
+  if (sr_capture > 0.0)
+  {
+    double want = sr_capture * time_window_seconds;
+    samples_to_display = (want < 1.0) ? 1u : static_cast<unsigned>(std::round(want));
+  }
+
+  // Center index from horizontal_offset (time), relative to middle of buffer
+  const double center_index_f = (static_cast<double>(samples_capture) / 2.0) +
+                                (pdata.horizontal_offset * sr_capture);
+  long long center_index = static_cast<long long>(std::llround(center_index_f));
+
+  // Clamp window to buffer bounds
+  long long half_window = static_cast<long long>(samples_to_display) / 2;
+  long long start_index = center_index - half_window;
+  long long end_index   = start_index + static_cast<long long>(samples_to_display) - 1;
+
+  if (start_index < 0)
+  {
+    end_index += -start_index;
+    start_index = 0;
+  }
+
+  if (end_index >= static_cast<long long>(samples_capture))
+  {
+    long long overflow = end_index - static_cast<long long>(samples_capture) + 1;
+
+    if (overflow > 0)
+    {
+      start_index -= overflow;
+      end_index   -= overflow;
+
+      if (start_index < 0) start_index = 0;
+    }
+  }
+
+  unsigned window_start = static_cast<unsigned>(start_index);
+  unsigned window_end   = static_cast<unsigned>(std::max(start_index, end_index));
+  if (window_end < window_start) window_end = window_start;
+
+  unsigned window_size = (window_end - window_start + 1);
+  if (window_size == 0) window_size = 1;
+
+  // For each channel, map only the selected window to graph width
   for (unsigned chan = 0; chan < pdata.channel_data.size (); chan++)
   {
-    if (!is_chan_present_in_chan_widget_array (chan)) { continue; }
-
-    LAB_Channel_Data_Logic_Analyzer& cdata  = pdata.channel_data[chan];
-    std::vector<std::array<int, 2>>& pp     = m_display_data.pixel_points[chan];
-    pp.clear ();
-
-    auto sample_at_time = [&](double t)->bool {
-      long j = static_cast<long>(std::llround(t * pdata.sampling_rate));
-      if (j < 0) j = 0;
-      if (j >= static_cast<long>(pdata.samples)) j = static_cast<long>(pdata.samples) - 1;
-      return cdata.samples[static_cast<size_t>(j)];
-    };
-
-    bool prev = sample_at_time((0 + col_half) * pdata.time_per_division + pdata.horizontal_offset);
-    pp.emplace_back(std::array<int,2>{
-      x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH,
-      m_graph_base_line_coords[prev]
-    });
-
-    for (int i = 0; i < (m_display_data.graph_width - 1); i++)
+    if (is_chan_present_in_chan_widget_array (chan))
     {
-      double t_next = ((i + 1) + col_half) * pdata.time_per_division + pdata.horizontal_offset;
-      bool   next   = sample_at_time(t_next);
-      int    next_x = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
-      calc_pp_coords(prev, next, next_x, i, pp);
-      prev = next;
+      LAB_Channel_Data_Logic_Analyzer& cdata  = pdata.channel_data[chan];
+      std::vector<std::array<int, 2>>& pp     = m_display_data.pixel_points[chan];
+
+      pp.clear ();
+
+      bool  curr_samp, next_samp;
+      int   next_x;
+
+      if (window_size >= m_display_data.graph_width)
+      {
+        // More samples than pixels: sample -> pixel downsampling
+        const double samp_skipper = (window_size - 1) /
+          static_cast<double>(m_display_data.graph_width - 1);
+
+        for (unsigned i = 0; i < (m_display_data.graph_width - 1); i++)
+        {
+          unsigned si = window_start + static_cast<unsigned>(std::llround(i * samp_skipper));
+          unsigned sj = window_start + static_cast<unsigned>(std::llround((i + 1) * samp_skipper));
+          if (sj > window_end) sj = window_end;
+
+          curr_samp = cdata.samples[si];
+          next_samp = cdata.samples[sj];
+          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (static_cast<int>(i) + 1);
+
+          calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+        }
+      }
+      else
+      {
+        // More pixels than samples overall — decide whether to fill full width
+        // or draw a centered narrower strip to avoid leading/trailing lines.
+        const unsigned graph_w = m_display_data.graph_width;
+        const double   req_time_per_pixel = time_window_seconds / static_cast<double>(graph_w);
+        const double   window_time = (window_size > 1)
+                                     ? (static_cast<double>(window_size - 1) / sr_capture)
+                                     : 0.0;
+        unsigned       px_needed = (req_time_per_pixel > 0.0)
+                                   ? static_cast<unsigned>(std::llround(window_time / req_time_per_pixel)) + 1
+                                   : graph_w;
+        if (px_needed < 2) px_needed = 2;
+
+        if (px_needed >= graph_w)
+        {
+          // Fill full width as before (upsample to graph width)
+          const double pxl_skipper = static_cast<double>(graph_w - 1) /
+            (window_size - 1);
+
+          for (unsigned i = 0; i < (window_size - 1); i++)
+          {
+            unsigned si = window_start + i;
+            unsigned sj = si + 1;
+            curr_samp = cdata.samples[si];
+            next_samp = cdata.samples[sj];
+            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH +
+                        static_cast<int>(std::llround((i + 1) * pxl_skipper));
+
+            calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+          }
+        }
+        else
+        {
+          // Requested time window is larger than capture; draw a centered
+          // narrower strip (no lines to the display borders).
+          int left_pad = static_cast<int>((graph_w - px_needed) / 2);
+          int start_x_base = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + left_pad;
+
+          if (window_size >= px_needed)
+          {
+            // Downsample window to px_needed width
+            const double samp_skipper = (window_size - 1) /
+              static_cast<double>(px_needed - 1);
+
+            for (unsigned i = 0; i < (px_needed - 1); i++)
+            {
+              unsigned si = window_start + static_cast<unsigned>(std::llround(i * samp_skipper));
+              unsigned sj = window_start + static_cast<unsigned>(std::llround((i + 1) * samp_skipper));
+              if (sj > window_end) sj = window_end;
+
+              curr_samp = cdata.samples[si];
+              next_samp = cdata.samples[sj];
+              next_x    = start_x_base + static_cast<int>(i) + 1;
+
+              if (i == 0)
+              {
+                // Seed first point at the actual starting x (avoid tail to left border)
+                pp.emplace_back(std::array<int, 2>{start_x_base, m_graph_base_line_coords[curr_samp]});
+
+                if (curr_samp == next_samp)
+                {
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                }
+                else
+                {
+                  if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+                  {
+                    int x_distance = next_x - start_x_base;
+                    double time_per_pixel = (px_needed > 0)
+                      ? (time_window_seconds / static_cast<double>(px_needed))
+                      : 0.0;
+                    int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
+
+                    if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+                    {
+                      int diagonal_start_x = next_x - diagonal_length;
+                      pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
+                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                    }
+                    else
+                    {
+                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                    }
+                  }
+                  else
+                  {
+                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                  }
+                }
+              }
+              else
+              {
+                // For subsequent points, reuse existing transition logic
+                calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+              }
+            }
+          }
+          else
+          {
+            // Upsample window to px_needed width
+            const double pxl_skipper = static_cast<double>(px_needed - 1) /
+              (window_size - 1);
+
+            for (unsigned i = 0; i < (window_size - 1); i++)
+            {
+              unsigned si = window_start + i;
+              unsigned sj = si + 1;
+              curr_samp = cdata.samples[si];
+              next_samp = cdata.samples[sj];
+              next_x    = start_x_base + static_cast<int>(std::llround((i + 1) * pxl_skipper));
+
+              if (i == 0)
+              {
+                // Seed first point at the actual starting x (avoid tail to left border)
+                pp.emplace_back(std::array<int, 2>{start_x_base, m_graph_base_line_coords[curr_samp]});
+
+                if (curr_samp == next_samp)
+                {
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                }
+                else
+                {
+                  if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+                  {
+                    int x_distance = next_x - start_x_base;
+                    double time_per_pixel = (px_needed > 0)
+                      ? (time_window_seconds / static_cast<double>(px_needed))
+                      : 0.0;
+                    int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
+
+                    if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+                    {
+                      int diagonal_start_x = next_x - diagonal_length;
+                      pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
+                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                    }
+                    else
+                    {
+                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                    }
+                  }
+                  else
+                  {
+                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                  }
+                }
+              }
+              else
+              {
+                // For subsequent points, reuse existing transition logic
+                calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
