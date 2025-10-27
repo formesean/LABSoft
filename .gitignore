@@ -34,3 +34,4 @@
 .vscode
 build/
 build.sh
+pico/
