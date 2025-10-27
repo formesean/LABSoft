@@ -410,6 +410,8 @@ LABSoft_GUI_Logic_Analyzer_Display::
 LABSoft_GUI_Logic_Analyzer_Display (int X, int Y, int W, int H, const char* label)
   : Fl_Group (X, Y, W, H, label)
 {
+  m_display_data.graph_width = LOGAN_DISPLAY::CHANNEL_GRAPH_WIDTH;
+
   init_child_widgets          ();
   reserve_pixel_points        ();
   calc_graph_base_line_coords ();
@@ -661,7 +663,7 @@ fill_pixel_points_backend_stopped ()
   }
 
   // Center index from horizontal_offset (time), relative to middle of buffer
-  const double center_index_f = (static_cast<double>(samples_capture) / 2.0) +
+  const double center_index_f = (static_cast<double>(samples_capture) / 2.0) - 1.0 +
                                 (pdata.horizontal_offset * sr_capture);
   long long center_index = static_cast<long long>(std::llround(center_index_f));
 
@@ -669,24 +671,19 @@ fill_pixel_points_backend_stopped ()
   long long half_window = static_cast<long long>(samples_to_display) / 2;
   long long start_index = center_index - half_window;
   long long end_index   = start_index + static_cast<long long>(samples_to_display) - 1;
+  long long unclamped_start_index = start_index;
 
   if (start_index < 0)
   {
-    end_index += -start_index;
     start_index = 0;
   }
-
   if (end_index >= static_cast<long long>(samples_capture))
   {
-    long long overflow = end_index - static_cast<long long>(samples_capture) + 1;
-
-    if (overflow > 0)
-    {
-      start_index -= overflow;
-      end_index   -= overflow;
-
-      if (start_index < 0) start_index = 0;
-    }
+    end_index = static_cast<long long>(samples_capture) - 1;
+  }
+  if (start_index > end_index)
+  {
+    start_index = end_index;
   }
 
   unsigned window_start = static_cast<unsigned>(start_index);
@@ -742,29 +739,16 @@ fill_pixel_points_backend_stopped ()
                                    : graph_w;
         if (px_needed < 2) px_needed = 2;
 
-        if (px_needed >= graph_w)
         {
-          // Fill full width as before (upsample to graph width)
-          const double pxl_skipper = static_cast<double>(graph_w - 1) /
-            (window_size - 1);
+          // Calculate pixel-per-sample based on the full desired window and
+          // compute left padding relative to unclamped desired start.
+          const double px_per_sample = (samples_to_display > 0)
+            ? (static_cast<double>(graph_w) / static_cast<double>(samples_to_display))
+            : 0.0;
 
-          for (unsigned i = 0; i < (window_size - 1); i++)
-          {
-            unsigned si = window_start + i;
-            unsigned sj = si + 1;
-            curr_samp = cdata.samples[si];
-            next_samp = cdata.samples[sj];
-            next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH +
-                        static_cast<int>(std::llround((i + 1) * pxl_skipper));
-
-            calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
-          }
-        }
-        else
-        {
-          // Requested time window is larger than capture; draw a centered
-          // narrower strip (no lines to the display borders).
-          int left_pad = static_cast<int>((graph_w - px_needed) / 2);
+          int left_pad = static_cast<int>(
+            std::llround((static_cast<long long>(window_start) - unclamped_start_index) * px_per_sample)
+          );
           int start_x_base = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + left_pad;
 
           if (window_size >= px_needed)
