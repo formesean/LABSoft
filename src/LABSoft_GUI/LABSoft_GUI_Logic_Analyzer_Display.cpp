@@ -367,18 +367,22 @@ draw ()
 void LABSoft_GUI_Logic_Analyzer_Display_Graph_Overlay::
 draw_grid ()
 {
-  double col_width = static_cast<double>(w ()) / LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const unsigned cols = LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const int gx = x ();
+  const int gy = y ();
+  const int gw = w ();
+  const int gh = h ();
 
   fl_color (LOGAN_DISPLAY::GRID_COLOR);
 
-  // Columns
-  for (unsigned col = 0; col < LOGAN_DISPLAY::NUMBER_OF_COLUMNS; col++)
+  // Columns (inclusive of both edges)
+  for (unsigned col = 0; col <= cols; col++)
   {
     if (col == 0)
     {
       fl_line_style (FL_SOLID);
     }
-    else if (col == (LOGAN_DISPLAY::NUMBER_OF_COLUMNS / 2))
+    else if (col == (cols / 2))
     {
       fl_line_style (FL_DASH);
     }
@@ -387,12 +391,11 @@ draw_grid ()
       fl_line_style (FL_DOT);
     }
 
-    fl_line (
-      x () + (col * col_width),
-      y (),
-      x () + (col * col_width),
-      y () + h ()
-    );
+    // Integer-rounded pixel to avoid drift; center aligns to exact middle pixel
+    int col_x = gx + static_cast<int>(std::llround((static_cast<double>(col) * gw) /
+                                                   static_cast<double>(cols)));
+
+    fl_line (col_x, gy, col_x, gy + gh);
   }
 
   fl_line_style (0);
@@ -495,26 +498,24 @@ init_child_widgets_status ()
 void LABSoft_GUI_Logic_Analyzer_Display::
 init_child_widgets_time_per_division_labels ()
 {
-  unsigned  disp_internal_width = w () - LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
-  double    col_width           = static_cast<double>(disp_internal_width) /
-                                  LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const unsigned cols = LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const int gx = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+  const int disp_internal_width = w () - LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
 
   for (unsigned col = 0; col < m_time_per_division_labels.size (); col++)
   {
-    double x_coord = x () + (LOGAN_DISPLAY::CHANNEL_INFO_WIDTH) +
-      (col * col_width);
+    // Integer-aligned column x position identical to grid calculation
+    int col_x = gx + static_cast<int>(
+      std::llround((static_cast<double>(col) * disp_internal_width) /
+                   static_cast<double>(cols))
+    );
 
-    if (col == LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS)
-    {
-      x_coord -= LOGAN_DISPLAY::TIME_PER_DIVSION_LABELS_LAST_OFFSET;
-    }
-
-    double y_coord = y () + h () -
+    int y_coord = y () + h () -
       LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_STRIP_HEIGHT +
       LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_TOP_MARGIN;
 
     Fl_Box* box = new Fl_Box (
-      x_coord,
+      col_x,
       y_coord,
       5,
       5,
@@ -706,13 +707,23 @@ fill_pixel_points_backend_stopped ()
       bool  curr_samp, next_samp;
       int   next_x;
 
-      if (window_size >= m_display_data.graph_width)
+      // Precompute anchor mapping around exact center pixel to avoid drift
+      const unsigned graph_w = m_display_data.graph_width;
+      const int graph_left_x = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+      const int center_x = graph_left_x + static_cast<int>(
+        std::llround(static_cast<double>(graph_w) / 2.0)
+      );
+      const double time_per_pixel = (graph_w > 0)
+        ? (time_window_seconds / static_cast<double>(graph_w))
+        : 0.0;
+
+      if (window_size >= graph_w)
       {
         // More samples than pixels: sample -> pixel downsampling
         const double samp_skipper = (window_size - 1) /
-          static_cast<double>(m_display_data.graph_width - 1);
+          static_cast<double>(graph_w - 1);
 
-        for (unsigned i = 0; i < (m_display_data.graph_width - 1); i++)
+        for (unsigned i = 0; i < (graph_w - 1); i++)
         {
           unsigned si = window_start + static_cast<unsigned>(std::llround(i * samp_skipper));
           unsigned sj = window_start + static_cast<unsigned>(std::llround((i + 1) * samp_skipper));
@@ -720,156 +731,127 @@ fill_pixel_points_backend_stopped ()
 
           curr_samp = cdata.samples[si];
           next_samp = cdata.samples[sj];
-          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (static_cast<int>(i) + 1);
-
-          calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
-        }
-      }
-      else
-      {
-        // More pixels than samples overall — decide whether to fill full width
-        // or draw a centered narrower strip to avoid leading/trailing lines.
-        const unsigned graph_w = m_display_data.graph_width;
-        const double   req_time_per_pixel = time_window_seconds / static_cast<double>(graph_w);
-        const double   window_time = (window_size > 1)
-                                     ? (static_cast<double>(window_size - 1) / sr_capture)
-                                     : 0.0;
-        unsigned       px_needed = (req_time_per_pixel > 0.0)
-                                   ? static_cast<unsigned>(std::llround(window_time / req_time_per_pixel)) + 1
-                                   : graph_w;
-        if (px_needed < 2) px_needed = 2;
-
-        {
-          // Calculate pixel-per-sample based on the full desired window and
-          // compute left padding relative to unclamped desired start.
-          const double px_per_sample = (samples_to_display > 0)
-            ? (static_cast<double>(graph_w) / static_cast<double>(samples_to_display))
-            : 0.0;
-
-          int left_pad = static_cast<int>(
-            std::llround((static_cast<long long>(window_start) - unclamped_start_index) * px_per_sample)
-          );
-          int start_x_base = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + left_pad;
-
-          if (window_size >= px_needed)
+          // Anchor x positions to exact center pixel via time mapping
+          int xi = center_x;
+          int xj = center_x;
+          if (sr_capture > 0.0 && time_per_pixel > 0.0)
           {
-            // Downsample window to px_needed width
-            const double samp_skipper = (window_size - 1) /
-              static_cast<double>(px_needed - 1);
+            double dti = (static_cast<double>(si) - static_cast<double>(center_index)) / sr_capture;
+            double dtj = (static_cast<double>(sj) - static_cast<double>(center_index)) / sr_capture;
+            xi = center_x + static_cast<int>(std::llround(dti / time_per_pixel));
+            xj = center_x + static_cast<int>(std::llround(dtj / time_per_pixel));
+          }
 
-            for (unsigned i = 0; i < (px_needed - 1); i++)
+          next_x = xj;
+
+          if (i == 0)
+          {
+            // Seed first point at exact pixel position for current sample
+            pp.emplace_back(std::array<int, 2>{xi, m_graph_base_line_coords[curr_samp]});
+
+            if (curr_samp == next_samp)
             {
-              unsigned si = window_start + static_cast<unsigned>(std::llround(i * samp_skipper));
-              unsigned sj = window_start + static_cast<unsigned>(std::llround((i + 1) * samp_skipper));
-              if (sj > window_end) sj = window_end;
-
-              curr_samp = cdata.samples[si];
-              next_samp = cdata.samples[sj];
-              next_x    = start_x_base + static_cast<int>(i) + 1;
-
-              if (i == 0)
+              pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+            }
+            else
+            {
+              if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
               {
-                // Seed first point at the actual starting x (avoid tail to left border)
-                pp.emplace_back(std::array<int, 2>{start_x_base, m_graph_base_line_coords[curr_samp]});
+                int x_distance = next_x - xi;
+                int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
-                if (curr_samp == next_samp)
+                if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
                 {
+                  int diagonal_start_x = next_x - diagonal_length;
+                  pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
                   pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
                 }
                 else
                 {
-                  if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
-                  {
-                    int x_distance = next_x - start_x_base;
-                    double time_per_pixel = (px_needed > 0)
-                      ? (time_window_seconds / static_cast<double>(px_needed))
-                      : 0.0;
-                    int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
-
-                    if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
-                    {
-                      int diagonal_start_x = next_x - diagonal_length;
-                      pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
-                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
-                    }
-                    else
-                    {
-                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
-                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
-                    }
-                  }
-                  else
-                  {
-                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
-                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
-                  }
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
                 }
               }
               else
               {
-                // For subsequent points, reuse existing transition logic
-                calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
               }
             }
           }
           else
           {
-            // Upsample window to px_needed width
-            const double pxl_skipper = static_cast<double>(px_needed - 1) /
-              (window_size - 1);
+            // Subsequent points: use shared transition logic
+            calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+          }
+        }
+      }
+      else
+      {
+        // More pixels than samples overall — upsample across full graph width, anchored to center
+        if (samples_to_display < 2)
+        {
+          // Degenerate case
+          continue;
+        }
 
-            for (unsigned i = 0; i < (window_size - 1); i++)
+        for (unsigned i = 0; i < (window_size - 1); i++)
+        {
+          unsigned si = window_start + i;
+          unsigned sj = si + 1;
+          curr_samp = cdata.samples[si];
+          next_samp = cdata.samples[sj];
+          // Anchor x positions to exact center pixel via time mapping
+          int xi = center_x;
+          int xj = center_x;
+          if (sr_capture > 0.0 && time_per_pixel > 0.0)
+          {
+            double dti = (static_cast<double>(si) - static_cast<double>(center_index)) / sr_capture;
+            double dtj = (static_cast<double>(sj) - static_cast<double>(center_index)) / sr_capture;
+            xi = center_x + static_cast<int>(std::llround(dti / time_per_pixel));
+            xj = center_x + static_cast<int>(std::llround(dtj / time_per_pixel));
+          }
+          next_x = xj;
+
+          if (i == 0)
+          {
+            // Seed first point at its exact pixel position
+            pp.emplace_back(std::array<int, 2>{xi, m_graph_base_line_coords[curr_samp]});
+
+            if (curr_samp == next_samp)
             {
-              unsigned si = window_start + i;
-              unsigned sj = si + 1;
-              curr_samp = cdata.samples[si];
-              next_samp = cdata.samples[sj];
-              next_x    = start_x_base + static_cast<int>(std::llround((i + 1) * pxl_skipper));
-
-              if (i == 0)
+              pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+            }
+            else
+            {
+              if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
               {
-                // Seed first point at the actual starting x (avoid tail to left border)
-                pp.emplace_back(std::array<int, 2>{start_x_base, m_graph_base_line_coords[curr_samp]});
+                int x_distance = next_x - xi;
+                int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
-                if (curr_samp == next_samp)
+                if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
                 {
+                  int diagonal_start_x = next_x - diagonal_length;
+                  pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
                   pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
                 }
                 else
                 {
-                  if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
-                  {
-                    int x_distance = next_x - start_x_base;
-                    double time_per_pixel = (px_needed > 0)
-                      ? (time_window_seconds / static_cast<double>(px_needed))
-                      : 0.0;
-                    int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
-
-                    if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
-                    {
-                      int diagonal_start_x = next_x - diagonal_length;
-                      pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
-                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
-                    }
-                    else
-                    {
-                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
-                      pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
-                    }
-                  }
-                  else
-                  {
-                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
-                    pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
-                  }
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
                 }
               }
               else
               {
-                // For subsequent points, reuse existing transition logic
-                calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
               }
             }
+          }
+          else
+          {
+            // For subsequent points, reuse existing transition logic
+            calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
           }
         }
       }
