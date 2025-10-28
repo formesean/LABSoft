@@ -637,6 +637,25 @@ fill_pixel_points_backend_running ()
           calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
         }
       }
+
+      // When zooming in (pixels > samples), extend to edges; else cutoff
+      if (pdata.samples < m_display_data.graph_width)
+      {
+        if (!pp.empty ())
+        {
+          const int left_edge  = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+          const int right_edge = left_edge + static_cast<int>(m_display_data.graph_width) - 1;
+
+          if (pp.front ()[0] > left_edge)
+          {
+            pp.insert (pp.begin (), std::array<int, 2>{left_edge, pp.front ()[1]});
+          }
+          if (pp.back ()[0] < right_edge)
+          {
+            pp.emplace_back (std::array<int, 2>{right_edge, pp.back ()[1]});
+          }
+        }
+      }
     }
   }
 }
@@ -785,6 +804,22 @@ fill_pixel_points_backend_stopped ()
             calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
           }
         }
+
+        // When zooming in (pixels > samples_to_display), extend to edges; else cutoff
+        if (samples_to_display < graph_w && !pp.empty ())
+        {
+          const int left_edge  = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+          const int right_edge = left_edge + static_cast<int>(graph_w) - 1;
+
+          if (pp.front ()[0] > left_edge)
+          {
+            pp.insert (pp.begin (), std::array<int, 2>{left_edge, pp.front ()[1]});
+          }
+          if (pp.back ()[0] < right_edge)
+          {
+            pp.emplace_back (std::array<int, 2>{right_edge, pp.back ()[1]});
+          }
+        }
       }
       else
       {
@@ -852,6 +887,22 @@ fill_pixel_points_backend_stopped ()
           {
             // For subsequent points, reuse existing transition logic
             calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+          }
+        }
+
+        // When zooming in (pixels > samples_to_display), extend to edges; else cutoff
+        if (samples_to_display < graph_w && !pp.empty ())
+        {
+          const int left_edge  = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+          const int right_edge = left_edge + static_cast<int>(graph_w) - 1;
+
+          if (pp.front ()[0] > left_edge)
+          {
+            pp.insert (pp.begin (), std::array<int, 2>{left_edge, pp.front ()[1]});
+          }
+          if (pp.back ()[0] < right_edge)
+          {
+            pp.emplace_back (std::array<int, 2>{right_edge, pp.back ()[1]});
           }
         }
       }
