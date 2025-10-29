@@ -82,17 +82,20 @@ set_tx_logan_config(unsigned samples, double sampling_rate, bool continuous)
   else if (samples >= 10) samples_nibble = 0x3;
   else if (samples >= 5)  samples_nibble = 0x2;
   else if (samples >= 2)  samples_nibble = 0x1;
-  else                    samples_nibble = 0x0;
+  else                    samples_nibble = 0x8;
 
   uint8_t rate_nibble = 0;
-  if (sampling_rate >= 100) rate_nibble = 0x7;
+  if (sampling_rate >= 1000) rate_nibble = 0xA;
+  else if (sampling_rate >= 500)  rate_nibble = 0x9;
+  else if (sampling_rate >= 200)  rate_nibble = 0x8;
+  else if (sampling_rate >= 100)  rate_nibble = 0x7;
   else if (sampling_rate >= 50)  rate_nibble = 0x6;
   else if (sampling_rate >= 20)  rate_nibble = 0x5;
   else if (sampling_rate >= 10)  rate_nibble = 0x4;
   else if (sampling_rate >= 5)   rate_nibble = 0x3;
   else if (sampling_rate >= 2)   rate_nibble = 0x2;
   else if (sampling_rate >= 1)   rate_nibble = 0x1;
-  else                           rate_nibble = 0x0;
+  else                           rate_nibble = 0x6;
 
   // Determine single active trigger channel (1..4) and trigger mode nibble
   auto enc_trig_cnd = [](LABE::LOGAN::TRIG::CND c) -> uint8_t {

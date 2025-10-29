@@ -619,7 +619,7 @@ sampling_rate (double value)
                             LABC::LOGAN::MAX_SAMPLING_RATE, LABC::LABSOFT::EPSILON))
   {
     // 1) Choose allowed sampling rate closest to value
-    static const double allowedRates[] = {100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0};
+    static const double allowedRates[] = {1000.0, 500.0, 200.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0};
     double bestRate = allowedRates[0];
     double minDiff = std::abs(bestRate - value);
     for (double opt : allowedRates)
