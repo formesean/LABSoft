@@ -391,9 +391,11 @@ draw_grid ()
       fl_line_style (FL_DOT);
     }
 
-    // Integer-rounded pixel to avoid drift; center aligns to exact middle pixel
+    // Integer-rounded pixel to avoid drift; clamp to rightmost pixel
     int col_x = gx + static_cast<int>(std::llround((static_cast<double>(col) * gw) /
                                                    static_cast<double>(cols)));
+    int right_edge = gx + gw - 1;
+    if (col_x > right_edge) col_x = right_edge;
 
     fl_line (col_x, gy, col_x, gy + gh);
   }
@@ -502,10 +504,18 @@ init_child_widgets_time_per_division_labels ()
   const int gx = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
   const int disp_internal_width = w () - LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
 
+  // Width per division; ensure at least 1px to avoid zero-width boxes
+  const int per_col_width = std::max(
+    1,
+    static_cast<int>(std::floor(
+      static_cast<double>(disp_internal_width) / static_cast<double>(cols)
+    ))
+  );
+
   for (unsigned col = 0; col < m_time_per_division_labels.size (); col++)
   {
-    // Integer-aligned column x position identical to grid calculation
-    int col_x = gx + static_cast<int>(
+    // Integer-aligned tick position identical to grid calculation
+    int tick_x = gx + static_cast<int>(
       std::llround((static_cast<double>(col) * disp_internal_width) /
                    static_cast<double>(cols))
     );
@@ -514,17 +524,56 @@ init_child_widgets_time_per_division_labels ()
       LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_STRIP_HEIGHT +
       LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_TOP_MARGIN;
 
+    // Compute a bounding box that always remains inside the graph area
+    int box_x = tick_x;
+    int box_w = per_col_width;
+    int align = FL_ALIGN_CENTER | FL_ALIGN_INSIDE;
+
+    if (col == 0)
+    {
+      // Leftmost label: keep inside by left-aligning after the tick
+      box_x = tick_x + 2;
+      box_w = std::max(5, per_col_width / 2);
+      align = FL_ALIGN_LEFT | FL_ALIGN_INSIDE;
+    }
+    else if (col == cols)
+    {
+      // Rightmost label: right-align so text ends at the tick position
+      int half_cell = std::max(5, per_col_width / 2);
+      int desired_w = std::max(static_cast<int>(LOGAN_DISPLAY::TIME_PER_DIVSION_LABELS_LAST_OFFSET), half_cell);
+      box_x = tick_x - desired_w;
+      box_w = desired_w;
+      align = FL_ALIGN_RIGHT | FL_ALIGN_INSIDE;
+    }
+    else
+    {
+      // Middle labels: center around the tick
+      box_x = tick_x - (per_col_width / 2);
+      box_w = std::max(5, per_col_width);
+      align = FL_ALIGN_CENTER | FL_ALIGN_INSIDE;
+    }
+
+    // Clamp within internal display area
+    int min_x = gx;
+    int max_x = gx + disp_internal_width - 1;
+    if (box_x < min_x) box_x = min_x;
+    if ((box_x + box_w) > (max_x + 1))
+    {
+      box_w = (max_x + 1) - box_x;
+    }
+    if (box_w < 5) box_w = 5;
+
     Fl_Box* box = new Fl_Box (
-      col_x,
+      box_x,
       y_coord,
-      5,
+      box_w,
       5,
       "0.00 s"
     );
 
     box->labelcolor (LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_COLOR);
     box->labelsize  (LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_SIZE);
-    box->align      (FL_ALIGN_TEXT_OVER_IMAGE);
+    box->align      (align);
 
     m_time_per_division_labels[col] = box;
   }
@@ -687,29 +736,32 @@ fill_pixel_points_backend_stopped ()
                                 (pdata.horizontal_offset * sr_capture);
   long long center_index = static_cast<long long>(std::llround(center_index_f));
 
-  // Clamp window to buffer bounds
+  // Desired window [start, end], then clamp while preserving width when possible
   long long half_window = static_cast<long long>(samples_to_display) / 2;
   long long start_index = center_index - half_window;
   long long end_index   = start_index + static_cast<long long>(samples_to_display) - 1;
-  long long unclamped_start_index = start_index;
 
+  // If left clamped, slide right side to keep full window
   if (start_index < 0)
   {
     start_index = 0;
+    end_index   = start_index + static_cast<long long>(samples_to_display) - 1;
   }
+  // If right clamped, slide left side to keep full window
   if (end_index >= static_cast<long long>(samples_capture))
   {
-    end_index = static_cast<long long>(samples_capture) - 1;
+    end_index   = static_cast<long long>(samples_capture) - 1;
+    start_index = end_index - static_cast<long long>(samples_to_display) + 1;
+    if (start_index < 0) start_index = 0; // when requested > capture size
   }
   if (start_index > end_index)
   {
-    start_index = end_index;
+    start_index = 0;
+    end_index   = 0;
   }
 
   unsigned window_start = static_cast<unsigned>(start_index);
-  unsigned window_end   = static_cast<unsigned>(std::max(start_index, end_index));
-  if (window_end < window_start) window_end = window_start;
-
+  unsigned window_end   = static_cast<unsigned>(end_index);
   unsigned window_size = (window_end - window_start + 1);
   if (window_size == 0) window_size = 1;
 
@@ -732,9 +784,12 @@ fill_pixel_points_backend_stopped ()
       const int center_x = graph_left_x + static_cast<int>(
         std::llround(static_cast<double>(graph_w) / 2.0)
       );
-      const double time_per_pixel = (graph_w > 0)
-        ? (time_window_seconds / static_cast<double>(graph_w))
+      // Map time to pixels over [0 .. graph_w-1] to avoid right-edge overflow
+      const double time_per_pixel = (graph_w > 1)
+        ? (time_window_seconds / static_cast<double>(graph_w - 1))
         : 0.0;
+      const int left_edge  = graph_left_x;
+      const int right_edge = graph_left_x + static_cast<int>(graph_w) - 1;
 
       if (window_size >= graph_w)
       {
@@ -760,6 +815,12 @@ fill_pixel_points_backend_stopped ()
             xi = center_x + static_cast<int>(std::llround(dti / time_per_pixel));
             xj = center_x + static_cast<int>(std::llround(dtj / time_per_pixel));
           }
+
+          // Clamp to graph bounds
+          if (xi < left_edge)  xi = left_edge;
+          if (xi > right_edge) xi = right_edge;
+          if (xj < left_edge)  xj = left_edge;
+          if (xj > right_edge) xj = right_edge;
 
           next_x = xj;
 
@@ -846,6 +907,11 @@ fill_pixel_points_backend_stopped ()
             xi = center_x + static_cast<int>(std::llround(dti / time_per_pixel));
             xj = center_x + static_cast<int>(std::llround(dtj / time_per_pixel));
           }
+          // Clamp to graph bounds
+          if (xi < left_edge)  xi = left_edge;
+          if (xi > right_edge) xi = right_edge;
+          if (xj < left_edge)  xj = left_edge;
+          if (xj > right_edge) xj = right_edge;
           next_x = xj;
 
           if (i == 0)
