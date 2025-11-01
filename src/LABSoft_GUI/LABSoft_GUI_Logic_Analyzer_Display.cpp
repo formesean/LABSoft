@@ -42,37 +42,70 @@ draw ()
   draw_signal ();
 }
 
-void LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph::
-draw_signal ()
+void
+LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph::
+draw_signal()
 {
   std::vector<std::array<int, 2>>& pp = m_display_data->pixel_points[m_channel];
 
-  if (m_display_data == nullptr || m_channel < 0 || pp.size () == 0)
-  {
+  if (m_display_data == nullptr || m_channel < 0 || pp.size() == 0) {
     return;
   }
 
   // =====
 
-  fl_color (LOGAN_DISPLAY::GRAPH_LINE_COLOR);
+  fl_color(LOGAN_DISPLAY::GRAPH_LINE_COLOR);
 
-  fl_line_style (
-    LOGAN_DISPLAY::GRAPH_LINE_STYLE,
-    LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
-    LOGAN_DISPLAY::GRAPH_LINE_DASHES
-  );
-
-  for (unsigned a = 0; a < (pp.size () - 1); a++)
+  if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
   {
-    fl_line (
-      pp[a][0],
-      pp[a][1] + m_graph_offset,
-      pp[a + 1][0],
-      pp[a + 1][1] + m_graph_offset
-    );
+    // Enhanced rendering with different line styles for different segment types
+    for (unsigned a = 0; a < (pp.size() - 1); a++) {
+      int x1 = pp[a][0];
+      int y1 = pp[a][1] + m_graph_offset;
+      int x2 = pp[a + 1][0];
+      int y2 = pp[a + 1][1] + m_graph_offset;
+
+      // Determine segment type based on coordinates
+      bool is_horizontal = (y1 == y2);
+      bool is_vertical = (x1 == x2);
+      bool is_diagonal = !is_horizontal && !is_vertical;
+
+      if (is_horizontal) {
+        // Horizontal segments - use main line style
+        fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                      LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                      LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+      } else if (is_vertical) {
+        // Vertical segments - use main line style
+        fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                      LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                      LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+      } else if (is_diagonal) {
+        // Diagonal segments - use diagonal line style
+        fl_line_style(LOGAN_DISPLAY::DIAGONAL_LINE_STYLE,
+                      LOGAN_DISPLAY::DIAGONAL_LINE_WIDTH,
+                      0);
+      }
+
+      fl_line(x1, y1, x2, y2);
+    }
+  }
+  else
+  {
+    // Original rendering - uniform line style
+    fl_line_style(LOGAN_DISPLAY::GRAPH_LINE_STYLE,
+                  LOGAN_DISPLAY::GRAPH_LINE_WIDTH,
+                  LOGAN_DISPLAY::GRAPH_LINE_DASHES);
+
+    for (unsigned a = 0; a < (pp.size() - 1); a++) {
+      fl_line(pp[a][0],
+              pp[a][1] + m_graph_offset,
+              pp[a + 1][0],
+              pp[a + 1][1] + m_graph_offset);
+    }
   }
 
-  fl_line_style (0);
+  fl_line_style(0);
 }
 
 void LABSoft_GUI_Logic_Analyzer_Display_Channel_Graph::
@@ -334,18 +367,22 @@ draw ()
 void LABSoft_GUI_Logic_Analyzer_Display_Graph_Overlay::
 draw_grid ()
 {
-  double col_width = static_cast<double>(w ()) / LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const unsigned cols = LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const int gx = x ();
+  const int gy = y ();
+  const int gw = w ();
+  const int gh = h ();
 
   fl_color (LOGAN_DISPLAY::GRID_COLOR);
 
-  // Columns
-  for (unsigned col = 0; col < LOGAN_DISPLAY::NUMBER_OF_COLUMNS; col++)
+  // Columns (inclusive of both edges)
+  for (unsigned col = 0; col <= cols; col++)
   {
     if (col == 0)
     {
       fl_line_style (FL_SOLID);
     }
-    else if (col == (LOGAN_DISPLAY::NUMBER_OF_COLUMNS / 2))
+    else if (col == (cols / 2))
     {
       fl_line_style (FL_DASH);
     }
@@ -354,12 +391,13 @@ draw_grid ()
       fl_line_style (FL_DOT);
     }
 
-    fl_line (
-      x () + (col * col_width),
-      y (),
-      x () + (col * col_width),
-      y () + h ()
-    );
+    // Integer-rounded pixel to avoid drift; clamp to rightmost pixel
+    int col_x = gx + static_cast<int>(std::llround((static_cast<double>(col) * gw) /
+                                                   static_cast<double>(cols)));
+    int right_edge = gx + gw - 1;
+    if (col_x > right_edge) col_x = right_edge;
+
+    fl_line (col_x, gy, col_x, gy + gh);
   }
 
   fl_line_style (0);
@@ -377,6 +415,8 @@ LABSoft_GUI_Logic_Analyzer_Display::
 LABSoft_GUI_Logic_Analyzer_Display (int X, int Y, int W, int H, const char* label)
   : Fl_Group (X, Y, W, H, label)
 {
+  m_display_data.graph_width = LOGAN_DISPLAY::CHANNEL_GRAPH_WIDTH;
+
   init_child_widgets          ();
   reserve_pixel_points        ();
   calc_graph_base_line_coords ();
@@ -460,35 +500,80 @@ init_child_widgets_status ()
 void LABSoft_GUI_Logic_Analyzer_Display::
 init_child_widgets_time_per_division_labels ()
 {
-  unsigned  disp_internal_width = w () - LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
-  double    col_width           = static_cast<double>(disp_internal_width) /
-                                  LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const unsigned cols = LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  const int gx = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+  const int disp_internal_width = w () - LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
 
-  for (unsigned col = 0; col <= m_time_per_division_labels.size (); col++)
+  // Width per division; ensure at least 1px to avoid zero-width boxes
+  const int per_col_width = std::max(
+    1,
+    static_cast<int>(std::floor(
+      static_cast<double>(disp_internal_width) / static_cast<double>(cols)
+    ))
+  );
+
+  for (unsigned col = 0; col < m_time_per_division_labels.size (); col++)
   {
-    double x_coord = x () + (LOGAN_DISPLAY::CHANNEL_INFO_WIDTH) +
-      (col * col_width);
+    // Integer-aligned tick position identical to grid calculation
+    int tick_x = gx + static_cast<int>(
+      std::llround((static_cast<double>(col) * disp_internal_width) /
+                   static_cast<double>(cols))
+    );
 
-    if (col == LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS)
-    {
-      x_coord -= LOGAN_DISPLAY::TIME_PER_DIVSION_LABELS_LAST_OFFSET;
-    }
-
-    double y_coord = y () + h () -
+    int y_coord = y () + h () -
       LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_STRIP_HEIGHT +
       LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_TOP_MARGIN;
 
+    // Compute a bounding box that always remains inside the graph area
+    int box_x = tick_x;
+    int box_w = per_col_width;
+    int align = FL_ALIGN_CENTER | FL_ALIGN_INSIDE;
+
+    if (col == 0)
+    {
+      // Leftmost label: keep inside by left-aligning after the tick
+      box_x = tick_x + 2;
+      box_w = std::max(5, per_col_width / 2);
+      align = FL_ALIGN_LEFT | FL_ALIGN_INSIDE;
+    }
+    else if (col == cols)
+    {
+      // Rightmost label: right-align so text ends at the tick position
+      int half_cell = std::max(5, per_col_width / 2);
+      int desired_w = std::max(static_cast<int>(LOGAN_DISPLAY::TIME_PER_DIVSION_LABELS_LAST_OFFSET), half_cell);
+      box_x = tick_x - desired_w;
+      box_w = desired_w;
+      align = FL_ALIGN_RIGHT | FL_ALIGN_INSIDE;
+    }
+    else
+    {
+      // Middle labels: center around the tick
+      box_x = tick_x - (per_col_width / 2);
+      box_w = std::max(5, per_col_width);
+      align = FL_ALIGN_CENTER | FL_ALIGN_INSIDE;
+    }
+
+    // Clamp within internal display area
+    int min_x = gx;
+    int max_x = gx + disp_internal_width - 1;
+    if (box_x < min_x) box_x = min_x;
+    if ((box_x + box_w) > (max_x + 1))
+    {
+      box_w = (max_x + 1) - box_x;
+    }
+    if (box_w < 5) box_w = 5;
+
     Fl_Box* box = new Fl_Box (
-      x_coord,
+      box_x,
       y_coord,
-      5,
+      box_w,
       5,
       "0.00 s"
     );
 
     box->labelcolor (LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_COLOR);
     box->labelsize  (LOGAN_DISPLAY::TIME_PER_DIVISION_LABELS_SIZE);
-    box->align      (FL_ALIGN_TEXT_OVER_IMAGE);
+    box->align      (align);
 
     m_time_per_division_labels[col] = box;
   }
@@ -544,16 +629,16 @@ create_channel_widget (unsigned channel, const char* name)
 void LABSoft_GUI_Logic_Analyzer_Display::
 fill_pixel_points ()
 {
-  // if (m_parent_data->is_backend_running)
-  // {
-  //   fill_pixel_points_backend_running ();
-  // }
-  // else
-  // {
-  //   fill_pixel_points_backend_stopped ();
-  // }
+  if (!m_parent_data) { return; }
 
-  fill_pixel_points_backend_running ();
+  if (m_parent_data->is_backend_running)
+  {
+    fill_pixel_points_backend_running ();
+  }
+  else
+  {
+    fill_pixel_points_backend_stopped ();
+  }
 }
 
 void LABSoft_GUI_Logic_Analyzer_Display::
@@ -582,7 +667,7 @@ fill_pixel_points_backend_running ()
         {
           curr_samp = cdata.samples[std::round (i * samp_skipper)];
           next_samp = cdata.samples[std::round ((i + 1) * samp_skipper)];
-          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + i;
+          next_x    = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH + (i + 1);
 
           calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
         }
@@ -601,6 +686,25 @@ fill_pixel_points_backend_running ()
           calc_pp_coords (curr_samp, next_samp, next_x, i, pp);
         }
       }
+
+      // When zooming in (pixels > samples), extend to edges; else cutoff
+      if (pdata.samples < m_display_data.graph_width)
+      {
+        if (!pp.empty ())
+        {
+          const int left_edge  = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+          const int right_edge = left_edge + static_cast<int>(m_display_data.graph_width) - 1;
+
+          if (pp.front ()[0] > left_edge)
+          {
+            pp.insert (pp.begin (), std::array<int, 2>{left_edge, pp.front ()[1]});
+          }
+          if (pp.back ()[0] < right_edge)
+          {
+            pp.emplace_back (std::array<int, 2>{right_edge, pp.back ()[1]});
+          }
+        }
+      }
     }
   }
 }
@@ -608,7 +712,291 @@ fill_pixel_points_backend_running ()
 void LABSoft_GUI_Logic_Analyzer_Display::
 fill_pixel_points_backend_stopped ()
 {
+  LAB_Parent_Data_Logic_Analyzer& pdata = *m_parent_data;
 
+  // Use raw-buffer metadata for stopped-mode rendering (fixed capture)
+  const double sr_capture = (pdata.sampling_rate_raw_buffer > 0.0)
+    ? pdata.sampling_rate_raw_buffer
+    : pdata.sampling_rate;
+  const unsigned samples_capture = (pdata.samples_raw_buffer > 0)
+    ? pdata.samples_raw_buffer
+    : pdata.samples;
+
+  // Compute how many samples to display based on time/div and capture sampling rate
+  const double time_window_seconds = pdata.time_per_division * LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+  unsigned samples_to_display = 1;
+  if (sr_capture > 0.0)
+  {
+    double want = sr_capture * time_window_seconds;
+    samples_to_display = (want < 1.0) ? 1u : static_cast<unsigned>(std::round(want));
+  }
+
+  // Center index from horizontal_offset (time), relative to middle of buffer
+  const double center_index_f = (static_cast<double>(samples_capture) / 2.0) - 1.0 +
+                                (pdata.horizontal_offset * sr_capture);
+  long long center_index = static_cast<long long>(std::llround(center_index_f));
+
+  // Desired window [start, end], then clamp while preserving width when possible
+  long long half_window = static_cast<long long>(samples_to_display) / 2;
+  long long start_index = center_index - half_window;
+  long long end_index   = start_index + static_cast<long long>(samples_to_display) - 1;
+
+  // If left clamped, slide right side to keep full window
+  if (start_index < 0)
+  {
+    start_index = 0;
+    end_index   = start_index + static_cast<long long>(samples_to_display) - 1;
+  }
+  // If right clamped, slide left side to keep full window
+  if (end_index >= static_cast<long long>(samples_capture))
+  {
+    end_index   = static_cast<long long>(samples_capture) - 1;
+    start_index = end_index - static_cast<long long>(samples_to_display) + 1;
+    if (start_index < 0) start_index = 0; // when requested > capture size
+  }
+  if (start_index > end_index)
+  {
+    start_index = 0;
+    end_index   = 0;
+  }
+
+  unsigned window_start = static_cast<unsigned>(start_index);
+  unsigned window_end   = static_cast<unsigned>(end_index);
+  unsigned window_size = (window_end - window_start + 1);
+  if (window_size == 0) window_size = 1;
+
+  // For each channel, map only the selected window to graph width
+  for (unsigned chan = 0; chan < pdata.channel_data.size (); chan++)
+  {
+    if (is_chan_present_in_chan_widget_array (chan))
+    {
+      LAB_Channel_Data_Logic_Analyzer& cdata  = pdata.channel_data[chan];
+      std::vector<std::array<int, 2>>& pp     = m_display_data.pixel_points[chan];
+
+      pp.clear ();
+
+      bool  curr_samp, next_samp;
+      int   next_x;
+
+      // Precompute anchor mapping around exact center pixel to avoid drift
+      const unsigned graph_w = m_display_data.graph_width;
+      const int graph_left_x = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+      const int center_x = graph_left_x + static_cast<int>(
+        std::llround(static_cast<double>(graph_w) / 2.0)
+      );
+      // Map time to pixels over [0 .. graph_w-1] to avoid right-edge overflow
+      const double time_per_pixel = (graph_w > 1)
+        ? (time_window_seconds / static_cast<double>(graph_w - 1))
+        : 0.0;
+      const int left_edge  = graph_left_x;
+      const int right_edge = graph_left_x + static_cast<int>(graph_w) - 1;
+
+      if (window_size >= graph_w)
+      {
+        // More samples than pixels: sample -> pixel downsampling
+        const double samp_skipper = (window_size - 1) /
+          static_cast<double>(graph_w - 1);
+
+        for (unsigned i = 0; i < (graph_w - 1); i++)
+        {
+          unsigned si = window_start + static_cast<unsigned>(std::llround(i * samp_skipper));
+          unsigned sj = window_start + static_cast<unsigned>(std::llround((i + 1) * samp_skipper));
+          if (sj > window_end) sj = window_end;
+
+          curr_samp = cdata.samples[si];
+          next_samp = cdata.samples[sj];
+          // Anchor x positions to exact center pixel via time mapping
+          int xi = center_x;
+          int xj = center_x;
+          if (sr_capture > 0.0 && time_per_pixel > 0.0)
+          {
+            double dti = (static_cast<double>(si) - static_cast<double>(center_index)) / sr_capture;
+            double dtj = (static_cast<double>(sj) - static_cast<double>(center_index)) / sr_capture;
+            xi = center_x + static_cast<int>(std::llround(dti / time_per_pixel));
+            xj = center_x + static_cast<int>(std::llround(dtj / time_per_pixel));
+          }
+
+          // Clamp to graph bounds
+          if (xi < left_edge)  xi = left_edge;
+          if (xi > right_edge) xi = right_edge;
+          if (xj < left_edge)  xj = left_edge;
+          if (xj > right_edge) xj = right_edge;
+
+          next_x = xj;
+
+          if (i == 0)
+          {
+            // Seed first point at exact pixel position for current sample
+            pp.emplace_back(std::array<int, 2>{xi, m_graph_base_line_coords[curr_samp]});
+
+            if (curr_samp == next_samp)
+            {
+              pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+            }
+            else
+            {
+              if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+              {
+                int x_distance = next_x - xi;
+                int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
+
+                if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+                {
+                  int diagonal_start_x = next_x - diagonal_length;
+                  pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                }
+                else
+                {
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                }
+              }
+              else
+              {
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+              }
+            }
+          }
+          else
+          {
+            // Subsequent points: use shared transition logic
+            calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+          }
+        }
+
+        // When zooming in (pixels > samples_to_display), extend to edges; else cutoff
+        if (samples_to_display < graph_w && !pp.empty ())
+        {
+          const int left_edge  = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+          const int right_edge = left_edge + static_cast<int>(graph_w) - 1;
+
+          if (pp.front ()[0] > left_edge)
+          {
+            pp.insert (pp.begin (), std::array<int, 2>{left_edge, pp.front ()[1]});
+          }
+          if (pp.back ()[0] < right_edge)
+          {
+            pp.emplace_back (std::array<int, 2>{right_edge, pp.back ()[1]});
+          }
+        }
+      }
+      else
+      {
+        // More pixels than samples overall — upsample across full graph width, anchored to center
+        if (samples_to_display < 2)
+        {
+          // Degenerate case
+          continue;
+        }
+
+        for (unsigned i = 0; i < (window_size - 1); i++)
+        {
+          unsigned si = window_start + i;
+          unsigned sj = si + 1;
+          curr_samp = cdata.samples[si];
+          next_samp = cdata.samples[sj];
+          // Anchor x positions to exact center pixel via time mapping
+          int xi = center_x;
+          int xj = center_x;
+          if (sr_capture > 0.0 && time_per_pixel > 0.0)
+          {
+            double dti = (static_cast<double>(si) - static_cast<double>(center_index)) / sr_capture;
+            double dtj = (static_cast<double>(sj) - static_cast<double>(center_index)) / sr_capture;
+            xi = center_x + static_cast<int>(std::llround(dti / time_per_pixel));
+            xj = center_x + static_cast<int>(std::llround(dtj / time_per_pixel));
+          }
+          // Clamp to graph bounds
+          if (xi < left_edge)  xi = left_edge;
+          if (xi > right_edge) xi = right_edge;
+          if (xj < left_edge)  xj = left_edge;
+          if (xj > right_edge) xj = right_edge;
+          next_x = xj;
+
+          if (i == 0)
+          {
+            // Seed first point at its exact pixel position
+            pp.emplace_back(std::array<int, 2>{xi, m_graph_base_line_coords[curr_samp]});
+
+            if (curr_samp == next_samp)
+            {
+              pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+            }
+            else
+            {
+              if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+              {
+                int x_distance = next_x - xi;
+                int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
+
+                if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+                {
+                  int diagonal_start_x = next_x - diagonal_length;
+                  pp.emplace_back(std::array<int, 2>{diagonal_start_x, m_graph_base_line_coords[curr_samp]});
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                }
+                else
+                {
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                  pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+                }
+              }
+              else
+              {
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp ^ 1]});
+                pp.emplace_back(std::array<int, 2>{next_x, m_graph_base_line_coords[next_samp]});
+              }
+            }
+          }
+          else
+          {
+            // For subsequent points, reuse existing transition logic
+            calc_pp_coords (curr_samp, next_samp, next_x, static_cast<int>(i), pp);
+          }
+        }
+
+        // When zooming in (pixels > samples_to_display), extend to edges; else cutoff
+        if (samples_to_display < graph_w && !pp.empty ())
+        {
+          const int left_edge  = x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH;
+          const int right_edge = left_edge + static_cast<int>(graph_w) - 1;
+
+          if (pp.front ()[0] > left_edge)
+          {
+            pp.insert (pp.begin (), std::array<int, 2>{left_edge, pp.front ()[1]});
+          }
+          if (pp.back ()[0] < right_edge)
+          {
+            pp.emplace_back (std::array<int, 2>{right_edge, pp.back ()[1]});
+          }
+        }
+      }
+    }
+  }
+}
+
+int LABSoft_GUI_Logic_Analyzer_Display::
+calc_optimal_diagonal_length (int x_distance, double time_per_pixel) const
+{
+  if (!LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING) {
+    return 0;
+  }
+
+  // Calculate optimal diagonal length based on timing and distance
+  int base_length = LOGAN_DISPLAY::DIAGONAL_TRANSITION_LENGTH;
+
+  // Adjust based on time per pixel (higher resolution = shorter transitions)
+  if (time_per_pixel > 0) {
+    double timing_factor = std::min(1.0, time_per_pixel * 1000.0); // Scale factor
+    base_length = static_cast<int>(base_length * (1.0 - LOGAN_DISPLAY::DIAGONAL_SMOOTHING_FACTOR * timing_factor));
+  }
+
+  // Ensure minimum and maximum bounds
+  int optimal_length = std::max(LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH,
+                               std::min(base_length, x_distance / 2));
+
+  return optimal_length;
 }
 
 void LABSoft_GUI_Logic_Analyzer_Display::
@@ -624,6 +1012,64 @@ calc_pp_coords (bool      curr_samp,
       std::array<int, 2> {x () + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH,
         m_graph_base_line_coords[curr_samp]}
     );
+
+    // Handle transition from first point
+    if (curr_samp == next_samp)
+    {
+      pp.emplace_back (
+        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+      );
+    }
+    else
+    {
+      if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+      {
+        // Calculate optimal diagonal transition length
+        int x_distance = next_x - (x() + LOGAN_DISPLAY::CHANNEL_INFO_WIDTH);
+        double time_per_pixel = 0.0;
+        if (m_parent_data && m_display_data.graph_width > 0)
+        {
+          // time_per_division is per grid division; convert to per pixel using LOGAN columns
+          const double total_time_window = m_parent_data->time_per_division * LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+          time_per_pixel = total_time_window / static_cast<double>(m_display_data.graph_width);
+        }
+        int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
+
+        if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+        {
+          // Start diagonal transition
+          int diagonal_start_x = next_x - diagonal_length;
+          pp.emplace_back (
+            std::array<int, 2> {diagonal_start_x, m_graph_base_line_coords[curr_samp]}
+          );
+
+          // End diagonal transition
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+        else
+        {
+          // Fallback to vertical transition for very short distances
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+          );
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+      }
+      else
+      {
+        // Original vertical transition behavior
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+        );
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+        );
+      }
+    }
   }
   else
   {
@@ -635,13 +1081,53 @@ calc_pp_coords (bool      curr_samp,
     }
     else
     {
-      pp.emplace_back (
-        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
-      );
+      if (LOGAN_DISPLAY::ENABLE_DIAGONAL_RENDERING)
+      {
+        // Calculate diagonal transition for subsequent points
+        int prev_x = pp.back()[0];
+        int x_distance = next_x - prev_x;
+        double time_per_pixel = 0.0;
+        if (m_parent_data && m_display_data.graph_width > 0)
+        {
+          const double total_time_window = m_parent_data->time_per_division * LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS;
+          time_per_pixel = total_time_window / static_cast<double>(m_display_data.graph_width);
+        }
+        int diagonal_length = calc_optimal_diagonal_length(x_distance, time_per_pixel);
 
-      pp.emplace_back (
-        std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
-      );
+        if (diagonal_length >= LOGAN_DISPLAY::MIN_DIAGONAL_LENGTH)
+        {
+          // Start diagonal transition from current level
+          int diagonal_start_x = next_x - diagonal_length;
+          pp.emplace_back (
+            std::array<int, 2> {diagonal_start_x, m_graph_base_line_coords[curr_samp]}
+          );
+
+          // End diagonal transition at new level
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+        else
+        {
+          // Fallback to vertical transition for very short distances
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+          );
+          pp.emplace_back (
+            std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+          );
+        }
+      }
+      else
+      {
+        // Original vertical transition behavior
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp ^ 1]}
+        );
+        pp.emplace_back (
+          std::array<int, 2> {next_x, m_graph_base_line_coords[next_samp]}
+        );
+      }
     }
   }
 }
@@ -758,6 +1244,8 @@ draw ()
     update_gui_top_info ();
   }
 
+  // Always update time-per-division labels before drawing
+  update_gui_time_per_division();
   update_gui_status ();
 
   draw_box      (FL_FLAT_BOX, LOGAN_DISPLAY::BG_COLOR);
@@ -838,7 +1326,8 @@ remove_channel (unsigned channel)
 void LABSoft_GUI_Logic_Analyzer_Display::
 update_gui_time_per_division ()
 {
-  double col_half = (LABC::OSC::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
+  // Use LOGAN display columns for logic analyzer
+  double col_half = (LABC::LOGAN::DISPLAY_NUMBER_OF_COLUMNS / 2.0) * -1;
 
   for (unsigned a = 0; a < m_time_per_division_labels.size (); a++)
   {

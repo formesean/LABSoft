@@ -279,7 +279,7 @@ namespace LABC
 
     // Horizontal
     constexpr unsigned DISPLAY_NUMBER_OF_COLUMNS = 10;
-    constexpr double MAX_SAMPLING_RATE = 100; // Hz
+    constexpr double MAX_SAMPLING_RATE = 1000; // Hz
     constexpr double MIN_SAMPLING_RATE = 0.1; // Hz
     constexpr unsigned MAX_SAMPLES = MAX_NUMBER_OF_SAMPLES;
     constexpr unsigned MAX_SAMPLES_RECORDING = 1'000'000;

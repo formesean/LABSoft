@@ -35,6 +35,9 @@ class LAB_Software_Navigation : public LAB_Module
     unsigned                            m_logan_frame_expected_samples {0};
     unsigned                            m_logan_current_channel {0}; // 1..4, 0 means unset
     uint8_t                             m_logan_channels_received_mask {0}; // bit0..bit3 for ch1..ch4
+    // Handle partial-first-word packing (remainder samples placed in high nibbles)
+    unsigned                            m_logan_skip_nibbles_first_word {0}; // number of low nibbles to skip in first payload word
+    bool                                m_logan_is_first_payload_word {false};
 
   public:
     LAB_Software_Navigation                (LAB &lab);
@@ -44,8 +47,7 @@ class LAB_Software_Navigation : public LAB_Module
     void tick                              ();
     bool try_dequeue                       (std::array<uint8_t, 3>& out);
 
-    void set_tx_logan_config               (unsigned samples, double sampling_rate);
-    void set_tx_logan_triggers             ();
+    void set_tx_logan_config               (unsigned samples, double sampling_rate, bool continuous);
     void set_tx_logan_stop                 ();
     void publish_completed_logan_block     ();
 
