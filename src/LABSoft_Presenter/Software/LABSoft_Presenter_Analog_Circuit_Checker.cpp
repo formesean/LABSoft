@@ -177,11 +177,11 @@ import_metadata()
   m_metadata.horizontal_offset = analog_checker.get_horizontal_offset();
 
   // Trigger
-  m_metadata.trigger_mode       = analog_checker.get_trigger_mode();
-  m_metadata.trigger_source     = analog_checker.get_trigger_source();
-  m_metadata.trigger_type       = analog_checker.get_trigger_type();
-  m_metadata.trigger_condition  = analog_checker.get_trigger_condition();
-  m_metadata.trigger_level      = analog_checker.get_trigger_level();
+  // m_metadata.trigger_mode       = analog_checker.get_trigger_mode();
+  // m_metadata.trigger_source     = analog_checker.get_trigger_source();
+  // m_metadata.trigger_type       = analog_checker.get_trigger_type();
+  // m_metadata.trigger_condition  = analog_checker.get_trigger_condition();
+  // m_metadata.trigger_level      = analog_checker.get_trigger_level();
 
   // Persist comparison settings
   m_metadata.comparison.time_domain                   = analog_checker.get_cmp_time_domain();
@@ -222,6 +222,7 @@ prepare_instructor_data()
 {
   time_instructor.clear();
   freq_instructor.clear();
+  freq_instructor_complex.clear();
   time_instructor_pixels.clear();
 
   const auto &ch_data = lab().m_Analog_Circuit_Checker.get_channel_data();
@@ -231,6 +232,7 @@ prepare_instructor_data()
     time_instructor = ch_data[1].sample_data;
 
     const auto spectrum = lab().m_Analog_Circuit_Checker.compute_fft(time_instructor);
+    freq_instructor_complex = spectrum;
     freq_instructor.reserve(spectrum.size());
 
     for (const auto &c : spectrum)
@@ -274,6 +276,7 @@ prepare_student_data()
 {
   time_student.clear();
   freq_student.clear();
+  freq_student_complex.clear();
   time_student_pixels.clear();
 
   LAB_Oscilloscope &osc = lab().m_Oscilloscope;
@@ -288,6 +291,7 @@ prepare_student_data()
     time_student.push_back(arr[i]);
 
   const auto spectrum = lab().m_Analog_Circuit_Checker.compute_fft(time_student);
+  freq_student_complex = spectrum;
   freq_student.reserve(spectrum.size());
 
   for (const auto &c : spectrum)
@@ -477,21 +481,21 @@ update_gui_oscilloscope()
   osc.sampling_rate(m_metadata.sampling_rate);
 
   // Triggers
-  auto clamp_mode = [](unsigned v) -> LABE::OSC::TRIG::MODE {
-    if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::MODE>(v);
-  };
-  auto clamp_type = [](unsigned v) -> LABE::OSC::TRIG::TYPE {
-    if (v > 1) v = 1; return static_cast<LABE::OSC::TRIG::TYPE>(v);
-  };
-  auto clamp_cnd = [](unsigned v) -> LABE::OSC::TRIG::CND {
-    if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::CND>(v);
-  };
+  // auto clamp_mode = [](unsigned v) -> LABE::OSC::TRIG::MODE {
+  //   if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::MODE>(v);
+  // };
+  // auto clamp_type = [](unsigned v) -> LABE::OSC::TRIG::TYPE {
+  //   if (v > 1) v = 1; return static_cast<LABE::OSC::TRIG::TYPE>(v);
+  // };
+  // auto clamp_cnd = [](unsigned v) -> LABE::OSC::TRIG::CND {
+  //   if (v > 2) v = 2; return static_cast<LABE::OSC::TRIG::CND>(v);
+  // };
 
-  osc.trigger_mode(clamp_mode(m_metadata.trigger_mode));
-  osc.trigger_source((m_metadata.trigger_source == 0) ? 0u : 1u);
-  osc.trigger_type(clamp_type(m_metadata.trigger_type));
-  osc.trigger_condition(clamp_cnd(m_metadata.trigger_condition));
-  osc.trigger_level(m_metadata.trigger_level);
+  // osc.trigger_mode(clamp_mode(m_metadata.trigger_mode));
+  // osc.trigger_source((m_metadata.trigger_source == 0) ? 0u : 1u);
+  // osc.trigger_type(clamp_type(m_metadata.trigger_type));
+  // osc.trigger_condition(clamp_cnd(m_metadata.trigger_condition));
+  // osc.trigger_level(m_metadata.trigger_level);
 
   if (m_metadata.channels.size() >= 1)
   {
@@ -579,39 +583,39 @@ update_gui_oscilloscope()
   }
 
   // Triggers
-  if (gui.oscilloscope_fl_choice_trigger_mode)
-  {
-    int mode_val = static_cast<int>(m_metadata.trigger_mode);
-    mode_val = (mode_val <= 0) ? 0 : 1;
-    int menu_index = (mode_val == 0) ? 0 : 1;
-    set_choice_index(gui.oscilloscope_fl_choice_trigger_mode, menu_index);
-  }
+  // if (gui.oscilloscope_fl_choice_trigger_mode)
+  // {
+  //   int mode_val = static_cast<int>(m_metadata.trigger_mode);
+  //   mode_val = (mode_val <= 0) ? 0 : 1;
+  //   int menu_index = (mode_val == 0) ? 0 : 1;
+  //   set_choice_index(gui.oscilloscope_fl_choice_trigger_mode, menu_index);
+  // }
 
-  if (gui.oscilloscope_fl_choice_trigger_source)
-  {
-    int src = static_cast<int>(m_metadata.trigger_source);
-    src = (src <= 0) ? 0 : 1;
-    gui.oscilloscope_fl_choice_trigger_source->activate();
-    set_choice_index(gui.oscilloscope_fl_choice_trigger_source, src);
-  }
+  // if (gui.oscilloscope_fl_choice_trigger_source)
+  // {
+  //   int src = static_cast<int>(m_metadata.trigger_source);
+  //   src = (src <= 0) ? 0 : 1;
+  //   gui.oscilloscope_fl_choice_trigger_source->activate();
+  //   set_choice_index(gui.oscilloscope_fl_choice_trigger_source, src);
+  // }
 
-  if (gui.oscilloscope_fl_choice_trigger_type)
-  {
-    gui.oscilloscope_fl_choice_trigger_type->activate();
-    set_choice_index(gui.oscilloscope_fl_choice_trigger_type, static_cast<int>(m_metadata.trigger_type));
-  }
+  // if (gui.oscilloscope_fl_choice_trigger_type)
+  // {
+  //   gui.oscilloscope_fl_choice_trigger_type->activate();
+  //   set_choice_index(gui.oscilloscope_fl_choice_trigger_type, static_cast<int>(m_metadata.trigger_type));
+  // }
 
-  if (gui.oscilloscope_fl_choice_trigger_condition)
-  {
-    gui.oscilloscope_fl_choice_trigger_condition->activate();
-    set_choice_index(gui.oscilloscope_fl_choice_trigger_condition, static_cast<int>(m_metadata.trigger_condition));
-  }
+  // if (gui.oscilloscope_fl_choice_trigger_condition)
+  // {
+  //   gui.oscilloscope_fl_choice_trigger_condition->activate();
+  //   set_choice_index(gui.oscilloscope_fl_choice_trigger_condition, static_cast<int>(m_metadata.trigger_condition));
+  // }
 
-  if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level)
-  {
-    gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level->activate();
-    set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level, UnitKind::VOLT, m_metadata.trigger_level);
-  }
+  // if (gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level)
+  // {
+  //   gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level->activate();
+  //   set_input_choice_to_value(gui.oscilloscope_labsoft_gui_fl_input_choice_with_scroll_trigger_level, UnitKind::VOLT, m_metadata.trigger_level);
+  // }
 
   // Sync Oscilloscope tab display with imported settings (apply to display widget and refresh caches)
   if (gui.oscilloscope_labsoft_gui_oscilloscope_display)
@@ -641,8 +645,8 @@ update_gui_oscilloscope()
     gui.oscilloscope_labsoft_gui_oscilloscope_display->time_per_division(m_metadata.time_per_division);
     gui.oscilloscope_labsoft_gui_oscilloscope_display->samples(m_metadata.samples);
     gui.oscilloscope_labsoft_gui_oscilloscope_display->sampling_rate(m_metadata.sampling_rate);
-    gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_source(m_metadata.trigger_source);
-    gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_level(m_metadata.trigger_level);
+    // gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_source(m_metadata.trigger_source);
+    // gui.oscilloscope_labsoft_gui_oscilloscope_display->trigger_level(m_metadata.trigger_level);
   }
 
   lab().m_Oscilloscope_Display.update_cached_values();
@@ -722,10 +726,12 @@ perform_frequency_domain_analysis()
   if (!checker.is_file_loaded()) return;
   if (!checker.get_cmp_frequency_domain()) return;
 
-  if (!freq_instructor.empty() && !freq_student.empty())
+  if (!freq_instructor_complex.empty() && !freq_student_complex.empty())
   {
-    // Existing cross-correlation analysis
-    auto result = checker.signal_analysis(freq_instructor, freq_student);
+    // Call complex cross-correlation with FULL FFT data (magnitude + phase)
+    std::printf("=== FREQUENCY DOMAIN ANALYSIS ===\n");
+    
+    auto result = checker.signal_analysis_complex(freq_instructor_complex, freq_student_complex);
     frequency_domain_result.lag = result.lag;
     frequency_domain_result.coefficient = result.coefficient;
     frequency_domain_result.percentage = result.percentage;
@@ -736,14 +742,7 @@ perform_frequency_domain_analysis()
       std::snprintf(buf, sizeof(buf), "%.2f%%", frequency_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
     }
-
-    // New magnitude-based error similarity analysis
-    double magnitude_similarity = checker.compute_magnitude_error_similarity(freq_instructor, freq_student);
-
-    // Print both similarity measures to terminal
-    std::printf("=== FREQUENCY DOMAIN ANALYSIS ===\n");
-    std::printf("Similarity Result (Cross-correlation): %.2f%%\n", frequency_domain_result.percentage);
-    std::printf("Similarity Result (MSE): %.2f%%\n", magnitude_similarity);
+    
     std::printf("==================================\n");
   }
 }

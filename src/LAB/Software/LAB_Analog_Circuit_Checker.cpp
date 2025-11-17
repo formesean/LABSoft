@@ -277,94 +277,232 @@ load_data_acc()
 }
 
 LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
-cross_correlation(const std::vector<double> &x,
-                  const std::vector<double> &y)
+cross_correlation(const std::vector<double> &teacher_signal,
+                  const std::vector<double> &student_signal)
 {
   CorrelationResult result{0.0, 0.0, 0.0};
 
-  if (x.empty() || y.empty()) return result;
+  if (teacher_signal.empty() || student_signal.empty()) return result;
 
   // Use actual signal length or 2000, whichever is smaller
-  const size_t min_len = std::min(std::min(x.size(), y.size()), static_cast<size_t>(2000));
+  const size_t signal_length = std::min(std::min(teacher_signal.size(), student_signal.size()), 
+                                        static_cast<size_t>(2000));
 
-  if (min_len == 0) return result;
+  if (signal_length == 0) return result;
 
   // Calculate means to remove DC components
-  double x_mean = 0.0;
-  double y_mean = 0.0;
-  for (size_t i = 0; i < min_len; i++)
+  double teacher_mean = 0.0;
+  double student_mean = 0.0;
+  for (size_t i = 0; i < signal_length; i++)
   {
-    x_mean += x[i];
-    y_mean += y[i];
+    teacher_mean += teacher_signal[i];
+    student_mean += student_signal[i];
   }
-  x_mean /= min_len;
-  y_mean /= min_len;
+  teacher_mean /= signal_length;
+  student_mean /= signal_length;
 
-  // Create DC-removed versions of the signals
-  std::vector<double> x_ac(min_len);
-  std::vector<double> y_ac(min_len);
-  for (size_t i = 0; i < min_len; i++)
+  // Create DC-removed (AC-coupled) versions of the signals
+  std::vector<double> teacher_ac(signal_length);
+  std::vector<double> student_ac(signal_length);
+  for (size_t i = 0; i < signal_length; i++)
   {
-    x_ac[i] = x[i] - x_mean;
-    y_ac[i] = y[i] - y_mean;
+    teacher_ac[i] = teacher_signal[i] - teacher_mean;
+    student_ac[i] = student_signal[i] - student_mean;
   }
 
-  // Calculate signal norms for proper normalization (using DC-removed signals)
-  double x_norm = 0.0;
-  double y_norm = 0.0;
-  for (size_t i = 0; i < min_len; i++)
+  // Calculate teacher auto-correlation: Rxx(0) = Σ(x[i]²)
+  double teacher_autocorr = 0.0;
+  for (size_t i = 0; i < signal_length; i++)
   {
-    x_norm += x_ac[i] * x_ac[i];
-    y_norm += y_ac[i] * y_ac[i];
+    teacher_autocorr += teacher_ac[i] * teacher_ac[i];
   }
-  x_norm = std::sqrt(x_norm);
-  y_norm = std::sqrt(y_norm);
 
-  if (x_norm == 0.0 || y_norm == 0.0) return result;
+  if (teacher_autocorr < 1e-12) return result;
 
-  // full cross correlation with bidirectional shifting
-  const size_t max_shift = min_len - 1;
-  double max_correlation = -1.0;
-  int lag = 0;
-
-
-  // Shift student signal (y) relative to static teacher signal (x)
-  for (int shift_offset = -static_cast<int>(max_shift); shift_offset <= static_cast<int>(max_shift); shift_offset++)
+  // Calculate unnormalized cross-correlation: Rxy(0) = Σ(teacher[i] × student[i])
+  double cross_corr_at_lag0 = 0.0;
+  for (size_t i = 0; i < signal_length; i++)
   {
-    double correlation = 0.0;
-    size_t valid_samples = 0;
+    cross_corr_at_lag0 += teacher_ac[i] * student_ac[i];
+  }
 
-    // cross correlation calculation - shifting student signal
-    for (size_t i = 0; i < min_len; i++)
+  int optimal_lag = 0;  // Static comparison - no shifting applied
+
+  // Energy-ratio similarity metric: Normalize by teacher auto-correlation only
+  double similarity_coefficient = 0.0;
+  if (teacher_autocorr > 1e-12)
+  {
+    double energy_ratio = cross_corr_at_lag0 / teacher_autocorr;
+    
+    // Apply bidirectional penalty for amplitude mismatch. Ensures that both under-amplitude and over-amplitude are penalized symmetrically
+    if (energy_ratio > 1.0)
     {
-      const int y_idx = static_cast<int>(i) + shift_offset;
-
-      if (y_idx >= 0 && y_idx < static_cast<int>(min_len))
-      {
-        correlation += x_ac[i] * y_ac[y_idx];
-        valid_samples++;
-      }
+      // Student has excess amplitude → penalize (invert ratio)
+      similarity_coefficient = 1.0 / energy_ratio;
     }
-
-    // Normalize the correlation for this shift
-    if (valid_samples > 0)
+    else
     {
-      double normalized_correlation = correlation / (x_norm * y_norm);
-
-      // Track the maximum normalized correlation and its lag
-      if (normalized_correlation > max_correlation)
-      {
-        max_correlation = normalized_correlation;
-        lag = shift_offset;
-      }
+      // Student has equal or deficient amplitude → use ratio directly
+      similarity_coefficient = std::abs(energy_ratio);
     }
+    
+    // Clamp to valid range [0.0, 1.0]
+    similarity_coefficient = std::max(0.0, similarity_coefficient);
   }
 
-  result.lag = static_cast<double>(lag);
-  result.coefficient = max_correlation;
-  result.percentage = max_correlation * 100;
+  // Store results
+  result.lag = static_cast<double>(optimal_lag);
+  result.coefficient = similarity_coefficient;
+  result.percentage = similarity_coefficient * 100.0;
+
+  // Extract absolute values (magnitudes) for MSE-based similarity calculation
+  std::vector<double> teacher_magnitude(signal_length);
+  std::vector<double> student_magnitude(signal_length);
+  for (size_t i = 0; i < signal_length; i++)
+  {
+    teacher_magnitude[i] = std::abs(teacher_ac[i]);
+    student_magnitude[i] = std::abs(student_ac[i]);
+  }
+
+  // Calculate alternative MSE-based similarity metric
+  double mse_similarity_percentage = compute_magnitude_error_similarity(
+    teacher_magnitude, 
+    student_magnitude, 
+    optimal_lag
+  );
+
+  // Debug output
+  std::printf("[Time Domain - Unnormalized Cross-Correlation at Lag=0]\n");
+  std::printf("  Formula: Rxy(0) = Σ(teacher[n] × student[n])\n");
+  std::printf("  Teacher autocorr Rxx(0): %.2f\n", teacher_autocorr);
+  std::printf("  Cross-corr Rxy(0): %.2f\n", cross_corr_at_lag0);
+  std::printf("  Energy ratio: %.4f\n", cross_corr_at_lag0 / teacher_autocorr);
+  std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
+              similarity_coefficient, similarity_coefficient * 100.0);
+  std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
+  std::printf("  Optimal lag: %d samples (static - no shifting)\n", optimal_lag);
+  std::printf("-------------------------------------\n");
 
   return result;
+}
+
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+cross_correlation_complex(const std::vector<std::complex<double>> &teacher_spectrum,
+                          const std::vector<std::complex<double>> &student_spectrum)
+{
+  CorrelationResult result{0.0, 0.0, 0.0};
+
+  if (teacher_spectrum.empty() || student_spectrum.empty()) return result;
+
+  // Use actual spectrum length or 2000, whichever is smaller
+  const size_t spectrum_length = std::min(std::min(teacher_spectrum.size(), student_spectrum.size()), 
+                                          static_cast<size_t>(2000));
+
+  if (spectrum_length == 0) return result;
+
+  // Calculate means to remove DC components (complex mean for frequency domain)
+  std::complex<double> teacher_mean(0.0, 0.0);
+  std::complex<double> student_mean(0.0, 0.0);
+  for (size_t i = 0; i < spectrum_length; i++)
+  {
+    teacher_mean += teacher_spectrum[i];
+    student_mean += student_spectrum[i];
+  }
+  teacher_mean /= static_cast<double>(spectrum_length);
+  student_mean /= static_cast<double>(spectrum_length);
+
+  // Create DC-removed versions of the spectra
+  std::vector<std::complex<double>> teacher_ac(spectrum_length);
+  std::vector<std::complex<double>> student_ac(spectrum_length);
+  for (size_t i = 0; i < spectrum_length; i++)
+  {
+    teacher_ac[i] = teacher_spectrum[i] - teacher_mean;
+    student_ac[i] = student_spectrum[i] - student_mean;
+  }
+
+  // Calculate teacher auto-correlation: Rxx(0) = Σ|teacher[i]|²
+  double teacher_autocorr = 0.0;
+  for (size_t i = 0; i < spectrum_length; i++)
+  {
+    teacher_autocorr += std::norm(teacher_ac[i]);  // |z|² = real² + imag²
+  }
+
+  if (teacher_autocorr < 1e-12) return result;
+
+  // Calculate unnormalized complex cross-correlation: Rxy(0) = Σ(teacher[i] × conj(student[i]))
+  std::complex<double> cross_corr_complex(0.0, 0.0);
+  for (size_t i = 0; i < spectrum_length; i++)
+  {
+    cross_corr_complex += teacher_ac[i] * std::conj(student_ac[i]);
+  }
+
+  // Extract magnitude of complex correlation (phase-aware similarity measure)
+  double cross_corr_magnitude = std::abs(cross_corr_complex);
+  int optimal_lag = 0;  // Static comparison
+
+  // Normalize by teacher auto-correlation only
+  double similarity_coefficient = 0.0;
+  if (teacher_autocorr > 1e-12)
+  {
+    double energy_ratio = cross_corr_magnitude / teacher_autocorr;
+    
+    // Apply bidirectional penalty for amplitude mismatch
+    if (energy_ratio > 1.0)
+    {
+      // Student spectrum has excess energy → penalize (invert ratio)
+      similarity_coefficient = 1.0 / energy_ratio;
+    }
+    else
+    {
+      // Student spectrum has equal or deficient energy → use ratio directly
+      similarity_coefficient = std::abs(energy_ratio);
+    }
+    
+    // Clamp to valid range [0.0, 1.0]
+    similarity_coefficient = std::max(0.0, similarity_coefficient);
+  }
+
+  
+  result.lag = static_cast<double>(optimal_lag);
+  result.coefficient = similarity_coefficient;
+  result.percentage = similarity_coefficient * 100.0;
+
+  //  MSE-based similarity calculation
+  std::vector<double> teacher_magnitude(spectrum_length);
+  std::vector<double> student_magnitude(spectrum_length);
+  for (size_t i = 0; i < spectrum_length; i++)
+  {
+    teacher_magnitude[i] = std::abs(teacher_ac[i]);
+    student_magnitude[i] = std::abs(student_ac[i]);
+  }
+
+  double mse_similarity_percentage = compute_magnitude_error_similarity(
+    teacher_magnitude, 
+    student_magnitude, 
+    optimal_lag
+  );
+
+  // Debug 
+  std::printf("[Frequency Domain - Unnormalized Complex Cross-Correlation at Lag=0]\n");
+  std::printf("  Formula: Rxy(0) = Σ(teacher[n] × conj(student[n]))\n");
+  std::printf("  Teacher autocorr Rxx(0): %.2f\n", teacher_autocorr);
+  std::printf("  Cross-corr magnitude |Rxy(0)|: %.2f\n", cross_corr_magnitude);
+  std::printf("  Energy ratio: %.4f\n", cross_corr_magnitude / teacher_autocorr);
+  std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
+              similarity_coefficient, similarity_coefficient * 100.0);
+  std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
+  std::printf("  Optimal lag: %d frequency bins (static - no shifting)\n", optimal_lag);
+  std::printf("  Note: Phase information IS included in cross-correlation\n");
+  std::printf("-------------------------------------\n");
+
+  return result;
+}
+
+LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
+signal_analysis_complex(const std::vector<std::complex<double>> &instructor,
+                        const std::vector<std::complex<double>> &student)
+{
+  return cross_correlation_complex(instructor, student);
 }
 
 std::vector<std::complex<double>> LAB_Analog_Circuit_Checker::
@@ -411,7 +549,8 @@ compute_fft(const std::vector<double> &data)
 
 double LAB_Analog_Circuit_Checker::
 compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
-                                   const std::vector<double>& freq_student)
+                                   const std::vector<double>& freq_student,
+                                   int lag)
 {
   if (freq_instructor.empty() || freq_student.empty())
     return 0.0;
@@ -422,19 +561,30 @@ compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
   if (min_size == 0)
     return 0.0;
 
-  // Calculate Mean Squared Error (MSE)
+  // Calculate Mean Squared Error (MSE) with optional lag
   double mse = 0.0;
   double sum_instructor_squared = 0.0;
+  size_t valid_count = 0;
 
   for (size_t i = 0; i < min_size; ++i)
   {
-    double error = freq_instructor[i] - freq_student[i];
-    mse += error * error;
-    sum_instructor_squared += freq_instructor[i] * freq_instructor[i];
+    const int student_idx = static_cast<int>(i) + lag;
+    
+    // Check bounds for lagged comparison
+    if (student_idx >= 0 && student_idx < static_cast<int>(min_size))
+    {
+      double error = freq_instructor[i] - freq_student[student_idx];
+      mse += error * error;
+      sum_instructor_squared += freq_instructor[i] * freq_instructor[i];
+      valid_count++;
+    }
   }
 
-  mse /= min_size;
-  sum_instructor_squared /= min_size;
+  if (valid_count == 0)
+    return 0.0;
+
+  mse /= valid_count;
+  sum_instructor_squared /= valid_count;
 
   // Calculate similarity as percentage (100% - normalized error percentage)
   if (sum_instructor_squared < 1e-12)
@@ -454,6 +604,7 @@ compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
   1.0 or higher	    0%	          No similarity - completely different
   */
 }
+
 
 LAB_Analog_Circuit_Checker::CorrelationResult LAB_Analog_Circuit_Checker::
 signal_analysis(const std::vector<double> &instructor,
