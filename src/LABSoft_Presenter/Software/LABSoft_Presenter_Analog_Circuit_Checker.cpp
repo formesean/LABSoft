@@ -329,10 +329,14 @@ void LABSoft_Presenter_Analog_Circuit_Checker::
 update_gui_analog_circuit_checker()
 {
   LABSoft_GUI& gui = m_presenter.gui();
-  LABSoft_GUI_Analog_Circuit_Checker_Display& analog_display =
-    *(gui.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display);
+  auto *display_ptr = gui.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
+  if (!display_ptr) return;
 
-  if (m_presenter.lab().m_Analog_Circuit_Checker.is_file_loaded())
+  LABSoft_GUI_Analog_Circuit_Checker_Display& analog_display = *display_ptr;
+  LAB_Analog_Circuit_Checker &analog_checker = m_presenter.lab().m_Analog_Circuit_Checker;
+  const bool file_loaded = analog_checker.is_file_loaded();
+
+  if (file_loaded)
   {
     // Configure base UI from metadata
     analog_display.time_per_division  (m_metadata.time_per_division);
@@ -347,87 +351,102 @@ update_gui_analog_circuit_checker()
       analog_display.voltage_per_division (1, ch2m.voltage_per_div);
       analog_display.vertical_offset      (1, ch2m.vertical_offset);
     }
+  }
 
-    // Time vs Frequency view
-    if (m_view_frequency)
+  const double display_sampling_rate =
+    file_loaded ? m_metadata.sampling_rate : lab().m_Oscilloscope.sampling_rate();
+  const bool have_time_student = !time_student_pixels.empty();
+  const bool have_freq_student = !freq_student.empty();
+  const bool have_time_instructor = !time_instructor_pixels.empty();
+  const bool have_freq_instructor = !freq_instructor.empty();
+
+  if (m_view_frequency)
+  {
+    analog_display.set_frequency_view(true, display_sampling_rate);
+
+    LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints freq_pixels{};
+    std::vector<std::array<int, 2>> overlay_points;
+
+    if (have_freq_instructor || have_freq_student)
     {
-      analog_display.set_frequency_view(true, m_metadata.sampling_rate);
+      const unsigned display_width  = analog_display.display_width();
+      const unsigned display_height = analog_display.display_height();
+      const size_t denom_instructor =
+        (freq_instructor.size() > 1) ? (freq_instructor.size() - 1) : 1;
+      const size_t denom_student =
+        (freq_student.size() > 1) ? (freq_student.size() - 1) : 1;
 
-      LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints freq_pixels{};
-      std::vector<std::array<int, 2>> overlay_points;
+      double max_mag = 0.0;
+      if (have_freq_instructor)
+        for (double v : freq_instructor)
+          if (v > max_mag) max_mag = v;
+      if (have_freq_student)
+        for (double v : freq_student)
+          if (v > max_mag) max_mag = v;
+      if (max_mag <= 0.0) max_mag = 1.0;
 
-      const bool have_instructor = !freq_instructor.empty();
-      const bool have_student    = !freq_student.empty();
-
-      if (have_instructor || have_student)
+      if (have_freq_student)
       {
-        const unsigned display_width  = analog_display.display_width();
-        const unsigned display_height = analog_display.display_height();
-        const size_t denom_instructor = (freq_instructor.size() > 1) ? (freq_instructor.size() - 1) : 1;
-        const size_t denom_student    = (freq_student.size()    > 1) ? (freq_student.size()    - 1) : 1;
-
-        double max_mag = 0.0;
-        if (have_instructor) for (double v : freq_instructor) if (v > max_mag) max_mag = v;
-        if (have_student)    for (double v : freq_student)    if (v > max_mag) max_mag = v;
-        if (max_mag <= 0.0) max_mag = 1.0;
-
-        // Student -> channel 1 pixels
-        if (have_student)
+        const size_t N = freq_student.size();
+        freq_pixels[1].reserve(N);
+        for (size_t i = 0; i < N; ++i)
         {
-          const size_t N = freq_student.size();
-          freq_pixels[1].reserve(N);
-          for (size_t i = 0; i < N; ++i)
-          {
-            int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width  - 1)) / static_cast<double>(denom_student));
-            double normalized = clamp01(freq_student[i] / max_mag);
-            int y = static_cast<int>(display_height * (1.0 - normalized));
-            x = std::max(0, std::min(x, static_cast<int>(display_width  - 1)));
-            y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
-            freq_pixels[1].push_back({x, y});
-          }
-        }
-
-        // Instructor -> red overlay
-        if (have_instructor)
-        {
-          const size_t N = freq_instructor.size();
-          overlay_points.reserve(N);
-          for (size_t i = 0; i < N; ++i)
-          {
-            int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width  - 1)) / static_cast<double>(denom_instructor));
-            double normalized = clamp01(freq_instructor[i] / max_mag);
-            int y = static_cast<int>(display_height * (1.0 - normalized));
-            x = std::max(0, std::min(x, static_cast<int>(display_width  - 1)));
-            y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
-            overlay_points.push_back({x, y});
-          }
+          int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width  - 1)) /
+                                   static_cast<double>(denom_student));
+          double normalized = clamp01(freq_student[i] / max_mag);
+          int y = static_cast<int>(display_height * (1.0 - normalized));
+          x = std::max(0, std::min(x, static_cast<int>(display_width  - 1)));
+          y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
+          freq_pixels[1].push_back({x, y});
         }
       }
 
-      analog_display.load_pixel_points(freq_pixels);
-      analog_display.load_overlay_points(overlay_points, FL_RED, true);
-      analog_display.channel_enable_disable(0, false);
-      analog_display.channel_enable_disable(1, have_student);
-      analog_display.update_display();
+      if (have_freq_instructor)
+      {
+        const size_t N = freq_instructor.size();
+        overlay_points.reserve(N);
+        for (size_t i = 0; i < N; ++i)
+        {
+          int x = static_cast<int>((static_cast<double>(i) * static_cast<double>(display_width  - 1)) /
+                                   static_cast<double>(denom_instructor));
+          double normalized = clamp01(freq_instructor[i] / max_mag);
+          int y = static_cast<int>(display_height * (1.0 - normalized));
+          x = std::max(0, std::min(x, static_cast<int>(display_width  - 1)));
+          y = std::max(0, std::min(y, static_cast<int>(display_height - 1)));
+          overlay_points.push_back({x, y});
+        }
+      }
     }
-    else
-    {
-      analog_display.set_frequency_view(false, m_metadata.sampling_rate);
 
-      // Build time-domain view using prepared pixel buffers
-      LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints pixel_points{};
-      if (!time_student_pixels.empty())
-        pixel_points[1] = time_student_pixels;
+    analog_display.load_pixel_points(freq_pixels);
+    analog_display.load_overlay_points(overlay_points, FL_RED, true);
+    analog_display.channel_enable_disable(0, false);
+    analog_display.channel_enable_disable(1, have_freq_student);
+  }
+  else
+  {
+    analog_display.set_frequency_view(false, display_sampling_rate);
 
-      const bool have_student = !time_student_pixels.empty();
-      std::vector<std::array<int, 2>> overlay_points = time_instructor_pixels; // instructor in red overlay
+    LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints pixel_points{};
+    if (have_time_student)
+      pixel_points[1] = time_student_pixels;
 
-      analog_display.load_pixel_points(pixel_points);
-      analog_display.load_overlay_points(overlay_points, FL_RED, true);
-      analog_display.channel_enable_disable(0, false);
-      analog_display.channel_enable_disable(1, have_student);
-      analog_display.update_display();
-    }
+    std::vector<std::array<int, 2>> overlay_points;
+    if (have_time_instructor)
+      overlay_points = time_instructor_pixels; // instructor in red overlay
+
+    analog_display.load_pixel_points(pixel_points);
+    analog_display.load_overlay_points(overlay_points, FL_RED, true);
+    analog_display.channel_enable_disable(0, false);
+    analog_display.channel_enable_disable(1, have_time_student);
+  }
+
+  analog_display.update_display();
+
+  if (file_loaded)
+  {
+    lab().m_Oscilloscope_Display.update_cached_values();
+    presenter().m_Oscilloscope_Display.update_display();
   }
 }
 
@@ -849,15 +868,7 @@ cb_run_checker_acc(Fl_Button* w, void* data)
   }
   std::printf("</samples>\n");
 
-  LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
-  if (!time_student_pixels.empty())
-    acc_pixels[1] = time_student_pixels;
-
-  acc_disp_ptr->set_frequency_view(false, osc.sampling_rate());
-  acc_disp_ptr->load_pixel_points(acc_pixels);
-  acc_disp_ptr->channel_enable_disable(0, false);
-  acc_disp_ptr->channel_enable_disable(1, true);
-  acc_disp_ptr->update_display();
+  update_gui_analog_circuit_checker();
 
   perform_time_domain_analysis();
   perform_frequency_domain_analysis();
