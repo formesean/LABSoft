@@ -284,7 +284,6 @@ cross_correlation(const std::vector<double> &teacher_signal,
 
   if (teacher_signal.empty() || student_signal.empty()) return result;
 
-  // Use actual signal length or 2000, whichever is smaller
   const size_t signal_length = std::min(std::min(teacher_signal.size(), student_signal.size()), 
                                         static_cast<size_t>(2000));
 
@@ -326,7 +325,7 @@ cross_correlation(const std::vector<double> &teacher_signal,
     cross_corr_at_lag0 += teacher_ac[i] * student_ac[i];
   }
 
-  int optimal_lag = 0;  // Static comparison - no shifting applied
+  int optimal_lag = 0;  // Static comparison (no shifting)
 
   // Energy-ratio similarity metric: Normalize by teacher auto-correlation only
   double similarity_coefficient = 0.0;
@@ -350,11 +349,6 @@ cross_correlation(const std::vector<double> &teacher_signal,
     similarity_coefficient = std::max(0.0, similarity_coefficient);
   }
 
-  // Store results
-  result.lag = static_cast<double>(optimal_lag);
-  result.coefficient = similarity_coefficient;
-  result.percentage = similarity_coefficient * 100.0;
-
   // Extract absolute values (magnitudes) for MSE-based similarity calculation
   std::vector<double> teacher_magnitude(signal_length);
   std::vector<double> student_magnitude(signal_length);
@@ -371,6 +365,14 @@ cross_correlation(const std::vector<double> &teacher_signal,
     optimal_lag
   );
 
+  result.lag = static_cast<double>(optimal_lag);
+  result.coefficient = similarity_coefficient;
+  
+  // Calculate weighted average of both metrics 
+  double similarity_coefficient_percentage = similarity_coefficient * 100.0;
+  double weighted_average_percentage = (similarity_coefficient_percentage + mse_similarity_percentage) / 2.0;
+  result.percentage = weighted_average_percentage;
+
   // Debug output
   std::printf("[Time Domain - Unnormalized Cross-Correlation at Lag=0]\n");
   std::printf("  Formula: Rxy(0) = Σ(teacher[n] × student[n])\n");
@@ -378,8 +380,9 @@ cross_correlation(const std::vector<double> &teacher_signal,
   std::printf("  Cross-corr Rxy(0): %.2f\n", cross_corr_at_lag0);
   std::printf("  Energy ratio: %.4f\n", cross_corr_at_lag0 / teacher_autocorr);
   std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
-              similarity_coefficient, similarity_coefficient * 100.0);
+              similarity_coefficient, similarity_coefficient_percentage);
   std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
+  std::printf("  Weighted average (final result): %.2f%%\n", weighted_average_percentage);
   std::printf("  Optimal lag: %d samples (static - no shifting)\n", optimal_lag);
   std::printf("-------------------------------------\n");
 
@@ -465,8 +468,7 @@ cross_correlation_complex(const std::vector<std::complex<double>> &teacher_spect
   
   result.lag = static_cast<double>(optimal_lag);
   result.coefficient = similarity_coefficient;
-  result.percentage = similarity_coefficient * 100.0;
-
+  
   //  MSE-based similarity calculation
   std::vector<double> teacher_magnitude(spectrum_length);
   std::vector<double> student_magnitude(spectrum_length);
@@ -481,6 +483,11 @@ cross_correlation_complex(const std::vector<std::complex<double>> &teacher_spect
     student_magnitude, 
     optimal_lag
   );
+  
+  // Calculate weighted average of both metrics 
+  double similarity_coefficient_percentage = similarity_coefficient * 100.0;
+  double weighted_average_percentage = (similarity_coefficient_percentage + mse_similarity_percentage) / 2.0;
+  result.percentage = weighted_average_percentage;
 
   // Debug 
   std::printf("[Frequency Domain - Unnormalized Complex Cross-Correlation at Lag=0]\n");
@@ -489,8 +496,9 @@ cross_correlation_complex(const std::vector<std::complex<double>> &teacher_spect
   std::printf("  Cross-corr magnitude |Rxy(0)|: %.2f\n", cross_corr_magnitude);
   std::printf("  Energy ratio: %.4f\n", cross_corr_magnitude / teacher_autocorr);
   std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
-              similarity_coefficient, similarity_coefficient * 100.0);
+              similarity_coefficient, similarity_coefficient_percentage);
   std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
+  std::printf("  Weighted average (final result): %.2f%%\n", weighted_average_percentage);
   std::printf("  Optimal lag: %d frequency bins (static - no shifting)\n", optimal_lag);
   std::printf("  Note: Phase information IS included in cross-correlation\n");
   std::printf("-------------------------------------\n");

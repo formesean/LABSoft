@@ -732,6 +732,17 @@ perform_time_domain_analysis()
       char buf[64];
       std::snprintf(buf, sizeof(buf), "%.2f%%", time_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->value(buf);
+      
+      // Color coding: Green if >= threshold, Red if < threshold
+      if (time_domain_result.percentage >= checker.get_cmp_time_similarity_threshold())
+      {
+        gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->textcolor(FL_DARK_GREEN);
+      }
+      else
+      {
+        gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->textcolor(FL_RED);
+      }
+      gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->redraw();
     }
   }
 }
@@ -759,6 +770,17 @@ perform_frequency_domain_analysis()
       char buf[64];
       std::snprintf(buf, sizeof(buf), "%.2f%%", frequency_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
+      
+      // Color coding: Green if >= threshold, Red if < threshold
+      if (frequency_domain_result.percentage >= checker.get_cmp_frequency_similarity_threshold())
+      {
+        gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->textcolor(FL_DARK_GREEN);
+      }
+      else
+      {
+        gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->textcolor(FL_RED);
+      }
+      gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->redraw();
     }
     
     std::printf("==================================\n");
