@@ -349,7 +349,7 @@ cross_correlation(const std::vector<double> &teacher_signal,
     similarity_coefficient = std::max(0.0, similarity_coefficient);
   }
 
-  // Extract absolute values (magnitudes) for MSE-based similarity calculation
+  // MSE-based similarity calculation
   std::vector<double> teacher_magnitude(signal_length);
   std::vector<double> student_magnitude(signal_length);
   for (size_t i = 0; i < signal_length; i++)
@@ -358,7 +358,6 @@ cross_correlation(const std::vector<double> &teacher_signal,
     student_magnitude[i] = std::abs(student_ac[i]);
   }
 
-  // Calculate alternative MSE-based similarity metric
   double mse_similarity_percentage = compute_magnitude_error_similarity(
     teacher_magnitude, 
     student_magnitude, 
@@ -371,20 +370,20 @@ cross_correlation(const std::vector<double> &teacher_signal,
   // Calculate weighted average of both metrics 
   double similarity_coefficient_percentage = similarity_coefficient * 100.0;
   double weighted_average_percentage = (similarity_coefficient_percentage + mse_similarity_percentage) / 2.0;
-  result.percentage = weighted_average_percentage;
+  result.percentage = similarity_coefficient_percentage;
 
   // Debug output
-  std::printf("[Time Domain - Unnormalized Cross-Correlation at Lag=0]\n");
-  std::printf("  Formula: Rxy(0) = Σ(teacher[n] × student[n])\n");
-  std::printf("  Teacher autocorr Rxx(0): %.2f\n", teacher_autocorr);
-  std::printf("  Cross-corr Rxy(0): %.2f\n", cross_corr_at_lag0);
-  std::printf("  Energy ratio: %.4f\n", cross_corr_at_lag0 / teacher_autocorr);
-  std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
-              similarity_coefficient, similarity_coefficient_percentage);
-  std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
-  std::printf("  Weighted average (final result): %.2f%%\n", weighted_average_percentage);
-  std::printf("  Optimal lag: %d samples (static - no shifting)\n", optimal_lag);
-  std::printf("-------------------------------------\n");
+  // std::printf("[Time Domain - Unnormalized Cross-Correlation at Lag=0]\n");
+  // std::printf("  Formula: Rxy(0) = Σ(teacher[n] × student[n])\n");
+  // std::printf("  Teacher autocorr Rxx(0): %.2f\n", teacher_autocorr);
+  // std::printf("  Cross-corr Rxy(0): %.2f\n", cross_corr_at_lag0);
+  // std::printf("  Energy ratio: %.4f\n", cross_corr_at_lag0 / teacher_autocorr);
+  // std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
+  //             similarity_coefficient, similarity_coefficient_percentage);
+  // std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
+  // std::printf("  Weighted average (final result): %.2f%%\n", weighted_average_percentage);
+  // std::printf("  Optimal lag: %d samples (static - no shifting)\n", optimal_lag);
+  // std::printf("-------------------------------------\n");
 
   return result;
 }
@@ -489,19 +488,19 @@ cross_correlation_complex(const std::vector<std::complex<double>> &teacher_spect
   double weighted_average_percentage = (similarity_coefficient_percentage + mse_similarity_percentage) / 2.0;
   result.percentage = weighted_average_percentage;
 
-  // Debug 
-  std::printf("[Frequency Domain - Unnormalized Complex Cross-Correlation at Lag=0]\n");
-  std::printf("  Formula: Rxy(0) = Σ(teacher[n] × conj(student[n]))\n");
-  std::printf("  Teacher autocorr Rxx(0): %.2f\n", teacher_autocorr);
-  std::printf("  Cross-corr magnitude |Rxy(0)|: %.2f\n", cross_corr_magnitude);
-  std::printf("  Energy ratio: %.4f\n", cross_corr_magnitude / teacher_autocorr);
-  std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
-              similarity_coefficient, similarity_coefficient_percentage);
-  std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
-  std::printf("  Weighted average (final result): %.2f%%\n", weighted_average_percentage);
-  std::printf("  Optimal lag: %d frequency bins (static - no shifting)\n", optimal_lag);
-  std::printf("  Note: Phase information IS included in cross-correlation\n");
-  std::printf("-------------------------------------\n");
+  // // Debug 
+  // std::printf("[Frequency Domain - Unnormalized Complex Cross-Correlation at Lag=0]\n");
+  // std::printf("  Formula: Rxy(0) = Σ(teacher[n] × conj(student[n]))\n");
+  // std::printf("  Teacher autocorr Rxx(0): %.2f\n", teacher_autocorr);
+  // std::printf("  Cross-corr magnitude |Rxy(0)|: %.2f\n", cross_corr_magnitude);
+  // std::printf("  Energy ratio: %.4f\n", cross_corr_magnitude / teacher_autocorr);
+  // std::printf("  Similarity coefficient: %.4f (%.2f%%)\n", 
+  //             similarity_coefficient, similarity_coefficient_percentage);
+  // std::printf("  MSE-based similarity: %.2f%%\n", mse_similarity_percentage);
+  // std::printf("  Weighted average (final result): %.2f%%\n", weighted_average_percentage);
+  // std::printf("  Optimal lag: %d frequency bins (static - no shifting)\n", optimal_lag);
+  // std::printf("  Note: Phase information IS included in cross-correlation\n");
+  // std::printf("-------------------------------------\n");
 
   return result;
 }

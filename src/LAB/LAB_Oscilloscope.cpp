@@ -256,22 +256,15 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     run()
 {
-  std::printf("[OSC] run() called\n");
-  
   lab().m_Oscilloscope.stop();
   lab().m_Voltmeter.stop();
   lab().m_Ohmmeter.stop();
 
-  //
-
   frontend_run_stop(true);
   backend_run_stop(true);
 
-  std::printf("[OSC] After frontend/backend start: is_running=%d\n", is_running());
-
   reload_settings();
   
-  std::printf("[OSC] run() completed\n");
 }
 
 void LAB_Oscilloscope::
@@ -480,7 +473,7 @@ void LAB_Oscilloscope::
 
   m_parent_data.channel_data[channel].scaling = scaling;
 
-  // // add software scaling compensation code here
+  // 
   // switch (scaling)
   // {
   //   case (LABE::OSC::SCALING::DOUBLE):
@@ -1021,9 +1014,6 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     parse_trigger_mode()
 {
-  std::printf("[OSC] parse_trigger_mode() called: mode=%d, is_running=%d, thread_joinable=%d\n",
-              static_cast<int>(m_parent_data.trigger_mode), is_running(), m_thread_trigger.joinable());
-
   switch (m_parent_data.trigger_mode)
   {
   case (LABE::OSC::TRIG::MODE::NONE):
@@ -1052,11 +1042,12 @@ void LAB_Oscilloscope::
 
       m_thread_trigger = std::thread(&LAB_Oscilloscope::find_trigger_point_loop, this);
     }
-    else
-    {
-      std::printf("[OSC] NOT starting trigger thread: thread_exists=%d, is_running=%d\n",
-                  m_thread_trigger.joinable(), is_running());
-    }
+    // debugging
+    // else
+    // {
+    //   std::printf("[OSC] NOT starting trigger thread: thread_exists=%d, is_running=%d\n",
+    //               m_thread_trigger.joinable(), is_running());
+    // }
 
     break;
   }
@@ -1072,11 +1063,12 @@ void LAB_Oscilloscope::
 
       m_thread_trigger = std::thread(&LAB_Oscilloscope::find_trigger_point_loop, this);
     }
-    else
-    {
-      std::printf("[OSC] NOT starting trigger thread: thread_exists=%d, is_running=%d\n",
-                  m_thread_trigger.joinable(), is_running());
-    }
+    // debugging
+    // else
+    // {
+    //   std::printf("[OSC] NOT starting trigger thread: thread_exists=%d, is_running=%d\n",
+    //               m_thread_trigger.joinable(), is_running());
+    // }
 
     break;
   }
@@ -1130,13 +1122,11 @@ void LAB_Oscilloscope::
   // sync_find_trigger_point_loop ();
 
   status(LABE::OSC::STATUS::CONFIG);
-  std::printf("[OSC] Status set to CONFIG, mode=%d\n", static_cast<int>(m_parent_data.mode));
-
+  
   switch (m_parent_data.mode)
   {
   case (LABE::OSC::MODE::REPEATED):
   {
-    std::printf("[OSC] Mode: REPEATED - initializing DMA...\n");
     // 1. Pause osc RX DMA channel
     rpi().dma.pause(LABC::DMA::CHAN::OSC_RX);
 
@@ -1196,10 +1186,6 @@ void LAB_Oscilloscope::
       //    If it is, this means that a buffer was just fully written to.
       if (rpi().dma.interrupt(LABC::DMA::CHAN::OSC_RX))
       {
-        if (loop_count % 100 == 0)
-        {
-          std::printf("[OSC] DMA interrupt detected at iteration %d\n", loop_count);
-        }
         // 2. Store the current control block running in the oscilloscope RX DMA
         //    engine. This is to know what buffer (0 or 1) was just filled.
         uint32_t curr_conblk_ad = *(rpi().dma.reg(LABC::DMA::CHAN::OSC_RX, AP::DMA::CONBLK_AD));
@@ -1615,14 +1601,14 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     debug()
 {
-  std::cout << "*** Oscilloscope ***" << "\n";
-  std::cout << "horizontal_offset : " << m_parent_data.horizontal_offset << "\n";
-  std::cout << "time_per_division : " << m_parent_data.time_per_division << "\n";
-  std::cout << "samples           : " << m_parent_data.samples << "\n";
-  std::cout << "sampling_rate     : " << m_parent_data.sampling_rate << "\n";
-  std::cout << "mode              : " << static_cast<int>(m_parent_data.mode) << "\n";
-  ;
-  std::cout << "********************" << "\n\n";
+  // std::cout << "*** Oscilloscope ***" << "\n";
+  // std::cout << "horizontal_offset : " << m_parent_data.horizontal_offset << "\n";
+  // std::cout << "time_per_division : " << m_parent_data.time_per_division << "\n";
+  // std::cout << "samples           : " << m_parent_data.samples << "\n";
+  // std::cout << "sampling_rate     : " << m_parent_data.sampling_rate << "\n";
+  // std::cout << "mode              : " << static_cast<int>(m_parent_data.mode) << "\n";
+  // ;
+  // std::cout << "********************" << "\n\n";
 }
 
 void LAB_Oscilloscope::
