@@ -60,6 +60,9 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
     CorrelationResult cross_correlation (const std::vector<double> &x,
                                          const std::vector<double> &y);
 
+    CorrelationResult cross_correlation_complex (const std::vector<std::complex<double>> &x,
+                                                 const std::vector<std::complex<double>> &y);
+
     bool                m_is_file_loaded = false;
     std::string         m_file_path;
     pugi::xml_document  m_xml_doc;
@@ -92,10 +95,13 @@ class LAB_Analog_Circuit_Checker : public LAB_Module
 
     CorrelationResult                 signal_analysis (const std::vector<double> &instructor,
                                                        const std::vector<double> &student);
+    CorrelationResult                 signal_analysis_complex (const std::vector<std::complex<double>> &instructor,
+                                                                const std::vector<std::complex<double>> &student);
     std::vector<std::complex<double>> compute_fft     (const std::vector<double> &data);
 
     double compute_magnitude_error_similarity(const std::vector<double>& freq_instructor,
-                                             const std::vector<double>& freq_student);
+                                             const std::vector<double>& freq_student,
+                                             int lag = 0);
 
     bool export_result_file(const std::string& file_path,
                            double time_similarity_percentage,

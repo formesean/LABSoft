@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <complex>
 
 #include "../LABSoft_Presenter_Unit.h"
 #include "../../LABSoft_GUI/LABSoft_GUI.h"
@@ -91,6 +92,8 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
     std::vector<double> time_student;
     std::vector<double> freq_instructor;
     std::vector<double> freq_student;
+    std::vector<std::complex<double>> freq_instructor_complex;
+    std::vector<std::complex<double>> freq_student_complex;
     std::vector<std::array<int, 2>> time_instructor_pixels;
     std::vector<std::array<int, 2>> time_student_pixels;
 

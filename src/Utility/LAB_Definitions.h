@@ -148,7 +148,7 @@ struct LAB_Parent_Data_Oscilloscope
     LABE::OSC::TRIG::TYPE trig_type               = LABD::OSC::TRIGGER_TYPE;
     LABE::OSC::TRIG::CND  trig_condition          = LABD::OSC::TRIGGER_CONDITION;
     double                trigger_level           = LABD::OSC::TRIGGER_LEVEL;
-    double                trigger_level_raw_bits  = (LABC::OSC::ADC_RESOLUTION_INT - 1) / 2;
+    uint32_t              trigger_level_raw_bits  = (LABC::OSC::ADC_RESOLUTION_INT - 1) / 2;
     unsigned              find_trig_sample_skip   = 4;
     unsigned              trigger_buffer_index    = 0;
     unsigned              trig_index              = 0;

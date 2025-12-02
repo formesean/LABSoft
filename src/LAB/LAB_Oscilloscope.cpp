@@ -260,12 +260,11 @@ void LAB_Oscilloscope::
   lab().m_Voltmeter.stop();
   lab().m_Ohmmeter.stop();
 
-  //
-
   frontend_run_stop(true);
   backend_run_stop(true);
 
   reload_settings();
+  
 }
 
 void LAB_Oscilloscope::
@@ -322,6 +321,9 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     reload_settings()
 {
+  // std::printf("[OSC] reload_settings() called: trigger_mode=%d\n", 
+  //             static_cast<int>(m_parent_data.trigger_mode));
+  
   trigger_mode(m_parent_data.trigger_mode);
   samples(m_parent_data.samples);
   sampling_rate(m_parent_data.sampling_rate);
@@ -471,7 +473,7 @@ void LAB_Oscilloscope::
 
   m_parent_data.channel_data[channel].scaling = scaling;
 
-  // // add software scaling compensation code here
+  // 
   // switch (scaling)
   // {
   //   case (LABE::OSC::SCALING::DOUBLE):
@@ -1016,11 +1018,14 @@ void LAB_Oscilloscope::
   {
   case (LABE::OSC::TRIG::MODE::NONE):
   {
+    // std::printf("[OSC] Trigger mode: NONE\n");
     if (m_thread_trigger.joinable())
     {
+      // std::printf("[OSC] Stopping trigger thread...\n");
       m_parent_data.trigger_enabled = false;
 
       m_thread_trigger.join();
+      // std::printf("[OSC] Trigger thread stopped.\n");
     }
 
     break;
@@ -1028,24 +1033,42 @@ void LAB_Oscilloscope::
 
   case (LABE::OSC::TRIG::MODE::AUTO):
   {
-    if (!m_thread_trigger.joinable())
+    // std::printf("[OSC] Trigger mode: AUTO\n");
+    // Only start trigger thread if oscilloscope is actually running
+    if (!m_thread_trigger.joinable() && is_running())
     {
+      // std::printf("[OSC] Starting trigger thread for AUTO mode...\n");
       m_parent_data.trigger_enabled = true;
 
       m_thread_trigger = std::thread(&LAB_Oscilloscope::find_trigger_point_loop, this);
     }
+    // debugging
+    // else
+    // {
+    //   std::printf("[OSC] NOT starting trigger thread: thread_exists=%d, is_running=%d\n",
+    //               m_thread_trigger.joinable(), is_running());
+    // }
 
     break;
   }
 
   case (LABE::OSC::TRIG::MODE::NORMAL):
   {
-    if (!m_thread_trigger.joinable())
+    // std::printf("[OSC] Trigger mode: NORMAL\n");
+    // Only start trigger thread if oscilloscope is actually running
+    if (!m_thread_trigger.joinable() && is_running())
     {
+      // std::printf("[OSC] Starting trigger thread for NORMAL mode...\n");
       m_parent_data.trigger_enabled = true;
 
       m_thread_trigger = std::thread(&LAB_Oscilloscope::find_trigger_point_loop, this);
     }
+    // debugging
+    // else
+    // {
+    //   std::printf("[OSC] NOT starting trigger thread: thread_exists=%d, is_running=%d\n",
+    //               m_thread_trigger.joinable(), is_running());
+    // }
 
     break;
   }
@@ -1076,6 +1099,8 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     find_trigger_point_loop()
 {
+  // std::printf("[OSC] find_trigger_point_loop() started\n");
+  
   LAB_DMA_Data_Oscilloscope &dma_data = *(static_cast<LAB_DMA_Data_Oscilloscope *>(m_uncached_memory.virt()));
 
   // ----------
@@ -1097,7 +1122,7 @@ void LAB_Oscilloscope::
   // sync_find_trigger_point_loop ();
 
   status(LABE::OSC::STATUS::CONFIG);
-
+  
   switch (m_parent_data.mode)
   {
   case (LABE::OSC::MODE::REPEATED):
@@ -1141,9 +1166,20 @@ void LAB_Oscilloscope::
   // ----------
 
   status(LABE::OSC::STATUS::ARMED);
+  // std::printf("[OSC] Status set to ARMED, entering trigger wait loop...\n");
+  // std::printf("[OSC] trigger_enabled=%d, trigger_mode=%d\n", 
+  //             m_parent_data.trigger_enabled, static_cast<int>(m_parent_data.trigger_mode));
 
+  int loop_count = 0;
   while (m_parent_data.trigger_enabled)
   {
+    // if (loop_count == 0 || loop_count % 100 == 0)
+    // {
+    //   std::printf("[OSC] Trigger loop iteration %d, trigger_found=%d\n", 
+    //               loop_count, m_parent_data.trigger_found);
+    // }
+    loop_count++;
+    
     if (!m_parent_data.trigger_found)
     {
       // 1. Check the oscilloscope RX DMA channel interrupt if it is asserted.
@@ -1186,6 +1222,17 @@ void LAB_Oscilloscope::
 inline bool LAB_Oscilloscope::
     find_trigger_point()
 {
+  // static int debug_counter = 0;
+  // if (debug_counter == 0)
+  // {
+  //   std::printf("[OSC] find_trigger_point() - trigger_type=%d, trigger_source=%d, trigger_level=%.6f, trigger_level_raw_bits=%u\n",
+  //               static_cast<int>(m_parent_data.trig_type),
+  //               m_parent_data.trigger_source,
+  //               m_parent_data.trigger_level,
+  //               m_parent_data.trigger_level_raw_bits);
+  // }
+  // debug_counter = (debug_counter + 1) % 1000;
+
   switch (m_parent_data.trig_type)
   {
   case (LABE::OSC::TRIG::TYPE::LEVEL):
@@ -1210,19 +1257,56 @@ inline bool LAB_Oscilloscope::
 
   case (LABE::OSC::TRIG::TYPE::EDGE):
   {
+    // For edge triggering, we need to ensure we can detect the edge even if the buffer
+    // doesn't start at an appropriate level. Start from the beginning of the buffer.
     uint32_t prev = conv_raw_osc_samp_to_recon_chan_adc_data(
         m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index][0],
         m_parent_data.trigger_source);
+
+    // static int sample_debug_counter = 0;
+    // if (sample_debug_counter == 0)
+    // {
+    //   // Find min/max in buffer
+    //   uint32_t min_val = prev, max_val = prev;
+    //   for (int i = 1; i < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); i++)
+    //   {
+    //     uint32_t s = conv_raw_osc_samp_to_recon_chan_adc_data(
+    //         m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index][i],
+    //         m_parent_data.trigger_source);
+    //     if (s < min_val) min_val = s;
+    //     if (s > max_val) max_val = s;
+    //   }
+    //   std::printf("[OSC] EDGE trigger - Buffer range: min=%u, max=%u, trigger_level=%u, sample[0]=%u\n", 
+    //               min_val, max_val, m_parent_data.trigger_level_raw_bits, prev);
+    //   
+    //   // If the trigger level is not within the signal range, we'll never trigger
+    //   if (m_parent_data.trigger_level_raw_bits < min_val || m_parent_data.trigger_level_raw_bits > max_val)
+    //   {
+    //     std::printf("[OSC] WARNING: Trigger level %u is outside signal range [%u, %u] - will never trigger!\n",
+    //                 m_parent_data.trigger_level_raw_bits, min_val, max_val);
+    //   }
+    // }
+    // sample_debug_counter = (sample_debug_counter + 1) % 1000;
 
     switch (m_parent_data.trig_condition)
     {
     case (LABE::OSC::TRIG::CND::RISING):
     {
-      for (int a = 1; a < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); a += m_parent_data.find_trig_sample_skip)
+      // static int detailed_debug = 0;
+      // Check every sample to avoid missing triggers due to sample skipping
+      for (int a = 1; a < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); a++)
       {
         uint32_t samp = conv_raw_osc_samp_to_recon_chan_adc_data(
             m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index][a],
             m_parent_data.trigger_source);
+
+        // if (detailed_debug == 0 && a < 20)
+        // {
+        //   std::printf("[OSC] RISING sample[%d]: prev=%u, samp=%u, check: (%u >= %u) && (%u < %u) = %d\n",
+        //               a, prev, samp, samp, m_parent_data.trigger_level_raw_bits,
+        //               prev, m_parent_data.trigger_level_raw_bits,
+        //               ((samp >= m_parent_data.trigger_level_raw_bits) && (prev < m_parent_data.trigger_level_raw_bits)));
+        // }
 
         if ((samp >= m_parent_data.trigger_level_raw_bits) && (prev < m_parent_data.trigger_level_raw_bits))
         {
@@ -1231,18 +1315,22 @@ inline bool LAB_Oscilloscope::
 
           return (true);
         }
-        else
-        {
-          prev = samp;
-        }
+        
+        prev = samp;
       }
+      
+      // if (detailed_debug == 0)
+      // {
+      //   detailed_debug = 1;
+      // }
 
       break;
     }
 
     case (LABE::OSC::TRIG::CND::FALLING):
     {
-      for (int a = 1; a < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); a += m_parent_data.find_trig_sample_skip)
+      // Check every sample to avoid missing triggers due to sample skipping
+      for (int a = 1; a < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); a++)
       {
         uint32_t samp = conv_raw_osc_samp_to_recon_chan_adc_data(
             m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index][a],
@@ -1255,10 +1343,8 @@ inline bool LAB_Oscilloscope::
 
           return (true);
         }
-        else
-        {
-          prev = samp;
-        }
+        
+        prev = samp;
       }
 
       break;
@@ -1266,7 +1352,8 @@ inline bool LAB_Oscilloscope::
 
     case (LABE::OSC::TRIG::CND::EITHER):
     {
-      for (int a = 1; a < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); a += 4)
+      // Check every sample to avoid missing triggers due to sample skipping
+      for (int a = 1; a < m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index].size(); a++)
       {
         uint32_t samp = conv_raw_osc_samp_to_recon_chan_adc_data(
             m_parent_data.trig_buffs.pre_trigger[m_parent_data.trigger_buffer_index][a],
@@ -1280,10 +1367,8 @@ inline bool LAB_Oscilloscope::
 
           return (true);
         }
-        else
-        {
-          prev = samp;
-        }
+        
+        prev = samp;
       }
 
       break;
@@ -1386,18 +1471,72 @@ void LAB_Oscilloscope::
 uint32_t LAB_Oscilloscope::
     calc_trigger_level_raw_bits(double trigger_level)
 {
-  if (LABF::is_within_range(
+  if (!LABF::is_within_range(
           trigger_level,
           LABD::OSC::MIN_OSC_HARDWARE_TRIGGER_LEVEL,
           LABD::OSC::MAX_OSC_HARDWARE_TRIGGER_LEVEL,
           LABC::LABSOFT::EPSILON))
   {
-    return (reconstruct_raw_osc_chan_samp_from_adc_data(std::round(trigger_level)));
+    return (0xFFFFFFFF);
+  }
+
+  // Get the channel we're triggering on
+  unsigned channel = m_parent_data.trigger_source;
+  LAB_Channel_Data_Oscilloscope cdata = m_parent_data.channel_data[channel];
+
+  // Reverse the calibration process
+  double actual_value = trigger_level;
+  
+  if (m_parent_data.is_calibration_enabled)
+  {
+    actual_value /= cdata.calibration.scaling_corrector_to_actual.at(cdata.scaling);
+    actual_value /= cdata.calibration.scaling_corrector_to_unity.at(cdata.scaling);
+    actual_value -= cdata.calibration.vertical_offset_corrector.at(cdata.scaling);
+  }
+
+  // Determine sign and absolute value
+  // sign=1 means positive, sign=0 means negative (offset by reference voltage)
+  bool sign;
+  double actual_value_absolute;
+  
+  if (actual_value >= 0)
+  {
+    sign = true;
+    actual_value_absolute = actual_value;
   }
   else
   {
-    return (0xFFFFFFFF);
+    sign = false;
+    // When sign=0, the formula is: actual_value = actual_value_absolute - conversion_reference_voltage
+    // So: actual_value_absolute = actual_value + conversion_reference_voltage
+    actual_value_absolute = actual_value + cdata.calibration.conversion_reference_voltage;
   }
+
+  // Convert back to ADC data (without sign bit)
+  // Formula: actual_value_absolute = adc_data_without_sign * conversion_constant
+  // So: adc_data_without_sign = actual_value_absolute / conversion_constant
+  uint32_t adc_data_without_sign = static_cast<uint32_t>(std::round(actual_value_absolute / cdata.calibration.conversion_constant));
+  
+  // Clamp to valid range (11 bits without sign)
+  uint32_t max_value_without_sign = ((LABC::OSC::ADC_RESOLUTION_INT - 1) >> 1);  // 2047
+  if (adc_data_without_sign > max_value_without_sign)
+  {
+    adc_data_without_sign = max_value_without_sign;
+  }
+
+  // Reconstruct 12-bit ADC data with sign bit
+  uint32_t adc_data = adc_data_without_sign;
+  if (sign)
+  {
+    adc_data |= (1 << (LABC::OSC::ADC_RESOLUTION_BITS - 1));  // Set bit 11
+  }
+
+  // std::printf("[OSC] calc_trigger_level_raw_bits: trigger_level=%.6f -> actual_value=%.6f, sign=%d, adc_data_without_sign=%u, adc_data=0x%03X\n",
+  //             trigger_level, actual_value, sign, adc_data_without_sign, adc_data);
+
+  // Return the ADC value directly - the trigger detection will compare this against
+  // unscrambled ADC values from conv_raw_osc_samp_to_recon_chan_adc_data()
+  return (adc_data);
 }
 
 void LAB_Oscilloscope::
@@ -1462,14 +1601,14 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     debug()
 {
-  std::cout << "*** Oscilloscope ***" << "\n";
-  std::cout << "horizontal_offset : " << m_parent_data.horizontal_offset << "\n";
-  std::cout << "time_per_division : " << m_parent_data.time_per_division << "\n";
-  std::cout << "samples           : " << m_parent_data.samples << "\n";
-  std::cout << "sampling_rate     : " << m_parent_data.sampling_rate << "\n";
-  std::cout << "mode              : " << static_cast<int>(m_parent_data.mode) << "\n";
-  ;
-  std::cout << "********************" << "\n\n";
+  // std::cout << "*** Oscilloscope ***" << "\n";
+  // std::cout << "horizontal_offset : " << m_parent_data.horizontal_offset << "\n";
+  // std::cout << "time_per_division : " << m_parent_data.time_per_division << "\n";
+  // std::cout << "samples           : " << m_parent_data.samples << "\n";
+  // std::cout << "sampling_rate     : " << m_parent_data.sampling_rate << "\n";
+  // std::cout << "mode              : " << static_cast<int>(m_parent_data.mode) << "\n";
+  // ;
+  // std::cout << "********************" << "\n\n";
 }
 
 void LAB_Oscilloscope::
