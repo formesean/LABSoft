@@ -1117,6 +1117,8 @@ Fl_Menu_Item LABSoft_GUI::menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_1
  {"Logic Analyzer", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Digital Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"LABChecker - Digital", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Analog Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"LABChecker - Analog", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
@@ -1135,6 +1137,8 @@ Fl_Menu_Item LABSoft_GUI::menu_shortcuts_labsoft_gui_fl_choice_with_scroll_key_2
  {"Logic Analyzer", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"Digital Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {"LABChecker - Digital", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"Analog Circuit Checker", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
+ {"LABChecker - Analog", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
