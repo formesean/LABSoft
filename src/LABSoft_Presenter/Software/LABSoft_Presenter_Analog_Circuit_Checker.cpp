@@ -882,18 +882,11 @@ cb_run_checker_acc(Fl_Button* w, void* data)
   // }
   // std::printf("</samples>\n");
 
-  LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints acc_pixels{};
-  if (!time_student_pixels.empty())
-    acc_pixels[1] = time_student_pixels;
-
-  acc_disp_ptr->set_frequency_view(false, osc.sampling_rate());
-  acc_disp_ptr->load_pixel_points(acc_pixels);
-  acc_disp_ptr->channel_enable_disable(0, false);
-  acc_disp_ptr->channel_enable_disable(1, true);
-  acc_disp_ptr->update_display();
-
   perform_time_domain_analysis();
   perform_frequency_domain_analysis();
+
+  // Update display based on current view mode (time or frequency)
+  update_gui_analog_circuit_checker();
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
