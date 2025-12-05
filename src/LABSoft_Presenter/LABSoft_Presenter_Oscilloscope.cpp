@@ -394,15 +394,6 @@ cb_run_stop (Fl_Light_Button* w,
 {
   if (w->value ())
   {
-    if (presenter().lab().m_Analog_Circuit_Checker.is_file_loaded())
-    {
-      if (gui().function_generator_fl_light_button_run_stop)
-      {
-        gui().function_generator_fl_light_button_run_stop->value(0);
-        presenter().m_Function_Generator.cb_run_stop(gui().function_generator_fl_light_button_run_stop, 0);
-      }
-    }
-
     presenter ().m_Oscilloscope.stop_gui ();
     presenter ().m_Voltmeter   .stop_gui ();
     presenter ().m_Ohmmeter    .stop_gui ();
