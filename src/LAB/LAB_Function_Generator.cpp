@@ -2,10 +2,10 @@
 
 #include "LAB.h"
 
-LAB_Function_Generator:: 
+LAB_Function_Generator::
 LAB_Function_Generator (LAB& _LAB)
   : LAB_Module (_LAB),
-    m_func_gen_ic       {LAB_AD9833   (LABC::PIN::FG::PWG_CS, 
+    m_func_gen_ic       {LAB_AD9833   (LABC::PIN::FG::PWG_CS,
                                         LABC::PIN::FG::PWG_MISO,
                                         LABC::PIN::FG::PWG_MOSI,
                                         LABC::PIN::FG::PWG_SCLK,
@@ -23,13 +23,14 @@ LAB_Function_Generator (LAB& _LAB)
   init_gpio_pins ();
 }
 
-LAB_Function_Generator:: 
+LAB_Function_Generator::
 ~LAB_Function_Generator ()
 {
-  
+  stop(0);
+  stop(1);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 init_gpio_pins ()
 {
   // m_LAB.rpi ().gpio.set (LABC::PIN::FG::DPOTS_SCLK,  AP::GPIO::FUNC::ALT4,   AP::GPIO::PULL::OFF);
@@ -48,7 +49,7 @@ set_Rf (unsigned  channel,
   // m_digipot_amplitude[(2 * channel) + 1].resistance (0, value / 2.0);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 run (unsigned channel)
 {
   m_func_gen_ic[channel].run ();
@@ -56,7 +57,7 @@ run (unsigned channel)
   m_parent_data.channel_data[channel].is_enabled = true;
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 stop (unsigned channel)
 {
   m_func_gen_ic[channel].stop ();
@@ -64,12 +65,12 @@ stop (unsigned channel)
   m_parent_data.channel_data[channel].is_enabled = false;
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 wave_type (unsigned                  channel,
            LABE::FUNC_GEN::WAVE_TYPE wave_type)
 {
   AD9833::WAVE_TYPE type;
-  
+
   switch (wave_type)
   {
     case (LABE::FUNC_GEN::WAVE_TYPE::SINE):
@@ -103,7 +104,7 @@ wave_type (unsigned                  channel,
   m_func_gen_ic[channel].wave_type (type);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 amplitude (unsigned channel,
            double   value)
 {
@@ -112,7 +113,7 @@ amplitude (unsigned channel,
   // set_hw_amplitude (channel, value);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 frequency (unsigned channel,
            double   value)
 {
@@ -122,7 +123,7 @@ frequency (unsigned channel,
   m_func_gen_ic[channel].frequency (value);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 period (unsigned channel,
         double   value)
 {
@@ -132,7 +133,7 @@ period (unsigned channel,
   m_func_gen_ic[channel].period (value);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 phase (unsigned channel,
        double   value)
 {
@@ -141,7 +142,7 @@ phase (unsigned channel,
   m_func_gen_ic[channel].phase (value);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 vertical_offset (unsigned channel,
                  double   value)
 {
@@ -150,7 +151,7 @@ vertical_offset (unsigned channel,
   // set_hw_vertical_offset (channel, value);
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 set_hw_amplitude (unsigned channel,
                   double   value)
 {
@@ -159,7 +160,7 @@ set_hw_amplitude (unsigned channel,
   // Rf = digipot0 + digipot1
   // Rin = 1000
 
-  // double Rf = (value / (m_func_gen_ic[channel].amplitude ())) * 
+  // double Rf = (value / (m_func_gen_ic[channel].amplitude ())) *
   //               LABC::FUNC_GEN::R1_RESISTANCE;
 
   // std::cout << "value: " << value << std::endl;
@@ -170,25 +171,25 @@ set_hw_amplitude (unsigned channel,
   // {
   //   Rf = (m_digipot_amplitude[0].min_resistance () * 2);
   // }
-  
+
   // set_Rf (channel, Rf);
 
   // m_parent_data.channel_data[channel].Rf = Rf;
   m_parent_data.channel_data[channel].amplitude = value;
 }
 
-void LAB_Function_Generator:: 
+void LAB_Function_Generator::
 set_hw_vertical_offset (unsigned channel,
                         double   value)
 {
   // https://en.wikipedia.org/wiki/Operational_amplifier_applications#Differential_amplifier_.28difference_amplifier.29
   //
-  // double numerator = LABC::FUNC_GEN::ROFF_RESISTANCE * 
-  //                     (value + ((m_parent_data.channel_data[channel].Rf * 
+  // double numerator = LABC::FUNC_GEN::ROFF_RESISTANCE *
+  //                     (value + ((m_parent_data.channel_data[channel].Rf *
   //                     LABC::FUNC_GEN::V1) / LABC::FUNC_GEN::R1_RESISTANCE));
 
-  // double denominator = LABC::FUNC_GEN::V2 * ((LABC::FUNC_GEN::R1_RESISTANCE * 
-  //                       m_parent_data.channel_data[channel].Rf) / 
+  // double denominator = LABC::FUNC_GEN::V2 * ((LABC::FUNC_GEN::R1_RESISTANCE *
+  //                       m_parent_data.channel_data[channel].Rf) /
   //                       LABC::FUNC_GEN::R1_RESISTANCE);
 
   // double Rg = numerator / denominator;

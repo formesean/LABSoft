@@ -14,13 +14,20 @@ LABSoft (int    argc,
   // Register signal handlers to announce stop on Ctrl+C or termination
   static LAB* g_lab_ptr = nullptr;
   g_lab_ptr = &m_LAB;
-  auto signal_handler = [](int){
+
+  auto signal_handler = [](int)
+  {
     if (g_lab_ptr && g_lab_ptr->m_Software_Navigation.is_snm_config_enabled())
     {
       g_lab_ptr->m_Software_Navigation.announce_program_stopping();
     }
+
+    g_lab_ptr->m_Function_Generator.stop(0);
+    g_lab_ptr->m_Function_Generator.stop(1);
+
     std::_Exit(0);
   };
+
   std::signal(SIGINT,  signal_handler);
   std::signal(SIGTERM, signal_handler);
 #ifdef SIGBREAK
