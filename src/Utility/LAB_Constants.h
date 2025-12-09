@@ -339,8 +339,8 @@ namespace LABC
       constexpr unsigned BUFFER_OE = 7;
       constexpr unsigned XPAND_CS = 25;
       constexpr unsigned XPAND_MISO = 12;
-      constexpr unsigned XPAND_MOSI = 3;
-      constexpr unsigned XPAND_SCLK = 2;
+      constexpr unsigned XPAND_MOSI = 2;
+      constexpr unsigned XPAND_SCLK = 3;
     };
 
     namespace SNM
