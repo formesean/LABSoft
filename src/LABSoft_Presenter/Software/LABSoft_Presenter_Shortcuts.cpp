@@ -86,26 +86,43 @@ cb_show_window()
 void LABSoft_Presenter_Shortcuts::
 cb_apply()
 {
-  // Key 1
-  const int action_index_1 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->value();
-  const char* action_str_1 = (action_index_1 == 0) ? "GOTO" : "RUN";
+  fl_message_title ("Software Navigation Shortcuts");
 
-  const int value_index_1 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->value();
-  const char* value_str_1 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->text(value_index_1);
+  switch (fl_choice ("Do you want to apply the shortcuts?", "No", "Yes", 0))
+  {
+    case 1: // Yes
+    {
+      // Key 1
+      const int action_index_1 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_action->value();
+      const char* action_str_1 = (action_index_1 == 0) ? "GOTO" : "RUN";
 
-  lab().m_Shortcuts.set_config(1, action_str_1, value_str_1);
+      const int value_index_1 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->value();
+      const char* value_str_1 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_1_value->text(value_index_1);
 
-  // Key 2
-  const int action_index_2 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->value();
-  const char* action_str_2 = (action_index_2 == 0) ? "GOTO" : "RUN";
+      lab().m_Shortcuts.set_config(1, action_str_1, value_str_1);
 
-  const int value_index_2 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->value();
-  const char* value_str_2 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->text(value_index_2);
+      // Key 2
+      const int action_index_2 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_action->value();
+      const char* action_str_2 = (action_index_2 == 0) ? "GOTO" : "RUN";
 
-  lab().m_Shortcuts.set_config(2, action_str_2, value_str_2);
+      const int value_index_2 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->value();
+      const char* value_str_2 = gui().shortcuts_labsoft_gui_fl_choice_with_scroll_key_2_value->text(value_index_2);
 
-  // Save the updated config to file
-  lab().m_Shortcuts.save_config();
+      lab().m_Shortcuts.set_config(2, action_str_2, value_str_2);
+
+      // Save the updated config to file
+      lab().m_Shortcuts.save_config();
+
+      fl_message("Shortcuts applied.");
+
+      break;
+    }
+
+    case 0: // No
+    {
+      break;
+    }
+  }
 }
 
 void LABSoft_Presenter_Shortcuts::
