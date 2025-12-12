@@ -26,6 +26,7 @@ LABSoft_Presenter_Software_Navigation(LABSoft_Presenter& _LABSoft_Presenter)
   tab_groups[9] = gui().main_fl_group_labchecker_analog_tab;
 
   sync_current_tab_index();
+  last_tab_group = static_cast<Fl_Group*>(gui().main_fl_tabs->value());
   initialize_run_key_actions();
 }
 
@@ -33,7 +34,25 @@ void
 LABSoft_Presenter_Software_Navigation::
 update_data_cycle()
 {
-  // If Logic Analyzer is running, publish any completed streamed LOGAN block
+  {
+    Fl_Group* current_tab = static_cast<Fl_Group*>(gui().main_fl_tabs->value());
+    if (current_tab != last_tab_group)
+    {
+      last_tab_group = current_tab;
+      sync_current_tab_index();
+
+      current_focus_level = LABE::SNM::FOCUS_LEVEL::TAB;
+      group_index = 0;
+      widget_index = -1;
+      current_groups_in_tab.clear();
+      current_widgets_in_group.clear();
+
+      clear_group_focus();
+      clear_widget_focus();
+      highlight_tab();
+    }
+  }
+
   if (lab().m_Logic_Analyzer.is_running())
   {
     lab().m_Software_Navigation.publish_completed_logan_block();
@@ -672,6 +691,8 @@ void
 LABSoft_Presenter_Software_Navigation::
 switch_tab_by_direction(int direction)
 {
+  sync_current_tab_index();
+
   int new_index = current_tab_index + direction;
   if (new_index < 0) new_index = tab_count - 1;
   else if (new_index >= tab_count) new_index = 0;

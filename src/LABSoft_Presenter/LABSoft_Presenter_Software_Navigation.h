@@ -34,6 +34,7 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     std::vector<Fl_Widget*> current_widgets_in_group;
 
     Fl_Group*  tab_groups[tab_count];
+    Fl_Group*  last_tab_group          = nullptr;
     Fl_Group*  previous_focused_group  = nullptr;
     Fl_Widget* previous_focused_widget = nullptr;
 
