@@ -75,6 +75,11 @@ cb_capture_signal(Fl_Button *w,
     capture_oscilloscope_and_function_generator_data();
     update_gui_with_captured_data();
   }
+  else
+  {
+    fl_message_title ("LABChecker - Analog");
+    fl_message("Must turn on both the Oscilloscope and Function Generator before capturing data.");
+  }
 }
 
 bool LABSoft_Presenter_LABChecker_Analog::
