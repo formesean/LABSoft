@@ -151,6 +151,67 @@ static void set_choice_index (LABSoft_GUI_Fl_Choice_With_Scroll* w, int desired_
   w->value(idx);
 }
 
+void LABSoft_Presenter_Analog_Circuit_Checker::
+reset_display_state_for_new_file()
+{
+  // Clear in-memory signal and analysis buffers
+  time_instructor.clear();
+  time_student.clear();
+  freq_instructor.clear();
+  freq_student.clear();
+  freq_instructor_complex.clear();
+  freq_student_complex.clear();
+  time_instructor_pixels.clear();
+  time_student_pixels.clear();
+
+  time_domain_result = AnalysisResult{};
+  frequency_domain_result = AnalysisResult{};
+
+  m_view_frequency = false;
+
+  LABSoft_GUI &gui_ref = m_presenter.gui();
+
+  // Reset Analog Circuit Checker display contents
+  if (auto *acc_disp_ptr = gui_ref.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display)
+  {
+    LABSoft_GUI_Analog_Circuit_Checker_Display::PixelPoints empty_points{};
+    std::vector<std::array<int, 2>> empty_overlay;
+
+    acc_disp_ptr->set_frequency_view(false, 0.0);
+    acc_disp_ptr->load_pixel_points(empty_points);
+    acc_disp_ptr->load_overlay_points(empty_overlay, FL_RED, false);
+    acc_disp_ptr->channel_enable_disable(0, false);
+    acc_disp_ptr->channel_enable_disable(1, false);
+    acc_disp_ptr->update_display();
+  }
+
+  // Reset view toggle button and domain label to defaults
+  if (gui_ref.analog_circuit_checker_fl_button_toggle_view)
+  {
+    gui_ref.analog_circuit_checker_fl_button_toggle_view->copy_label("View Frequency Domain");
+    gui_ref.analog_circuit_checker_fl_button_toggle_view->redraw();
+  }
+  if (gui_ref.analog_circuit_checker_domain_label)
+  {
+    gui_ref.analog_circuit_checker_domain_label->label("Time Domain");
+    gui_ref.analog_circuit_checker_domain_label->redraw();
+  }
+
+  // Clear similarity output fields and reset their colors
+  if (gui_ref.analog_circuit_checker_fl_input_time_domain_similarity_threshold)
+  {
+    gui_ref.analog_circuit_checker_fl_input_time_domain_similarity_threshold->value("");
+    gui_ref.analog_circuit_checker_fl_input_time_domain_similarity_threshold->textcolor(FL_FOREGROUND_COLOR);
+    gui_ref.analog_circuit_checker_fl_input_time_domain_similarity_threshold->redraw();
+  }
+  if (gui_ref.analog_circuit_checker_fl_input_frequency_domain_similarity_threshold)
+  {
+    gui_ref.analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value("");
+    gui_ref.analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->textcolor(FL_FOREGROUND_COLOR);
+    gui_ref.analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->redraw();
+  }
+}
+
 LABSoft_Presenter_Analog_Circuit_Checker::LABSoft_Presenter_Analog_Circuit_Checker(LABSoft_Presenter &_LABSoft_Presenter)
     : LABSoft_Presenter_Unit(_LABSoft_Presenter)
 {
@@ -501,7 +562,7 @@ update_gui_oscilloscope()
   };
 
   // std::printf("[ACC] Applying trigger settings to oscilloscope hardware:\n");
-  // std::printf("  Before: osc.trigger_mode() = %d, is_running() = %d\n", 
+  // std::printf("  Before: osc.trigger_mode() = %d, is_running() = %d\n",
   //             static_cast<int>(osc.trigger_mode()), osc.is_running());
 
   osc.trigger_mode(clamp_mode(m_metadata.trigger_mode));
@@ -510,7 +571,7 @@ update_gui_oscilloscope()
   osc.trigger_condition(clamp_cnd(m_metadata.trigger_condition));
   osc.trigger_level(m_metadata.trigger_level);
 
-  // std::printf("  After: osc.trigger_mode() = %d, is_running() = %d\n", 
+  // std::printf("  After: osc.trigger_mode() = %d, is_running() = %d\n",
   //             static_cast<int>(osc.trigger_mode()), osc.is_running());
 
   if (m_metadata.channels.size() >= 1)
@@ -732,7 +793,7 @@ perform_time_domain_analysis()
       char buf[64];
       std::snprintf(buf, sizeof(buf), "%.2f%%", time_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_time_domain_similarity_threshold->value(buf);
-      
+
       // Color coding: Green if >= threshold, Red if < threshold
       if (time_domain_result.percentage >= checker.get_cmp_time_similarity_threshold())
       {
@@ -767,7 +828,7 @@ perform_frequency_domain_analysis()
       char buf[64];
       std::snprintf(buf, sizeof(buf), "%.2f%%", frequency_domain_result.percentage);
       gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->value(buf);
-      
+
       // Color coding: Green if >= threshold, Red if < threshold
       if (frequency_domain_result.percentage >= checker.get_cmp_frequency_similarity_threshold())
       {
@@ -779,7 +840,7 @@ perform_frequency_domain_analysis()
       }
       gui().analog_circuit_checker_fl_input_frequency_domain_similarity_threshold->redraw();
     }
-    
+
   }
 }
 
@@ -805,7 +866,8 @@ cb_load_file_acc(Fl_Button* w, void* data)
         if (LABF::has_filename_this_extension(path,
                                               LABC::LABSOFT::ANALOG_CIRCUIT_CHECKER_FILENAME_EXTENSION))
         {
-          update_gui_display();
+          // Ensure any previous ACC display state, settings, and signals are cleared
+          reset_display_state_for_new_file();
 
           selected_file.value(LABF::get_filename_from_path(path).c_str());
 

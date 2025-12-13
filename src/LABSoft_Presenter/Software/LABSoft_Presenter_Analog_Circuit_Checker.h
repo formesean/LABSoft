@@ -21,6 +21,7 @@ class LABSoft_Presenter_Analog_Circuit_Checker : public LABSoft_Presenter_Unit
     void import_metadata                    ();
     void prepare_instructor_data            ();
     void prepare_student_data               ();
+    void reset_display_state_for_new_file   ();
     void update_gui_analog_circuit_checker  ();
     void update_gui_acc_comparison          ();
     void update_gui_oscilloscope            ();
