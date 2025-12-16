@@ -16,7 +16,7 @@ LAB_Logic_Analyzer (LAB& _LAB)
 LAB_Logic_Analyzer::
 ~LAB_Logic_Analyzer ()
 {
-
+  stop ();
 }
 
 // init_gpio_pins no longer needed on master; slave performs sampling

@@ -32,6 +32,7 @@ LAB_Software_Navigation(LAB &lab)
 LAB_Software_Navigation::
 ~LAB_Software_Navigation()
 {
+  set_tx_logan_stop();
   announce_program_stopping();
   rpi().aux.spi(0).clear_fifos();
   rpi().aux.spi(0).disable();

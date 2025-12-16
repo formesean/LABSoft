@@ -272,6 +272,12 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     stop()
 {
+  m_parent_data.trigger_enabled = false;
+  if (m_thread_trigger.joinable())
+  {
+    m_thread_trigger.join();
+  }
+
   frontend_run_stop(false);
   backend_run_stop(false);
 }
