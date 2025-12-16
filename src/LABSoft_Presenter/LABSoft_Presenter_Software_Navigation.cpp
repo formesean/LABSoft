@@ -37,8 +37,10 @@ namespace
     Fl_Font    textfont = FL_HELVETICA;
   };
 
-  // Baseline style for the two LABChecker-Analog similarity threshold inputs.
   std::unordered_map<Fl_Input*, Special_Input_Base_Style> g_special_input_base_style;
+
+  static std::chrono::steady_clock::time_point g_last_threshold_adjust_time{};
+  static constexpr auto g_threshold_adjust_debounce = std::chrono::milliseconds(15);
 
   static Fl_Boxtype g_box_black_border = FL_BORDER_BOX;
   static Fl_Boxtype g_box_blue_border  = FL_BORDER_BOX;
@@ -613,6 +615,12 @@ update_data_cycle()
           if (input == gui().analog_fl_input_time_domain_similarity_threshold ||
               input == gui().analog_fl_input_frequency_domain_similarity_threshold)
           {
+            auto now = std::chrono::steady_clock::now();
+            if (now - g_last_threshold_adjust_time < g_threshold_adjust_debounce)
+            {
+              return;
+            }
+            g_last_threshold_adjust_time = now;
 
             const char* current_str = input->value();
             int current = 0;
@@ -636,7 +644,11 @@ update_data_cycle()
               input->redraw();
             }
 
-            int next = current + dir;
+            int step = 0;
+            if (dir > 0) step = 1;
+            else if (dir < 0) step = -1;
+
+            int next = current + step;
             if (next < 0) next = 0;
             if (next > 100) next = 100;
 
