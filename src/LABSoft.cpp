@@ -22,6 +22,7 @@ LABSoft (int    argc,
       g_lab_ptr->m_Software_Navigation.announce_program_stopping();
     }
 
+    g_lab_ptr->m_Oscilloscope.stop();
     g_lab_ptr->m_Function_Generator.stop(0);
     g_lab_ptr->m_Function_Generator.stop(1);
 

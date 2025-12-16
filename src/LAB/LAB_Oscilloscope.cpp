@@ -29,6 +29,8 @@ LAB_Oscilloscope::
 LAB_Oscilloscope::
     ~LAB_Oscilloscope()
 {
+  stop();
+
   rpi().dma.stop(LABC::DMA::CHAN::OSC_RX);
   rpi().dma.stop(LABC::DMA::CHAN::OSC_TX);
   rpi().dma.stop(LABC::DMA::CHAN::PWM_PACING);
@@ -264,7 +266,7 @@ void LAB_Oscilloscope::
   backend_run_stop(true);
 
   reload_settings();
-  
+
 }
 
 void LAB_Oscilloscope::
@@ -321,9 +323,9 @@ void LAB_Oscilloscope::
 void LAB_Oscilloscope::
     reload_settings()
 {
-  // std::printf("[OSC] reload_settings() called: trigger_mode=%d\n", 
+  // std::printf("[OSC] reload_settings() called: trigger_mode=%d\n",
   //             static_cast<int>(m_parent_data.trigger_mode));
-  
+
   trigger_mode(m_parent_data.trigger_mode);
   samples(m_parent_data.samples);
   sampling_rate(m_parent_data.sampling_rate);
@@ -473,7 +475,7 @@ void LAB_Oscilloscope::
 
   m_parent_data.channel_data[channel].scaling = scaling;
 
-  // 
+  //
   // switch (scaling)
   // {
   //   case (LABE::OSC::SCALING::DOUBLE):
@@ -1100,7 +1102,7 @@ void LAB_Oscilloscope::
     find_trigger_point_loop()
 {
   // std::printf("[OSC] find_trigger_point_loop() started\n");
-  
+
   LAB_DMA_Data_Oscilloscope &dma_data = *(static_cast<LAB_DMA_Data_Oscilloscope *>(m_uncached_memory.virt()));
 
   // ----------
@@ -1122,7 +1124,7 @@ void LAB_Oscilloscope::
   // sync_find_trigger_point_loop ();
 
   status(LABE::OSC::STATUS::CONFIG);
-  
+
   switch (m_parent_data.mode)
   {
   case (LABE::OSC::MODE::REPEATED):
@@ -1167,7 +1169,7 @@ void LAB_Oscilloscope::
 
   status(LABE::OSC::STATUS::ARMED);
   // std::printf("[OSC] Status set to ARMED, entering trigger wait loop...\n");
-  // std::printf("[OSC] trigger_enabled=%d, trigger_mode=%d\n", 
+  // std::printf("[OSC] trigger_enabled=%d, trigger_mode=%d\n",
   //             m_parent_data.trigger_enabled, static_cast<int>(m_parent_data.trigger_mode));
 
   int loop_count = 0;
@@ -1175,11 +1177,11 @@ void LAB_Oscilloscope::
   {
     // if (loop_count == 0 || loop_count % 100 == 0)
     // {
-    //   std::printf("[OSC] Trigger loop iteration %d, trigger_found=%d\n", 
+    //   std::printf("[OSC] Trigger loop iteration %d, trigger_found=%d\n",
     //               loop_count, m_parent_data.trigger_found);
     // }
     loop_count++;
-    
+
     if (!m_parent_data.trigger_found)
     {
       // 1. Check the oscilloscope RX DMA channel interrupt if it is asserted.
@@ -1276,9 +1278,9 @@ inline bool LAB_Oscilloscope::
     //     if (s < min_val) min_val = s;
     //     if (s > max_val) max_val = s;
     //   }
-    //   std::printf("[OSC] EDGE trigger - Buffer range: min=%u, max=%u, trigger_level=%u, sample[0]=%u\n", 
+    //   std::printf("[OSC] EDGE trigger - Buffer range: min=%u, max=%u, trigger_level=%u, sample[0]=%u\n",
     //               min_val, max_val, m_parent_data.trigger_level_raw_bits, prev);
-    //   
+    //
     //   // If the trigger level is not within the signal range, we'll never trigger
     //   if (m_parent_data.trigger_level_raw_bits < min_val || m_parent_data.trigger_level_raw_bits > max_val)
     //   {
@@ -1315,10 +1317,10 @@ inline bool LAB_Oscilloscope::
 
           return (true);
         }
-        
+
         prev = samp;
       }
-      
+
       // if (detailed_debug == 0)
       // {
       //   detailed_debug = 1;
@@ -1343,7 +1345,7 @@ inline bool LAB_Oscilloscope::
 
           return (true);
         }
-        
+
         prev = samp;
       }
 
@@ -1367,7 +1369,7 @@ inline bool LAB_Oscilloscope::
 
           return (true);
         }
-        
+
         prev = samp;
       }
 
@@ -1486,7 +1488,7 @@ uint32_t LAB_Oscilloscope::
 
   // Reverse the calibration process
   double actual_value = trigger_level;
-  
+
   if (m_parent_data.is_calibration_enabled)
   {
     actual_value /= cdata.calibration.scaling_corrector_to_actual.at(cdata.scaling);
@@ -1498,7 +1500,7 @@ uint32_t LAB_Oscilloscope::
   // sign=1 means positive, sign=0 means negative (offset by reference voltage)
   bool sign;
   double actual_value_absolute;
-  
+
   if (actual_value >= 0)
   {
     sign = true;
@@ -1516,7 +1518,7 @@ uint32_t LAB_Oscilloscope::
   // Formula: actual_value_absolute = adc_data_without_sign * conversion_constant
   // So: adc_data_without_sign = actual_value_absolute / conversion_constant
   uint32_t adc_data_without_sign = static_cast<uint32_t>(std::round(actual_value_absolute / cdata.calibration.conversion_constant));
-  
+
   // Clamp to valid range (11 bits without sign)
   uint32_t max_value_without_sign = ((LABC::OSC::ADC_RESOLUTION_INT - 1) >> 1);  // 2047
   if (adc_data_without_sign > max_value_without_sign)
