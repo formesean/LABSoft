@@ -22,6 +22,9 @@ LAB_Shortcuts(LAB& lab, const std::string& config_file)
   : LAB_Module(lab), config_path(config_file)
 {
   load_config();
+  macro_key_map[1] = { ACTION_TYPE::GOTO, LABE::LAB::INSTRUMENT::OSCILLOSCOPE };
+  macro_key_map[2] = { ACTION_TYPE::GOTO, LABE::LAB::INSTRUMENT::ANALOG_CIRCUIT_CHECKER };
+  save_config();
 }
 
 LAB_Shortcuts::
