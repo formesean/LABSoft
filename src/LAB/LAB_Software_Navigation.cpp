@@ -26,12 +26,14 @@ LAB_Software_Navigation(LAB &lab)
   : LAB_Module(lab)
 {
   init_spi();
+  announce_snm_attached();
 }
 
 LAB_Software_Navigation::
 ~LAB_Software_Navigation()
 {
   announce_program_stopping();
+  rpi().aux.spi(0).clear_fifos();
   rpi().aux.spi(0).disable();
 }
 
