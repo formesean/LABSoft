@@ -926,10 +926,19 @@ cb_run_checker_acc(Fl_Button* w, void* data)
 {
   auto &checker = lab().m_Analog_Circuit_Checker;
 
+  if (!checker.is_file_loaded())
+  {
+    fl_message_title("Analog Circuit Checker");
+    fl_message("No file loaded. Please load a .labacc file first.");
+    return;
+  }
+
   LABSoft_GUI &gui_ref = m_presenter.gui();
   auto *acc_disp_ptr = gui_ref.analog_circuit_checker_labsoft_gui_analog_circuit_checker_display;
   if (!acc_disp_ptr) return;
+
   LAB_Oscilloscope &osc = lab().m_Oscilloscope;
+  LAB_Function_Generator &fg = lab().m_Function_Generator;
 
   osc.channel_enable_disable(1, true);
   prepare_student_data();
@@ -944,11 +953,19 @@ cb_run_checker_acc(Fl_Button* w, void* data)
   // }
   // std::printf("</samples>\n");
 
-  perform_time_domain_analysis();
-  perform_frequency_domain_analysis();
+  if (osc.is_frontend_running() && fg.is_running())
+  {
+    perform_time_domain_analysis();
+    perform_frequency_domain_analysis();
 
-  // Update display based on current view mode (time or frequency)
-  update_gui_analog_circuit_checker();
+    // Update display based on current view mode (time or frequency)
+    update_gui_analog_circuit_checker();
+  }
+  else
+  {
+    fl_message_title ("Analog Circuit Checker");
+    fl_message("Must turn on both the Oscilloscope and Function Generator before running the checker.");
+  }
 }
 
 void LABSoft_Presenter_Analog_Circuit_Checker::
