@@ -24,6 +24,11 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
 
     bool is_encoder_switch_pressed = false;
 
+    // Rotary editing: press to select widget, rotate to adjust, press to confirm.
+    bool       is_rotary_edit_active     = false;
+    Fl_Widget* rotary_selected_widget    = nullptr;
+    Fl_Font    rotary_selected_labelfont = 0;
+
     int  group_index               = 0;
     int  widget_index              = 0;
     int  current_tab_index         = 0;
@@ -57,6 +62,11 @@ class LABSoft_Presenter_Software_Navigation : public LABSoft_Presenter_Unit
     void clear_widget_focus            ();
     void initialize_run_key_actions    ();
     void handle_customizable_macro_key (int key_id);
+
+    bool begin_rotary_edit (Fl_Widget* widget);
+    void end_rotary_edit   ();
+    bool is_rotary_editable(Fl_Widget* widget) const;
+    static Fl_Font make_bold_font(Fl_Font f);
 
     std::vector<Fl_Group*>  get_groups_in_tab          (Fl_Group* tab)   const;
     std::vector<Fl_Widget*> get_widgets_in_group       (Fl_Group* group) const;

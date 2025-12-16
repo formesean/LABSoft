@@ -30,6 +30,82 @@ LABSoft_Presenter_Software_Navigation(LABSoft_Presenter& _LABSoft_Presenter)
   initialize_run_key_actions();
 }
 
+Fl_Font
+LABSoft_Presenter_Software_Navigation::
+make_bold_font(Fl_Font f)
+{
+  switch (f)
+  {
+    case FL_HELVETICA: return FL_HELVETICA_BOLD;
+    case FL_COURIER:   return FL_COURIER_BOLD;
+    case FL_TIMES:     return FL_TIMES_BOLD;
+    case FL_SCREEN:    return FL_SCREEN_BOLD;
+    default:           return f;
+  }
+}
+
+bool
+LABSoft_Presenter_Software_Navigation::
+is_rotary_editable(Fl_Widget* widget) const
+{
+  if (!widget) return false;
+
+  // Value-adjustable widgets supported by rotation handlers below.
+  if (dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(widget)) return true;
+  if (dynamic_cast<Fl_Choice*>(widget)) return true;
+
+  if (auto* input = dynamic_cast<Fl_Input*>(widget))
+  {
+    if (input == gui().digital_fl_input_output_count) return true;
+    if (input == gui().analog_fl_input_time_domain_similarity_threshold) return true;
+    if (input == gui().analog_fl_input_frequency_domain_similarity_threshold) return true;
+  }
+
+  // Logic Analyzer trigger menu buttons.
+  if (get_current_tab_id() == LABE::LAB::INSTRUMENT::LOGIC_ANALYZER &&
+      dynamic_cast<Fl_Menu_Button*>(widget))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+bool
+LABSoft_Presenter_Software_Navigation::
+begin_rotary_edit(Fl_Widget* widget)
+{
+  if (!widget || !widget->visible() || !widget->active() || !widget->takesevents()) return false;
+  if (!is_rotary_editable(widget)) return false;
+
+  // If we're already editing something else, cleanly exit first.
+  if (is_rotary_edit_active) end_rotary_edit();
+
+  is_rotary_edit_active = true;
+  rotary_selected_widget = widget;
+  rotary_selected_labelfont = widget->labelfont();
+
+  Fl_Font bold = make_bold_font(rotary_selected_labelfont);
+  widget->labelfont(bold);
+  widget->redraw();
+  return true;
+}
+
+void
+LABSoft_Presenter_Software_Navigation::
+end_rotary_edit()
+{
+  if (rotary_selected_widget)
+  {
+    rotary_selected_widget->labelfont(rotary_selected_labelfont);
+    rotary_selected_widget->redraw();
+  }
+
+  is_rotary_edit_active = false;
+  rotary_selected_widget = nullptr;
+  rotary_selected_labelfont = 0;
+}
+
 void
 LABSoft_Presenter_Software_Navigation::
 update_data_cycle()
@@ -38,6 +114,7 @@ update_data_cycle()
     Fl_Group* current_tab = static_cast<Fl_Group*>(gui().main_fl_tabs->value());
     if (current_tab != last_tab_group)
     {
+      end_rotary_edit();
       last_tab_group = current_tab;
       sync_current_tab_index();
 
@@ -65,6 +142,16 @@ update_data_cycle()
     // Macro Keys
     if (data[0] == 1)
     {
+      // While editing a value, only allow "Back" to cancel.
+      if (is_rotary_edit_active)
+      {
+        if (data[1] == 3 && data[2] == 0) // Back key
+        {
+          end_rotary_edit();
+        }
+        return;
+      }
+
       // Customizable Key 1
       if (data[1] == 1 && data[2] == 0)
       {
@@ -335,17 +422,20 @@ update_data_cycle()
     if (data[0] == 2)
     {
       int dir = (data[1] == 1) ? +1 : -1;
-      Fl_Widget* widget = previous_focused_widget;
+      Fl_Widget* widget = is_rotary_edit_active ? rotary_selected_widget : previous_focused_widget;
 
-      if (widget && get_current_tab_id() == LABE::LAB::INSTRUMENT::LOGIC_ANALYZER)
+      // In edit mode, rotation should ONLY adjust the selected widget (no navigation).
+      if (is_rotary_edit_active && (!widget || widget != rotary_selected_widget))
+      {
+        return;
+      }
+
+      if (is_rotary_edit_active &&
+          widget &&
+          get_current_tab_id() == LABE::LAB::INSTRUMENT::LOGIC_ANALYZER)
       {
         if (auto* menu_btn = dynamic_cast<Fl_Menu_Button*>(widget))
         {
-          if (!is_encoder_switch_pressed)
-          {
-            return;
-          }
-
           auto now = std::chrono::steady_clock::now();
           if (now - last_nav_time < nav_debounce_delay)
           {
@@ -385,7 +475,7 @@ update_data_cycle()
         }
       }
 
-      if (is_encoder_switch_pressed && widget)
+      if (is_rotary_edit_active && widget)
       {
         if (auto* input = dynamic_cast<Fl_Input*>(widget))
         {
@@ -437,7 +527,7 @@ update_data_cycle()
       {
         last_nav_time = now;
 
-        if (is_encoder_switch_pressed && widget)
+        if (is_rotary_edit_active && widget)
         {
           if (auto* custom_choice = dynamic_cast<LABSoft_GUI_Fl_Input_Choice_With_Scroll*>(widget))
           {
@@ -563,7 +653,13 @@ update_data_cycle()
               return;
             }
           }
+
+          // In edit mode, rotation should not fall through into navigation.
+          return;
         }
+
+        // If editing, we should never navigate.
+        if (is_rotary_edit_active) return;
 
         if (current_focus_level == LABE::SNM::FOCUS_LEVEL::TAB)
         {
@@ -637,9 +733,22 @@ update_data_cycle()
         if (is_encoder_switch_pressed) return;
         is_encoder_switch_pressed = true;
 
+        // Press-to-confirm while editing.
+        if (is_rotary_edit_active)
+        {
+          end_rotary_edit();
+          return;
+        }
+
         Fl_Widget* widget = previous_focused_widget;
 
         if (!widget || !widget->visible() || !widget->active() || !widget->takesevents()) return;
+
+        // Press-to-select (enter edit mode) for value-adjustable widgets.
+        if (begin_rotary_edit(widget))
+        {
+          return;
+        }
 
         const char* widget_type = typeid(*widget).name();
 
@@ -822,6 +931,11 @@ void
 LABSoft_Presenter_Software_Navigation::
 clear_widget_focus()
 {
+  if (is_rotary_edit_active)
+  {
+    end_rotary_edit();
+  }
+
   if (previous_focused_widget)
   {
     if (auto* t = dynamic_cast<LABSoft_GUI_LABChecker_Digital_Input_Table*>(previous_focused_widget))
