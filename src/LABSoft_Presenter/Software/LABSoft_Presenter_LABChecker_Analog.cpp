@@ -27,21 +27,6 @@ load_gui()
   LABSoft_GUI_LABChecker_Analog_Checker_Display &analog_checker_disp_gui = *(gui().analog_labsoft_gui_analog_checker_display);
 
   analog_checker_disp_gui.load_presenter(m_presenter);
-
-  osc_disp.update_pixel_points();
-  const auto &raw_buf = osc_disp.pixel_points();
-  if (raw_buf.size() < 2 || raw_buf[1].empty()) return;
-
-  std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
-  channel2_only_pixel_points[1] = raw_buf[1];
-
-  analog_checker_disp_gui.load_pixel_points(channel2_only_pixel_points);
-  analog_checker_disp_gui.channel_enable_disable(0, false);
-  analog_checker_disp_gui.channel_enable_disable(1, true);
-  analog_checker_disp_gui.update_display();
-
-  // Ensure comparison threshold inputs reflect checkbox state
-  sync_comparison_inputs_enabled();
 }
 
 void LABSoft_Presenter_LABChecker_Analog::
@@ -52,7 +37,16 @@ update_display()
 
   osc_disp.update_pixel_points();
   const auto &raw_buf = osc_disp.pixel_points();
-  if (raw_buf.size() < 2 || raw_buf[1].empty()) return;
+  if (raw_buf.size() < 2 || raw_buf[1].empty())
+  {
+    // Explicitly clear so we don't keep showing stale traces.
+    std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> empty_pixel_points{};
+    analog_checker_disp_gui.load_pixel_points(empty_pixel_points);
+    analog_checker_disp_gui.channel_enable_disable(0, false);
+    analog_checker_disp_gui.channel_enable_disable(1, true);
+    analog_checker_disp_gui.update_display();
+    return;
+  }
 
   std::array<std::vector<std::array<int, 2>>, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel2_only_pixel_points;
   channel2_only_pixel_points[1] = raw_buf[1];
