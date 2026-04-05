@@ -1,9 +1,12 @@
 #include "LABSoft_GUI_Oscilloscope_Display.h"
 
+#include <algorithm>
 #include <cmath>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+
+#include <FL/fl_draw.H>
 
 #include "../Utility/LABSoft_GUI_Label.h"
 #include "../Utility/LAB_Utility_Functions.h"
@@ -11,15 +14,31 @@
 #include "LABSoft_GUI_Oscilloscope_Internal_Display.h"
 #include "../Utility/LABSoft_GUI_Label_Values.h"
 
+LABSoft_GUI_Oscilloscope_Display::Theme
+LABSoft_GUI_Oscilloscope_Display::s_shared_theme =
+  LABSoft_GUI_Oscilloscope_Display::Theme::DARK;
+
+std::vector<LABSoft_GUI_Oscilloscope_Display*>
+LABSoft_GUI_Oscilloscope_Display::s_instances = {};
+
 LABSoft_GUI_Oscilloscope_Display::
 LABSoft_GUI_Oscilloscope_Display(int         X,
                                   int         Y,
                                   int         W,
                                   int         H,
                                   const char* label)
-  : Fl_Group (X, Y, W, H, label)
+  : Fl_Group (X, Y, W, H, label),
+    m_theme (s_shared_theme)
 {
   init_child_widgets  ();
+  s_instances.push_back (this);
+}
+
+LABSoft_GUI_Oscilloscope_Display::
+~LABSoft_GUI_Oscilloscope_Display ()
+{
+  auto it = std::remove (s_instances.begin (), s_instances.end (), this);
+  s_instances.erase (it, s_instances.end ());
 }
 
 void LABSoft_GUI_Oscilloscope_Display::
@@ -49,7 +68,9 @@ init_child_widgets ()
   init_child_widgets_voltage_per_division_labels  ();
   init_child_widgets_time_per_division_labels     ();
   init_child_widgets_channel_selectors            ();
+  init_child_widgets_theme_toggle                 ();
   init_child_widgets_top_info                     ();
+  update_gui_theme                               ();
 
   end ();
 }
@@ -57,7 +78,7 @@ init_child_widgets ()
 void LABSoft_GUI_Oscilloscope_Display::
 draw ()
 {
-  draw_box      (FL_THIN_DOWN_BOX, LABC::OSC_DISPLAY::BACKGROUND_COLOR);
+  draw_box      (FL_THIN_DOWN_BOX, m_background_color);
   draw_children ();
 }
 
@@ -290,13 +311,31 @@ init_child_widgets_channel_selectors ()
 }
 
 void LABSoft_GUI_Oscilloscope_Display::
+init_child_widgets_theme_toggle()
+{
+  const int button_width = 55;
+  const int X =
+    m_internal_display->x () + m_internal_display->w () - button_width;
+
+  m_theme_toggle = new Fl_Button(X, m_status->y(), button_width,
+    LABC::OSC_DISPLAY::STATUS_HEIGHT, "Light");
+
+  m_theme_toggle->box(FL_THIN_UP_BOX);
+  m_theme_toggle->callback(cb_theme_toggle_static);
+}
+
+void LABSoft_GUI_Oscilloscope_Display::
 init_child_widgets_top_info ()
 {
-  m_top_info = new Fl_Box (
+  const int left_x =
     m_status->x () + m_status->w () + 10 +
-      (LABC::OSC_DISPLAY::STATUS_HEIGHT * m_channel_selectors.size ()),
+    (LABC::OSC_DISPLAY::STATUS_HEIGHT * m_channel_selectors.size ());
+  const int width = std::max (3, m_theme_toggle->x () - left_x - 10);
+
+  m_top_info = new Fl_Box(
+    left_x,
     m_status->y (),
-    3,
+    width,
     m_status->h ()
   );
 
@@ -323,6 +362,143 @@ cb_channel_selector_static (Fl_Widget* w,
 
   unsigned channel = static_cast<unsigned>(reinterpret_cast<uintptr_t>(data));
   // disp.select_channel (channel);
+}
+
+void LABSoft_GUI_Oscilloscope_Display::
+cb_theme_toggle_static(Fl_Widget* w, void*)
+{
+  Theme next_theme =
+    (s_shared_theme == Theme::DARK) ? Theme::LIGHT : Theme::DARK;
+
+  apply_shared_theme (next_theme);
+}
+
+void LABSoft_GUI_Oscilloscope_Display::
+apply_shared_theme (Theme theme)
+{
+  s_shared_theme = theme;
+
+  for (LABSoft_GUI_Oscilloscope_Display* instance : s_instances)
+  {
+    if (instance != nullptr)
+    {
+      instance->m_theme = theme;
+      instance->update_gui_theme ();
+    }
+  }
+}
+
+std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>
+LABSoft_GUI_Oscilloscope_Display::
+theme_channel_colors () const
+{
+  std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> colors = {};
+
+  if (m_theme == Theme::LIGHT)
+  {
+    static const Fl_Color light_palette[] = {
+      fl_rgb_color (160, 110,   0),
+      fl_rgb_color (  0, 125, 170),
+      fl_rgb_color (  0, 115,  40),
+      fl_rgb_color (120,  60, 150)
+    };
+
+    for (unsigned chan = 0; chan < colors.size (); chan++)
+    {
+      colors[chan] = light_palette[chan];
+    }
+
+    return (colors);
+  }
+
+  for (unsigned chan = 0; chan < colors.size (); chan++)
+  {
+    colors[chan] = LABC::OSC_DISPLAY::CHANNEL_COLORS[chan];
+  }
+
+  return (colors);
+}
+
+void LABSoft_GUI_Oscilloscope_Display::
+update_gui_theme ()
+{
+  Fl_Color background = FL_BLACK;
+  Fl_Color label_color = FL_WHITE;
+  Fl_Color grid_color = LABC::OSC_DISPLAY::GRID_COLOR;
+  std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> channel_colors =
+    theme_channel_colors ();
+
+  if (m_theme == Theme::LIGHT)
+  {
+    background = FL_WHITE;
+    label_color = FL_BLACK;
+  }
+
+  m_background_color = background;
+  color (background);
+
+  if (m_internal_display != nullptr)
+  {
+    m_internal_display->set_theme_colors (background, grid_color, channel_colors);
+  }
+
+  if (m_theme_toggle != nullptr)
+  {
+    m_theme_toggle->copy_label (
+      (m_theme == Theme::DARK) ? "Light" : "Dark"
+    );
+    m_theme_toggle->color (background);
+    m_theme_toggle->selection_color (background);
+    m_theme_toggle->labelcolor (label_color);
+  }
+
+  if (m_status != nullptr)
+  {
+    m_status->labelcolor (label_color);
+  }
+
+  if (m_top_info != nullptr)
+  {
+    m_top_info->labelcolor (label_color);
+  }
+
+  for (Fl_Box* label : m_time_per_division_labels)
+  {
+    if (label != nullptr)
+    {
+      label->labelcolor (label_color);
+    }
+  }
+
+  for (unsigned chan = 0; chan < m_voltage_per_division_labels.size (); chan++)
+  {
+    Fl_Color channel_color = channel_colors[chan];
+
+    if (m_voltage_per_division_units[chan] != nullptr)
+    {
+      m_voltage_per_division_units[chan]->labelcolor (channel_color);
+    }
+
+    for (Fl_Box* label : m_voltage_per_division_labels[chan])
+    {
+      if (label != nullptr)
+      {
+        label->labelcolor (channel_color);
+      }
+    }
+  }
+
+  for (unsigned chan = 0; chan < m_channel_selectors.size (); chan++)
+  {
+    if (m_channel_selectors[chan] != nullptr)
+    {
+      m_channel_selectors[chan]->color (background);
+      m_channel_selectors[chan]->selection_color (background);
+      m_channel_selectors[chan]->labelcolor (channel_colors[chan]);
+    }
+  }
+
+  redraw ();
 }
 
 void LABSoft_GUI_Oscilloscope_Display::

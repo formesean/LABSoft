@@ -19,6 +19,7 @@ class LABSoft_GUI_Oscilloscope_Internal_Display : public Fl_Widget
   private:
     Fl_Color m_background_color = FL_BLACK;
     Fl_Color m_grid_color       = LABC::OSC_DISPLAY::GRID_COLOR;
+    std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS> m_channel_colors = {};
 
     // Optional overlay channel (for imported data rendered independently)
     std::vector<std::array<int, 2>> m_overlay_points;
@@ -78,6 +79,12 @@ class LABSoft_GUI_Oscilloscope_Internal_Display : public Fl_Widget
     double  column_width            () const;
     void    mark_samples            (bool state);
     void    update_display          ();
+    void    set_theme_colors        (
+              Fl_Color background,
+              Fl_Color grid,
+              const std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>&
+                channel_colors
+            );
 };
 
 #endif

@@ -17,6 +17,11 @@ LABSoft_GUI_Oscilloscope_Internal_Display (int         X,
                                            const char* label)
   : Fl_Widget (X, Y, W, H, label)
 {
+  for (unsigned chan = 0; chan < m_channel_colors.size (); chan++)
+  {
+    m_channel_colors[chan] = LABC::OSC_DISPLAY::CHANNEL_COLORS[chan];
+  }
+
   calc_cached_values ();
 }
 
@@ -173,7 +178,7 @@ draw_grid ()
   }
 
   // 6. Draw border box
-  draw_box (FL_BORDER_FRAME, LABC::OSC_DISPLAY::GRID_COLOR);
+  draw_box (FL_BORDER_FRAME, m_grid_color);
 
   // 7. Reset line color and style
   fl_color      (0);
@@ -191,7 +196,7 @@ draw_channels (const LABSoft_GUI_Oscilloscope_Internal_Display::PixelPoints& pix
     {
       const std::vector<std::array<int, 2>>& pp = pixel_points[chan];
 
-      fl_color (LABC::OSC_DISPLAY::CHANNEL_COLORS[chan]);
+      fl_color (m_channel_colors[chan]);
 
       if (m_mark_samples)
       {
@@ -377,4 +382,17 @@ void LABSoft_GUI_Oscilloscope_Internal_Display::
 update_display ()
 {
   redraw ();
+}
+
+void LABSoft_GUI_Oscilloscope_Internal_Display::
+set_theme_colors (
+  Fl_Color background,
+  Fl_Color grid,
+  const std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>& channel_colors
+)
+{
+  m_background_color = background;
+  m_grid_color = grid;
+  m_channel_colors = channel_colors;
+  redraw();
 }

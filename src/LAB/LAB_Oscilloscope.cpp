@@ -13,6 +13,50 @@
 #include <iostream>
 #include <bitset>
 
+/*
+namespace
+{
+constexpr bool   OSC_USE_DUMMY_SIGNAL            = true;
+constexpr double OSC_DUMMY_CYCLES_PER_FRAME      = 3.0;
+constexpr double OSC_DUMMY_CHANNEL_2_PHASE_SHIFT = 0.35;
+constexpr double OSC_DUMMY_AMPLITUDE_IN_DIVS     = 1.25;
+constexpr double OSC_DUMMY_PI                    = 3.14159265358979323846;
+
+double calc_dummy_oscilloscope_sample (
+  const LAB_Parent_Data_Oscilloscope& parent_data,
+  unsigned                            sample_index,
+  unsigned                            channel
+)
+{
+  double sampling_rate =
+    (parent_data.sampling_rate_raw_buffer > 0.0) ?
+      parent_data.sampling_rate_raw_buffer :
+      parent_data.sampling_rate;
+
+  if (sampling_rate <= 0.0 || parent_data.samples == 0)
+  {
+    return (0.0);
+  }
+
+  double frame_time =
+    static_cast<double>(parent_data.samples) / sampling_rate;
+  double frequency =
+    (frame_time > 0.0) ? (OSC_DUMMY_CYCLES_PER_FRAME / frame_time) : 0.0;
+  double time = static_cast<double>(sample_index) / sampling_rate;
+  double phase =
+    (channel == 1) ? OSC_DUMMY_CHANNEL_2_PHASE_SHIFT : 0.0;
+  double amplitude =
+    parent_data.channel_data[channel].voltage_per_division *
+    OSC_DUMMY_AMPLITUDE_IN_DIVS;
+
+  return (
+    amplitude *
+    std::sin ((2.0 * OSC_DUMMY_PI * frequency * time) + phase)
+  );
+}
+}
+*/
+
 LAB_Oscilloscope::
     LAB_Oscilloscope(LAB &_LAB)
     : LAB_Module(_LAB),
@@ -670,7 +714,7 @@ void LAB_Oscilloscope::
       }
 
       pdata.channel_data[chan].samples[samp] =
-          conv_raw_osc_samp_to_actual_chan_value(pdata.raw_data_buffer[samp], chan);
+        conv_raw_osc_samp_to_actual_chan_value (pdata.raw_data_buffer[samp], chan);
 
       // FOR DEBUG TO GENERATE DUMMY SINE DATA
       // SINE

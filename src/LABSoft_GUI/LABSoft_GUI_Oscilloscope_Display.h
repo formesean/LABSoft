@@ -69,6 +69,19 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
       LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS
     > m_voltage_per_division_units;
 
+    enum class Theme
+    {
+      DARK,
+      LIGHT
+    };
+
+    static Theme s_shared_theme;
+    static std::vector<LABSoft_GUI_Oscilloscope_Display*> s_instances;
+
+    Theme      m_theme = Theme::DARK;
+    Fl_Button* m_theme_toggle = nullptr;
+    Fl_Color   m_background_color = LABC::OSC_DISPLAY::BACKGROUND_COLOR;
+
   private:
     // widget functions
     void draw ();
@@ -82,11 +95,13 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
     void init_child_widgets_voltage_per_division_units  (int X, unsigned chan);
     void init_child_widgets_time_per_division_labels    ();
     void init_child_widgets_channel_selectors           ();
+    void init_child_widgets_theme_toggle                ();
     void init_child_widgets_top_info                    ();
 
     // callbacks
     static void cb_trigger_level_static     (Fl_Widget* w, void* data);
     static void cb_channel_selector_static  (Fl_Widget* w, void* data);
+    static void cb_theme_toggle_static      (Fl_Widget* w, void* data);
 
     // update gui
     void update_gui_top_info                ();
@@ -97,6 +112,10 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
     void update_gui_vertical_offset_slider  ();
     void update_gui_vertical_elements       ();
     void update_gui_horizontal_elements     ();
+    void update_gui_theme                   ();
+    static void apply_shared_theme          (Theme theme);
+    std::array<Fl_Color, LABC::OSC_DISPLAY::NUMBER_OF_CHANNELS>
+      theme_channel_colors                  () const;
 
     // calc
     double calc_row_voltage_per_division  (unsigned channel, unsigned row);
@@ -108,6 +127,7 @@ class LABSoft_GUI_Oscilloscope_Display : public Fl_Group
 
   public:
     LABSoft_GUI_Oscilloscope_Display (int X, int Y, int W, int H, const char* label = 0);
+    ~LABSoft_GUI_Oscilloscope_Display ();
 
     void load_presenter       (const LABSoft_Presenter& presenter);
     void load_pixel_points    (const PixelPoints& pixel_points);
